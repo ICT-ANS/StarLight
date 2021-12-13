@@ -1,5 +1,7 @@
 # StarLight
-![image-20201206193807891](./docs/img/ans.png)
+StarLight is a general framework, which provides various algorithms for Neural Architecture Search (NAS), Model Pruning, and Model Quantization. 
+
+[comment]: <> (![image-20201206193807891]&#40;./docs/img/ans.png&#41;)
 
 -----------
 
