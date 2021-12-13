@@ -1,15 +1,17 @@
 # StarLight
+![lincense](https://img.shields.io/badge/license-MIT-brightgreen)
+![Python](https://img.shields.io/badge/Python-%3E%3D3.6-important)
+![Pytorch](https://img.shields.io/badge/PyTorch-%3E%3D1.0-important)
+![release](https://img.shields.io/badge/release-v1.0-informational)
+![docs](https://img.shields.io/badge/docs-updating-ff69b4)
+
 StarLight is a general framework, which provides various algorithms for Neural Architecture Search (NAS), Model Pruning, and Model Quantization. 
 
 [comment]: <> (![image-20201206193807891]&#40;./docs/img/ans.png&#41;)
 
 -----------
 
-![lincense](https://img.shields.io/badge/license-MIT-brightgreen)
-![Python](https://img.shields.io/badge/Python-%3E%3D3.6-important)
-![Pytorch](https://img.shields.io/badge/PyTorch-%3E%3D1.0-important)
-![release](https://img.shields.io/badge/release-v1.0-informational)
-![docs](https://img.shields.io/badge/docs-updating-ff69b4)
+
 
 ## Capabilities in a glance
 
