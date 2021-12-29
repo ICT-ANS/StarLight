@@ -18,44 +18,44 @@ Pre-trained checkpoints and experimental logs are released [here](https://drive.
 
 To evaluate a pre-trained DU-DARTS model on CIFAR-10, run:
 ```shell
-python evaluate_cifar.py --arch du_darts_c10_s0 --dataset cifar10 --pretrained_ckpt ./pretrained/c10_s0_best_weights.pt
+python main/evaluate_cifar.py --arch du_darts_c10_s0 --dataset cifar10 --pretrained_ckpt ./pretrained/c10_s0_best_weights.pt
 ```
 
 To evaluate a pre-trained DU-DARTS model on CIFAR-100, run:
 ```shell
-python evaluate_cifar.py --arch du_darts_c100_s0 --dataset cifar100 --pretrained_ckpt ./pretrained/c100_s0_best_weights.pt
+python main/evaluate_cifar.py --arch du_darts_c100_s0 --dataset cifar100 --pretrained_ckpt ./pretrained/c100_s0_best_weights.pt
 ```
 
 To evaluate a pre-trained DU-DARTS model on ImageNet, run:
 ```shell
-python evaluate_imagenet.py --arch du_darts_c100_s0 --pretrained_ckpt ./pretrained/c10_imagenet_transfer_best_model.pth
+python main/evaluate_imagenet.py --arch du_darts_c100_s0 --pretrained_ckpt ./pretrained/c10_imagenet_transfer_best_model.pth
 ```
 
 ### Model Search
 To search a DU-DARTS model on CIFAR-10, run:
 ```shell
-python train_search.py  --arch_name du_darts_c10_s0 --layers 8 --loss_type entropy --dataset cifar10
+python main/train_search.py  --arch_name du_darts_c10_s0 --layers 8 --loss_type entropy --dataset cifar10
 ```
 
 To search a DU-DARTS model on CIFAR-100, run:
 ```shell
-python train_search.py  --arch_name du_darts_c100_s0 --layers 5 --loss_type entropy --dataset cifar100
+python main/train_search.py  --arch_name du_darts_c100_s0 --layers 5 --loss_type entropy --dataset cifar100
 ```
 
 ### Model Retraining
 To retrain a DU-DARTS model on CIFAR-10, run:
 ```shell
-python retrain_cifar.py  --arch du_darts_c10_s0 --dataset cifar10 --auxiliary --cutout
+python main/retrain_cifar.py  --arch du_darts_c10_s0 --dataset cifar10 --auxiliary --cutout
 ```
 
 To retrain a DU-DARTS model on CIFAR-100, run:
 ```shell
-python retrain_cifar.py  --arch du_darts_c100_s0 --dataset cifar100 --auxiliary --cutout
+python main/retrain_cifar.py  --arch du_darts_c100_s0 --dataset cifar100 --auxiliary --cutout
 ```
 
 To retrain a DU-DARTS model on ImageNet, run:
 ```shell
-python -u retrain_imagenet.py --arch du_darts_c100_s0 --auxiliary
+python main/retrain_imagenet.py --arch du_darts_c100_s0 --auxiliary
 ```
 
 ## Citation
