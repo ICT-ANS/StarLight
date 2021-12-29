@@ -37,14 +37,14 @@ Search a good arcitecture on ImageNet by using the search space of DARTS(**First
 
 To run the code, you only need one Nvidia 1080ti(11G memory).
 ```
-python train_search.py \\
+python main/train_search.py \\
 ```
 #### Search on ImageNet
 
 Data preparation: 10% and 2.5% images need to be random sampled prior from earch class of trainingset as train and val, respectively. The sampled data is saved into `./imagenet_search`.
 Note that not to use torch.utils.data.sampler.SubsetRandomSampler for data sampling as imagenet is too large.
 ```
-python train_search_imagenet.py \\
+python main/train_search_imagenet.py \\
        --tmp_data_dir /path/to/your/sampled/data \\
        --save log_path \\
 ```
@@ -53,14 +53,14 @@ python train_search_imagenet.py \\
 ##### Here is the evaluation on CIFAR10:
 
 ```
-python train.py \\
+python main/train.py \\
        --auxiliary \\
        --cutout \\
 ```
 
 ##### Here is the evaluation on ImageNet (mobile setting):
 ```
-python train_imagenet.py \\
+python main/train_imagenet.py \\
        --tmp_data_dir /path/to/your/data \\
        --save log_path \\
        --auxiliary \\

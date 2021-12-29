@@ -22,7 +22,7 @@ In the current example, using 64 instead of 96 works -- it is a bit slower but d
 #### Run the following command to perform a search progress on CIFAR10.
 
 ```
-python train_search.py \\
+python main/train_search.py \\
        --tmp_data_dir /path/to/your/data \\
        --save log_path \\
        --add_layers 6 \\
@@ -43,7 +43,7 @@ Our test with a limitation of 12 memory on P100 GPU tooks about 9 hours to finis
 ##### Here is the evaluation on CIFAR10/100:
 
 ```
-python train_cifar.py \\
+python main/train_cifar.py \\
        --tmp_data_dir /path/to/your/data \\
        --auxiliary \\
        --cutout \\
@@ -54,23 +54,12 @@ Add --cifar100 if evaluating on CIFAR100.
 
 ##### Here is the evaluation on ImageNet (mobile setting):
 ```
-python train_imagenet.py \\
+python main/train_imagenet.py \\
        --tmp_data_dir /path/to/your/data \\
        --save log_path \\
        --auxiliary \\
        --note note_of_this_run
 ```
-
-##### Here is the usage:
-```
-python test.py \\
-       --auxiliary \\
-       --model_path /path/to/your/model \\
-       --data /path/to/your/data
-```
-You will get a valid accuracy of 97.58% on CIFAR10.
-
-For ImageNet, replace `test.py` with `test_imagenet.py` and you will get a top-1 valid accuracy of 75.6% and a top-5 valid accuracy of 92.6%.
 
 ## Reference
 
