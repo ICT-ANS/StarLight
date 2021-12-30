@@ -2,6 +2,10 @@ import argparse
 import logging
 import os
 import sys
+sys.path.append('.')
+sys.path.append('../')
+sys.path.append('../../')
+sys.path.append('../../../')
 import time
 
 import numpy as np
@@ -12,13 +16,13 @@ import torch.nn.functional as F
 import torch.utils
 import torchvision.datasets as dset
 
-import algorithms.nas.DARTS.utils as utils
+import algorithms.nas.DARTS.utils.utils as utils
 from algorithms.nas.DARTS.models.architect import Architect
 from algorithms.nas.DARTS.models.model_search import Network
 
 parser = argparse.ArgumentParser("cifar")
-parser.add_argument('--data', type=str, required=True, help='location of the data corpus')
-parser.add_argument('--debug', type=str, required=True, help='debug')
+parser.add_argument('--dataset', type=str, default='./dataset/', help='location of the data corpus')
+parser.add_argument('--debug', action='store_true', default=False, help='debug')
 parser.add_argument('--batch_size', type=int, default=64, help='batch size')
 parser.add_argument('--learning_rate', type=float, default=0.025, help='init learning rate')
 parser.add_argument('--learning_rate_min', type=float, default=0.001, help='min learning rate')
@@ -75,7 +79,7 @@ def main():
         weight_decay=args.weight_decay)
 
     train_transform, valid_transform = utils._data_transforms_cifar10(args)
-    train_data = dset.CIFAR10(root=os.path.join(args.data, 'data', 'cifar10'),
+    train_data = dset.CIFAR10(root=os.path.join(args.dataset, 'cifar10'),
                               train=True, download=True, transform=train_transform)
 
     num_train = len(train_data)

@@ -1,5 +1,10 @@
 import os
 import sys
+sys.path.append('.')
+sys.path.append('../')
+sys.path.append('../../')
+sys.path.append('../../../')
+
 import time
 import glob
 import numpy as np
@@ -10,12 +15,12 @@ import torch.nn as nn
 import torch.utils
 import torchvision.datasets as dset
 import torch.backends.cudnn as cudnn
-import algorithms.nas.DARTS.models.genotypes
+import algorithms.nas.DARTS.models.genotypes as genotypes
 from algorithms.nas.DARTS.utils import utils
 from algorithms.nas.DARTS.models.model import NetworkCIFAR as Network
 
 parser = argparse.ArgumentParser("cifar")
-parser.add_argument('--data', type=str, default='../data', help='location of the data corpus')
+parser.add_argument('--data', type=str, default='dataset/cifar10', help='location of the data corpus')
 parser.add_argument('--batch_size', type=int, default=96, help='batch size')
 parser.add_argument('--learning_rate', type=float, default=0.025, help='init learning rate')
 parser.add_argument('--momentum', type=float, default=0.9, help='momentum')
@@ -36,7 +41,7 @@ parser.add_argument('--seed', type=int, default=0, help='random seed')
 parser.add_argument('--arch', type=str, default='DARTS', help='which architecture to use')
 parser.add_argument('--grad_clip', type=float, default=5, help='gradient clipping')
 args = parser.parse_args()
-
+args.device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
 args.save = 'eval-{}-{}'.format(args.save, time.strftime("%Y%m%d-%H%M%S"))
 utils.create_exp_dir(args.save, scripts_to_save=glob.glob('*.py'))
 
@@ -51,12 +56,10 @@ CIFAR_CLASSES = 10
 
 
 def main():
-    if not torch.cuda.is_available():
-        logging.info('no gpu device available')
-        sys.exit(1)
 
     np.random.seed(args.seed)
-    torch.cuda.set_device(args.gpu)
+    if torch.cuda.is_available():
+        torch.cuda.set_device(args.gpu)
     cudnn.benchmark = True
     torch.manual_seed(args.seed)
     cudnn.enabled = True
@@ -66,12 +69,12 @@ def main():
 
     genotype = eval("genotypes.%s" % args.arch)
     model = Network(args.init_channels, CIFAR_CLASSES, args.layers, args.auxiliary, genotype)
-    model = model.cuda()
+    model = model.to(args.device)
 
     logging.info("param size = %fMB", utils.count_parameters_in_MB(model))
 
     criterion = nn.CrossEntropyLoss()
-    criterion = criterion.cuda()
+    criterion = criterion.to(args.device)
     optimizer = torch.optim.SGD(
         model.parameters(),
         args.learning_rate,
@@ -112,8 +115,8 @@ def train(train_queue, model, criterion, optimizer):
     model.train()
 
     for step, (input, target) in enumerate(train_queue):
-        input = input.cuda()
-        target = target.cuda()
+        input = input.to(args.device)
+        target = target.to(args.device)
 
         optimizer.zero_grad()
         logits, logits_aux = model(input)
@@ -144,8 +147,8 @@ def infer(valid_queue, model, criterion):
     model.eval()
 
     for step, (input, target) in enumerate(valid_queue):
-        input = input.cuda()
-        target = target.cuda()
+        input = input.to(args.device)
+        target = target.to(args.device)
 
         logits, _ = model(input)
         loss = criterion(logits, target)
