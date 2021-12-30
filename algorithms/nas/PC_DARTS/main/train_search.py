@@ -1,5 +1,7 @@
 import os
 import sys
+sys.path.append('../../../')
+
 import time
 import glob
 import numpy as np
@@ -19,7 +21,7 @@ from algorithms.nas.PC_DARTS.models.architect import Architect
 
 
 parser = argparse.ArgumentParser("cifar")
-parser.add_argument('--data', type=str, default='../data', help='location of the data corpus')
+parser.add_argument('--data', type=str, default='../dataset', help='location of the data corpus')
 parser.add_argument('--set', type=str, default='cifar10', help='location of the data corpus')
 parser.add_argument('--batch_size', type=int, default=256, help='batch size')
 parser.add_argument('--learning_rate', type=float, default=0.1, help='init learning rate')
@@ -86,9 +88,9 @@ def main():
 
   train_transform, valid_transform = utils._data_transforms_cifar10(args)
   if args.set=='cifar100':
-      train_data = dset.CIFAR100(root=args.data, train=True, download=True, transform=train_transform)
+      train_data = dset.CIFAR100(root=os.path.join(args.data, args.set), train=True, download=True, transform=train_transform)
   else:
-      train_data = dset.CIFAR10(root=args.data, train=True, download=True, transform=train_transform)
+      train_data = dset.CIFAR10(root=os.path.join(args.data, args.set), train=True, download=True, transform=train_transform)
 
   num_train = len(train_data)
   indices = list(range(num_train))
@@ -140,8 +142,8 @@ def train(train_queue, valid_queue, model, architect, criterion, optimizer, lr,e
   for step, (input, target) in enumerate(train_queue):
     model.train()
     n = input.size(0)
-    input = Variable(input, requires_grad=False).cuda()
-    target = Variable(target, requires_grad=False).cuda(async=True)
+    input = input.cuda()
+    target = target.cuda()
 
     # get a random minibatch from the search queue with replacement
     input_search, target_search = next(iter(valid_queue))
@@ -150,8 +152,8 @@ def train(train_queue, valid_queue, model, architect, criterion, optimizer, lr,e
     #except:
     #  valid_queue_iter = iter(valid_queue)
     #  input_search, target_search = next(valid_queue_iter)
-    input_search = Variable(input_search, requires_grad=False).cuda()
-    target_search = Variable(target_search, requires_grad=False).cuda(async=True)
+    input_search = input_search.cuda()
+    target_search = target_search.cuda()
 
     if epoch>=15:
       architect.step(input, target, input_search, target_search, lr, optimizer, unrolled=args.unrolled)
@@ -184,8 +186,8 @@ def infer(valid_queue, model, criterion):
   for step, (input, target) in enumerate(valid_queue):
     #input = input.cuda()
     #target = target.cuda(non_blocking=True)
-    input = Variable(input, volatile=True).cuda()
-    target = Variable(target, volatile=True).cuda(async=True)
+    input = input.cuda()
+    target = target.cuda()
     logits = model(input)
     loss = criterion(logits, target)
 

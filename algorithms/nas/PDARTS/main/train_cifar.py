@@ -3,6 +3,7 @@ import glob
 import logging
 import os
 import sys
+sys.path.append('../../../')
 import time
 
 import numpy as np
@@ -34,7 +35,7 @@ parser.add_argument('--save', type=str, default='/tmp/checkpoints/', help='exper
 parser.add_argument('--seed', type=int, default=0, help='random seed')
 parser.add_argument('--arch', type=str, default='PDARTS', help='which architecture to use')
 parser.add_argument('--grad_clip', type=float, default=5, help='gradient clipping')
-parser.add_argument('--tmp_data_dir', type=str, default='/tmp/cache/', help='temp data dir')
+parser.add_argument('--tmp_data_dir', type=str, default='../dataset/cifar10/', help='temp data dir')
 parser.add_argument('--note', type=str, default='try', help='note for this run')
 parser.add_argument('--cifar100', action='store_true', default=False, help='if use cifar100')
 
