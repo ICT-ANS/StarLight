@@ -2,6 +2,7 @@ import glob
 import logging
 import os
 import sys
+sys.path.append('../../../')
 import time
 
 import numpy as np

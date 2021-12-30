@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 from torch.autograd import Variable
 
-from operations import *
+from algorithms.nas.DU_DARTS.models.operations import *
 from algorithms.nas.DU_DARTS.utils.utils import drop_path
 
 

@@ -4,6 +4,7 @@ import warnings
 
 sys.path.append('.')
 sys.path.append('..')
+sys.path.append('../../../')
 warnings.filterwarnings('ignore')
 
 import numpy as np
