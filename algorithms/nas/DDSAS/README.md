@@ -5,13 +5,22 @@
 * PyTorch 1.4.0
 
 
-## Usage
-
-### Model Search
-To search a DDSAS model on CIFAR10, run:
-```shell
-bash run/run_ddsas_online.sh
+## Dataset
+Prepare dataset firstly, and the path are 
 ```
+'./StarLight/data/Cifar10'
+```
+
+## Neural Architecture Search
+```
+cd StarLight/algorithms
+bash nas/DDSAS/run/run_ddsas_online.sh
+```
+
+## Result
+|        | Top1  | Params/M |
+| :----: | :----:| :----: |
+| 论文结果 | 2.59 &plusmn; 0.17 | 3.5 |
 
 ## Citation
 Please cite our paper if you find anything helpful.

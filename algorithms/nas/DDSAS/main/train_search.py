@@ -1,6 +1,9 @@
+import sys
+sys.path.append(os.path.dirname(__file__)+ os.sep + '../')
+print(sys.path)
+
 import torch
 import os
-import sys
 import time
 import glob
 import numpy as np
@@ -14,9 +17,9 @@ import torchvision.datasets as dset
 import torch.backends.cudnn as cudnn
 
 from torch.autograd import Variable
-from ..models.model_search import Network
-from ..models.architect import Architect
-from ..models.genotypes import init_space
+from models.model_search import Network
+from models.architect import Architect
+from models.genotypes import init_space
 
 import warnings
 warnings.filterwarnings("ignore")
