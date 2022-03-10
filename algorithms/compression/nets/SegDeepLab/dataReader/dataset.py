@@ -6,7 +6,7 @@ import glob
 import os
 import cv2
 import sys
-sys.path.append('.')
+sys.path.append('')
 
 
 class Reader(udata.Dataset):

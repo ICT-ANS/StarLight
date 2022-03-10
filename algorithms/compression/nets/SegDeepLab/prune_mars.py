@@ -1,9 +1,9 @@
 import sys
 
-sys.path.append('.')
-sys.path.append('../')
+sys.path.append('')
 sys.path.append('../../')
 sys.path.append('../../../')
+sys.path.append('../../../../')
 
 import torch.nn as nn
 import torchvision.models as models
