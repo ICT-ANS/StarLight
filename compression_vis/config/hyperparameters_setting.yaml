@@ -1,0 +1,15 @@
+default_setting:
+  TinyImageNet,ResNet50:
+    ft_lr: 0.001
+    ft_bs: 128
+    ft_epochs: 10
+    prune_sparisity: 0.2
+    gpus: "0"
+  
+  TinyImageNet,ResNet101:
+    ft_lr: 0.001
+    ft_bs: 128
+    ft_epochs: 10
+    prune_sparisity: 0.2
+    gpus: "0"
+

@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>第一个 ECharts 实例</title>
+    <!-- 引入 echarts.js 以下两种方式都可以 -->
+    <script src="echarts.min.js"></script>
+    <!-- <script src="https://cdn.staticfile.org/echarts/4.3.0/echarts.min.js"></script> -->
+</head>
+
+<body>
+    <!-- 为ECharts准备一个具备大小（宽高）的Dom -->
+    <div id="main" style="width:600px;height:400px;"></div>
+    <script type="text/javascript">
+
+        var myChart;
+        var legend_names = []
+        var init = false
+        // 指定图表的配置项和数据
+        var option = {
+            title: {
+                //left的值为'left', 'center', 'right'
+                left: 'center',
+                text: '',
+                // bottom: 0,
+                // right: '50%',
+                // width: 100,
+                textStyle: {
+                    //文字颜色
+                    // color:'#ccc',
+                    //字体风格,'normal','italic','oblique'
+                    fontStyle: 'normal',
+                    //字体粗细 'normal','bold','bolder','lighter',100 | 200 | 300 | 400...
+                    fontWeight: 'normal',
+                    //字体系列
+                    // fontFamily:'sans-serif',
+                    //字体大小
+                    fontSize: 15
+                }
+            },
+            tooltip: {
+                trigger: 'item'
+            },
+            legend: {
+                bottom: 0
+            },
+            series: []
+        };
+
+        function update(keys, values, colors) {
+            try {
+                option['series'][0]['data'] = []
+                legend_names = []
+                for (var i = 0; i < keys.length; i++) {
+                    // legend_names.push(keys[i])
+                    option['series'][0]['data'].push({
+                        name: keys[i],
+                        value: values[i],
+                        itemStyle: {
+                            normal: {
+                                color: colors[i]
+                            }
+                        }
+                    })
+                }
+                myChart.setOption(option);
+            }
+            catch (err) {
+                // window.alert(err)
+            }
+        };
+
+        function clearData() {
+            try {
+                option['series'][0]['data'] = []
+                legend_names = []
+                myChart.clear()
+                myChart.setOption(option);
+            }
+            catch (err) {
+                // window.alert(err)
+            }
+        };
+
+        function destroy(){
+            try{
+                clearData()
+                if (typeof (myChart) != "undefined") { //清除旧实例
+                    myChart.clear();
+                    myChart.dispose();
+                }     
+            }
+            catch(err){
+                // window.alert(err)
+            }         
+        };          
+
+        function setTitle(title) {
+            option.title.text = title
+            if (typeof (myChart) != "undefined") {
+                myChart.setOption(option)
+            }
+        };
+
+        function build(width, height) {
+            document.getElementById('main').style.height = height + 'px';
+            document.getElementById('main').style.width = width + 'px';
+
+            if (typeof (myChart) != "undefined") { //清除旧实例
+                myChart.clear();
+                myChart.dispose();
+            }
+            // init Echarts
+            myChart = echarts.init(document.getElementById('main'));
+
+            if (!init) { //In init status, create data
+                // window.alert(legend+ legend.length)  
+                init = true
+                // option['legend']['data'].push(legend[0])
+                // window.alert(option['legend']['data']+ option['legend']['data'].length) 
+                option['series'].push({
+                    // name: option['legend']['data'][0],
+                    name: '',
+                    type: 'pie',
+                    radius: '50%',
+                    // color: pie_colors[(color_id+i)%pie_colors.length],
+                    data: [],
+                    emphasis: {
+                        itemStyle: {
+                            shadowBlur: 10,
+                            shadowOffsetX: 0,
+                            shadowColor: 'rgba(0, 0, 0, 0.5)'
+                        }
+                    }
+                })
+            }
+            myChart.setOption(option);
+        }
+    </script>
+</body>
+
+</html>

@@ -19,6 +19,8 @@ from lib.compression.pytorch.utils.counter import count_flops_params
 from lib.compression.pytorch import ModelSpeedup
 from lib.algorithms.pytorch.pruning import (TaylorFOWeightFilterPruner, FPGMPruner, AGPPruner)
 
+import yaml
+
 parser = argparse.ArgumentParser(description='Propert ResNets for CIFAR10 in pytorch')
 parser.add_argument('--data', default='./data/tiny-imagenet-200', type=str, help='dataset path')
 parser.add_argument('--model', default='resnet50', type=str, help='model name')
@@ -44,6 +46,9 @@ parser.add_argument('--seed', type=int, default=2, help='random seed')
 
 parser.add_argument('--baseline', action='store_true', default=False, help='evaluate model on validation set')
 parser.add_argument('--prune_eval_path', default='', type=str, metavar='PATH', help='path to eval pruned model')
+
+parser.add_argument('--write_yaml', action='store_true', default=False, help='write yaml file')
+parser.add_argument('--no_write_yaml_after_prune', action='store_true', default=False, help='')
 
 args = parser.parse_args()
 best_prec1 = 0
@@ -83,6 +88,8 @@ def main():
         else:
             logging.info("=> no checkpoint found at '{}'".format(args.resume))
 
+    # torch.save(model, '/home/user/yanglongxing/StarLight/data/compression/model_vis/TinyImageNet-ResNet101/model.pth')
+
     train_loader, val_loader = get_data_loader(args)
 
     # define loss function (criterion) and optimizer
@@ -95,6 +102,20 @@ def main():
         flops, params, _ = count_flops_params(model, (1, 3, 64, 64), verbose=False)
         loss, top1, pre_time, infer_time, post_time = validate(model, val_loader, criterion)
         logging.info("Baseline: [Top1: {:.2f}%][FLops: {:.5f}M][Params: {:.5f}M][Infer: {:.2f}ms]\n".format(top1, flops / 1e6, params / 1e6, infer_time * 1000))
+
+    if args.write_yaml:
+        flops, params, _ = count_flops_params(model, (1, 3, 64, 64), verbose=False)
+        _, top1, _, infer_time, _ = validate(model, val_loader, criterion)
+        storage = os.path.getsize(args.resume)
+        with open(os.path.join(args.save_dir, 'logs.yaml'), 'w') as f:
+            yaml_data = {
+                'Accuracy': {'baseline': round(top1, 2), 'method': None},
+                'FLOPs': {'baseline': round(flops/1e6, 2), 'method': None},
+                'Parameters': {'baseline': round(params/1e6, 2), 'method': None},
+                'Infer_times': {'baseline': round(infer_time*1e3, 2), 'method': None},
+                'Storage': {'baseline': round(storage/1e6, 2), 'method': None},
+            }
+            yaml.dump(yaml_data, f)
 
     # only eval pruned model
     if args.prune_eval_path:
@@ -184,6 +205,26 @@ def main():
                 'state_dict': export_pruned_model.state_dict(),
                 'prec1': top1,
             }, filename=os.path.join(args.save_dir, 'model_speed_up_finetuned.pth'))
+
+        if epoch == args.finetune_epochs - 1:
+            if args.write_yaml and not args.no_write_yaml_after_prune:
+                storage = os.path.getsize(os.path.join(args.save_dir, 'model_speed_up_finetuned.pth'))
+                with open(os.path.join(args.save_dir, 'logs.yaml'), 'w') as f:
+                    yaml_data = {
+                        'Accuracy': {'baseline': yaml_data['Accuracy']['baseline'], 'method': round(top1, 2)},
+                        'FLOPs': {'baseline': yaml_data['FLOPs']['baseline'], 'method': round(flops/1e6, 2)},
+                        'Parameters': {'baseline': yaml_data['Parameters']['baseline'], 'method': round(params/1e6, 2)},
+                        'Infer_times': {'baseline': yaml_data['Infer_times']['baseline'], 'method': round(infer_time*1e3, 2)},
+                        'Storage': {'baseline': yaml_data['Storage']['baseline'], 'method': round(storage/1e6, 2)},
+                        'Output_file': os.path.join(args.save_dir, 'model_speed_up_finetuned.pth'),
+                    }
+                    yaml.dump(yaml_data, f)
+                torch.save(export_pruned_model, \
+                    os.path.join(
+                        args.save_dir, \
+                        '../../..', \
+                        'model_vis/TinyImageNet-{}'.format(args.model), \
+                        'online-{}.pth'.format(args.pruner)))
 
 
 def train(epoch, model, train_loader, criterion, optimizer, args):
@@ -277,9 +318,9 @@ def validate(model, val_loader, criterion):
 
 
 def get_model(model_name):
-    if model_name == 'resnet50':
+    if model_name.lower() == 'resnet50':
         model = models.resnet50()
-    elif model_name == 'resnet101':
+    elif model_name.lower() == 'resnet101':
         model = models.resnet101()
     else:
         raise NotImplementedError('Not Support {}'.format(model_name))

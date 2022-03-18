@@ -18,6 +18,8 @@ from lib.compression.pytorch import ModelSpeedup
 from lib.compression.pytorch.utils.counter import count_flops_params
 from lib.compression.pytorch.quantization_speedup import ModelSpeedupTensorRT
 
+import yaml
+
 parser = argparse.ArgumentParser(description='Propert ResNets for CIFAR10 in pytorch')
 parser.add_argument('--data', default='./data/tiny-imagenet-200', type=str, help='dataset path')
 parser.add_argument('--model', default='resnet50', type=str, help='model name')
@@ -36,6 +38,8 @@ parser.add_argument('--pruner', default='agp', type=str, help='pruner: agp|taylo
 
 parser.add_argument('--quan_mode', default='int8', help='fp16 int8 best', type=str)
 parser.add_argument('--calib_num', type=int, default=1280, help='random seed')
+
+parser.add_argument('--write_yaml', action='store_true', default=False, help='write yaml filt')
 
 args = parser.parse_args()
 best_prec1 = 0
@@ -76,6 +80,21 @@ def main():
             logging.info("=> no checkpoint found at '{}'".format(args.resume))
 
     train_loader, val_loader, calib_loader = get_data_loader(args)
+    criterion = nn.CrossEntropyLoss().cuda()
+
+    if args.write_yaml:
+        flops, params, _ = count_flops_params(model, (1, 3, 64, 64), verbose=False)
+        _, top1, _, infer_time, _ = validate(model, val_loader, criterion, is_trt=False)
+        storage = os.path.getsize(args.resume)
+        with open(os.path.join(args.save_dir, 'logs.yaml'), 'w') as f:
+            yaml_data = {
+                'Accuracy': {'baseline': round(top1, 2), 'method': None},
+                'FLOPs': {'baseline': round(flops/1e6, 2), 'method': None},
+                'Parameters': {'baseline': round(params/1e6, 2), 'method': None},
+                'Infer_times': {'baseline': round(infer_time*1e3, 2), 'method': None},
+                'Storage': {'baseline': round(storage/1e6, 2), 'method': None},
+            }
+            yaml.dump(yaml_data, f)
 
     # load pruned model
     if args.prune_eval_path:
@@ -91,14 +110,13 @@ def main():
             logging.info("=> no pruned model found at '{}'".format(args.prune_eval_path))
 
     # define loss function (criterion) and optimizer
-    criterion = nn.CrossEntropyLoss().cuda()
 
     flops, params, _ = count_flops_params(model, (1, 3, 64, 64), verbose=False)
     if args.baseline:
         logging.info("Baseline: ")
         loss, top1, pre_time, infer_time, post_time = validate(model, val_loader, criterion, is_trt=False)
         logging.info("Baseline: [Top1: {:.2f}%][FLops: {:.5f}M][Params: {:.5f}M][Infer: {:.2f}ms]\n".format(top1, flops / 1e6, params / 1e6, infer_time * 1000))
-
+    
     input_shape = (args.batch_size, 3, 64, 64)
 
     onnx_path = os.path.join(args.save_dir, '{}_{}.onnx'.format(args.model, args.quan_mode))
@@ -132,6 +150,19 @@ def main():
 
     loss, top1, pre_time, infer_time, post_time = validate(engine, val_loader, criterion)
     logging.info("Quan model: [Top1: {:.2f}%][FLops: {:.5f}M][Params: {:.5f}M][Infer: {:.2f}ms]\n".format(top1, flops / 1e6, params / 1e6, infer_time * 1000))
+
+    if args.write_yaml:
+        storage = os.path.getsize(trt_path)
+        with open(os.path.join(args.save_dir, 'logs.yaml'), 'w') as f:
+            yaml_data = {
+                'Accuracy': {'baseline': yaml_data['Accuracy']['baseline'], 'method': round(top1, 2)},
+                'FLOPs': {'baseline': yaml_data['FLOPs']['baseline'], 'method': round(flops/1e6, 2)},
+                'Parameters': {'baseline': yaml_data['Parameters']['baseline'], 'method': round(params/1e6, 2)},
+                'Infer_times': {'baseline': yaml_data['Infer_times']['baseline'], 'method': round(infer_time*1e3, 2)},
+                'Storage': {'baseline': yaml_data['Storage']['baseline'], 'method': round(storage/1e6, 2)},
+                'Output_file': os.path.join(args.save_dir, '{}_{}.trt'.format(args.model, args.quan_mode)),
+            }
+            yaml.dump(yaml_data, f)
 
 
 def validate(model, val_loader, criterion, is_trt=True):
@@ -185,9 +216,9 @@ def validate(model, val_loader, criterion, is_trt=True):
 
 
 def get_model(model_name):
-    if model_name == 'resnet50':
+    if model_name.lower() == 'resnet50':
         model = models.resnet50()
-    elif model_name == 'resnet101':
+    elif model_name.lower() == 'resnet101':
         model = models.resnet101()
     else:
         raise NotImplementedError('Not Support {}'.format(model_name))

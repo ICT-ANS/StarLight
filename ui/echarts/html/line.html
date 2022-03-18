@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>第一个 ECharts 实例</title>
+    <!-- 引入 echarts.js 以下两种方式都可以 -->
+    <script src="echarts.min.js"></script>
+    <!-- <script src="https://cdn.staticfile.org/echarts/4.3.0/echarts.min.js"></script> -->
+</head>
+
+<body>
+    <!-- 为ECharts准备一个具备大小（宽高）的Dom -->
+    <div id="main" style="width:600px;height:400px;"></div>
+    <script type="text/javascript">
+
+        var myChart;
+
+        var legend_names = []
+
+        var option = {}
+        var max_data_num = 500
+
+        // 指定图表的配置项和数据
+        option = {
+            title: {
+                //left的值为'left', 'center', 'right'
+                left: 'center',
+                text: '',
+                // bottom: 0,
+                // right: '50%',
+                // width: 100,
+                textStyle: {
+                    //文字颜色
+                    // color:'#ccc',
+                    //字体风格,'normal','italic','oblique'
+                    fontStyle: 'normal',
+                    //字体粗细 'normal','bold','bolder','lighter',100 | 200 | 300 | 400...
+                    fontWeight: 'normal',
+                    //字体系列
+                    // fontFamily:'sans-serif',
+                    //字体大小
+                    fontSize: 15
+                }
+            },
+            tooltip: {
+                trigger: 'axis'
+            },
+            legend: {
+                data: legend_names,
+                bottom: 0,
+                // left: 'left',
+                // orient: 'vertical',
+                show: true
+            },
+            xAxis: {
+                axisTick: { show: false },
+                data: []
+
+            },
+            yAxis: {
+                type: 'value'
+            },
+            series: []
+        };
+
+        function setTitle(title) {
+            option.title.text = title
+            if (typeof (myChart) != "undefined") {
+                myChart.setOption(option)
+            }
+        };
+
+        function update(x_dat, y_dat) {
+            try {
+                if (option['legend']['data'].length != y_dat.length) {
+                    // window.alert(option['legend']['data'] + " data dimension error " +y_dat)
+                    return
+                }
+
+                option['xAxis']['data'].push(x_dat)
+                for (var i = 0; i < y_dat.length; i++) {
+                    option['series'][i]['data'].push(y_dat[i])
+                }
+
+                for (var i = 0; i < option['series'].length; i++) {
+                    if (option['series'][i]['data'].length > max_data_num) {
+                        option['series'][i]['data'].shift();
+                    }
+                }
+                if (option['xAxis']['data'].length > max_data_num) {
+                    option['xAxis']['data'].shift();
+                }
+                // update once
+                myChart.setOption(option);
+            }
+            catch (err) {
+                //do nothing
+                // window.alert(err)
+            }
+        }
+
+        function clearData() {
+            try {
+                for (var i = 0; i < option['series'].length; i++) {
+                    option['series'][i]['data'] = []
+                }
+                option['xAxis']['data'] = []
+                // update once
+                myChart.clear()
+                myChart.setOption(option);
+            }
+            catch (err) {
+                //do nothing
+                // window.alert(err)
+            }
+        }
+
+        function destroy(){
+            try{
+                clearData()
+                if (typeof (myChart) != "undefined") { //清除旧实例
+                    myChart.clear();
+                    myChart.dispose();
+                }     
+            }
+            catch(err){
+                // window.alert(err)
+            }         
+        };          
+
+        function build(width, height, legends, colors, symbols) {
+
+            document.getElementById('main').style.height = height + 'px';
+            document.getElementById('main').style.width = width + 'px';
+
+            if (typeof (myChart) != "undefined") { //清除旧实例
+                myChart.clear();
+                myChart.dispose();
+            }
+            // init Echarts
+            myChart = echarts.init(document.getElementById('main'));
+
+            if (legend_names.length == 0) { //In init status, create data
+                for (var i = 0; i < legends.length; i++) {
+                    legend_names.push(legends[i])
+                    option['series'].push({
+                        name: legends[i],
+                        type: 'line',
+                        color: colors[i],
+                        symbol: symbols[i],
+                        data: []
+                    })
+                }
+            }
+            myChart.setOption(option);
+        }
+    </script>
+</body>
+
+</html>

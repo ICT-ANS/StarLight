@@ -1,0 +1,70 @@
+default:
+  dataset,model: 'null,null'
+  is_online: False
+  is_offline: False
+  prune_method: 'null'
+  quan_method: 'null'
+
+dataset,model:
+  - 'null,null'
+  - TinyImageNet,ResNet50
+  - TinyImageNet,ResNet101
+
+prune_method:
+  - 'null'
+  - fpgm
+  - agp
+
+quan_method:
+  - 'null'
+  - fp16
+  - int8
+
+support_combinations:
+  TinyImageNet,ResNet50:
+    - fpgm,null
+    - agp,null
+    - null,fp16
+    - null,int8
+    - fpgm,fp16
+    - fpgm,int8
+  TinyImageNet,ResNet101:
+    - fpgm,null
+    - agp,null
+    - null,fp16
+    - null,int8
+    - fpgm,fp16
+    - fpgm,int8
+
+origin_performance:
+  TinyImageNet,ResNet50:
+    Accuracy: 61.80 %
+    FLOPs: 334.05 M
+    Parameters: 23.86 M
+  TinyImageNet,ResNet101:
+    Accuracy: 61.90 %
+    FLOPs: 637.09 M
+    Parameters: 42.80 M
+
+figures:
+  TinyImageNet,ResNet50:
+    # top_center, top_right, down_left, down_center, down_right
+    var_names: [Accuracy, FLOPs, Infer_times, Parameters, Storage] # 输出文件logs.yaml中的变量名字
+    titles: ['Accuracy对比', 'FLOPs对比', 'Infer_time对比', 'Parameters对比', 'Storage对比']
+    baseline_legends: ['baseline accuracy/%', 'baseline FLOPs/M', 'baseline infer_time/ms', 'baseline parameters/M', 'baseline storage/MB']
+    method_legends: ['method accuracy/%', 'method FLOPs/M', 'method infer_time/ms', 'method parameters/M', 'method storage/MB']
+    baseline_colors: ['#FB3207', '#FB3207', '#FB3207', '#FB3207', '#FB3207']
+    method_colors: ['#0780FB', '#0780FB', '#0780FB', '#0780FB', '#0780FB']
+  TinyImageNet,ResNet101:
+    # top_center, top_right, down_left, down_center, down_right
+    var_names: [Accuracy, FLOPs, Infer_times, Parameters, Storage] # 输出文件logs.yaml中的变量名字
+    titles: ['Accuracy对比', 'FLOPs对比', 'Infer_time对比', 'Parameters对比', 'Storage对比']
+    baseline_legends: ['baseline accuracy/%', 'baseline FLOPs/M', 'baseline infer_time/ms', 'baseline parameters/M', 'baseline storage/MB']
+    method_legends: ['method accuracy/%', 'method FLOPs/M', 'method infer_time/ms', 'method parameters/M', 'method storage/MB']
+    baseline_colors: ['#FB3207', '#FB3207', '#FB3207', '#FB3207', '#FB3207']
+    method_colors: ['#0780FB', '#0780FB', '#0780FB', '#0780FB', '#0780FB']
+
+
+shell_path:
+  TinyImageNet,ResNet50: algorithms/compression/nets/ResNet50/shell/compress.sh
+  TinyImageNet,ResNet101: algorithms/compression/nets/ResNet50/shell/compress.sh
