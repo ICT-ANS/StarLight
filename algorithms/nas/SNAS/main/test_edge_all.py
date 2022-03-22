@@ -5,19 +5,20 @@ from datetime import datetime
 import glob
 import numpy as np
 import torch
-import utils
 import logging
 import argparse
 import torch.nn as nn
-import nas.classification_sampled.models.snas.genotypes as genotypes
 import torch.utils
 import torchvision.datasets as dset
 import torch.backends.cudnn as cudnn
-
 from torch.autograd import Variable
-from nas.classification_sampled.models.snas.model_edge_all import NetworkCIFAR as Network
 
-import tensorboardX
+sys.path.append(os.path.dirname(__file__)+ os.sep + '../')
+from utils import utils
+import models.genotypes as genotypes
+from models.model_edge_all import NetworkCIFAR as Network
+import random
+from thop import profile, clever_format
 
 parser = argparse.ArgumentParser("cifar")
 parser.add_argument('--data', type=str, default='../data', help='location of the data corpus')
@@ -33,49 +34,48 @@ parser.add_argument('--layers', type=int, default=20, help='total number of laye
 parser.add_argument('--model_path', type=str, default='saved_models', help='path to save the model')
 parser.add_argument('--auxiliary', action='store_true', default=False, help='use auxiliary tower')
 parser.add_argument('--auxiliary_weight', type=float, default=0.4, help='weight for auxiliary loss')
-parser.add_argument('--cutout', action='store_true', default=False, help='use cutout')
+parser.add_argument('--cutout', action='store_true', default=True, help='use cutout')
 parser.add_argument('--cutout_length', type=int, default=16, help='cutout length')
 parser.add_argument('--drop_path_prob', type=float, default=0.2, help='drop path probability')
 parser.add_argument('--save', type=str, default='EXP', help='experiment name')
 parser.add_argument('--seed', type=int, default=0, help='random seed')
-parser.add_argument('--arch', type=str, default='SNAS_edge_all', help='which architecture to use')
+parser.add_argument('--arch', type=str, default='My_SNAS', help='which architecture to use')
 parser.add_argument('--grad_clip', type=float, default=5, help='gradient clipping')
 args = parser.parse_args()
-print(args.arch)
-args.save = 'eval-{}-{}-{}'.format(args.save, time.strftime("%Y%m%d-%H%M%S"), args.arch)
-generate_date = str(datetime.now().date())
-utils.create_exp_dir(generate_date,args.save, scripts_to_save=glob.glob('*.py'))
 
 log_format = '%(asctime)s %(message)s'
 logging.basicConfig(stream=sys.stdout, level=logging.INFO,
                     format=log_format, datefmt='%m/%d %I:%M:%S %p')
-fh = logging.FileHandler(os.path.join(args.save, 'log.txt'))
-fh.setFormatter(logging.Formatter(log_format))
-logging.getLogger().addHandler(fh)
 
 CIFAR_CLASSES = 10
-
-logger = tensorboardX.SummaryWriter('./runs/eval_{}'.format(args.arch))
-
 
 def main():
     if not torch.cuda.is_available():
         logging.info('no gpu device available')
         sys.exit(1)
 
+    random.seed(args.seed)
     np.random.seed(args.seed)
-    torch.cuda.set_device(args.gpu)
-    cudnn.benchmark = True
     torch.manual_seed(args.seed)
-    cudnn.enabled = True
+    os.environ['PYTHONHASSEED'] = str(args.seed)
+    cudnn.enabled=True
+    cudnn.benchmark = False
     torch.cuda.manual_seed(args.seed)
-    logging.info('gpu device = %d' % args.gpu)
-    logging.info("args = %s", args)
+    torch.cuda.manual_seed_all(args.seed)
+    torch.backends.cudnn.deterministic = True
 
     genotype = eval("genotypes.%s" % args.arch)
     model = Network(args.init_channels, CIFAR_CLASSES, args.layers, args.auxiliary, genotype)
     model = model.cuda()
     utils.load(model, args.model_path)
+
+    model.drop_path_prob = args.drop_path_prob
+
+    #统计参数量和计算量
+    input = torch.randn(1, 3, 32, 32).cuda()
+    flops, params = profile(model, inputs=(input,))
+    flops, params = clever_format([flops, params], "%.3f")
+    logging.info("flops = {}, params = {}".format(flops, params))
 
     logging.info("param size = %fMB", utils.count_parameters_in_MB(model))
 
@@ -92,7 +92,7 @@ def main():
     valid_queue = torch.utils.data.DataLoader(
         valid_data, batch_size=args.batch_size, shuffle=False, pin_memory=True, num_workers=2)
 
-    model.drop_path_prob = args.drop_path_prob
+
     valid_acc, valid_obj = infer(valid_queue, model, criterion)
     logging.info('valid_acc %f', valid_acc)
 

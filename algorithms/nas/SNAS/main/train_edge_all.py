@@ -5,19 +5,20 @@ from datetime import datetime
 import glob
 import numpy as np
 import torch
-import nas.classification_sampled.models.snas.utils as utils
+sys.path.append(os.path.dirname(__file__)+ os.sep + '../')
+from utils import utils
 import logging
 import argparse
 import torch.nn as nn
-import nas.classification_sampled.models.snas.genotypes as genotypes
+import models.genotypes as genotypes
 import torch.utils
 import torchvision.datasets as dset
 import torch.backends.cudnn as cudnn
+import random
 
 from torch.autograd import Variable
-from nas.classification_sampled.models.snas.model_edge_all import NetworkCIFAR as Network
+from models.model_edge_all import NetworkCIFAR as Network
 
-import tensorboardX
 
 parser = argparse.ArgumentParser("cifar")
 parser.add_argument('--data', type=str, default='../data', help='location of the data corpus')
@@ -38,21 +39,23 @@ parser.add_argument('--cutout_length', type=int, default=16, help='cutout length
 parser.add_argument('--drop_path_prob', type=float, default=0.2, help='drop path probability')
 parser.add_argument('--save', type=str, default='EXP', help='experiment name')
 parser.add_argument('--seed', type=int, default=0, help='random seed')
-parser.add_argument('--arch', type=str, default='SNAS_mine', help='which architecture to use')
+parser.add_argument('--arch', type=str, default='My_SNAS', help='which architecture to use')
 parser.add_argument('--grad_clip', type=float, default=5, help='gradient clipping')
 args = parser.parse_args()
 print(args.arch)
-args.save = 'eval-{}-{}-{}'.format(args.save, time.strftime("%Y%m%d-%H%M%S"), args.arch)
-generate_date = str(datetime.now().date())
-#utils.create_exp_dir(generate_date,args.save, scripts_to_save=glob.glob('*.py'))
-#utils.create_exp_dir(args.save)
+
+# args.save = 'eval-{}-{}'.format(args.save, time.strftime("%Y%m%d-%H%M%S"))
+# generate_date = str(datetime.now().date())
+# utils.create_exp_dir(generate_date , args.save, scripts_to_save=glob.glob('*.py'))
+args.save = 'nas_output/SNAS/eval2'
+utils.create_exp_dir(args.save)
 
 log_format = '%(asctime)s %(message)s'
 logging.basicConfig(stream=sys.stdout, level=logging.INFO,
                     format=log_format, datefmt='%m/%d %I:%M:%S %p')
-#fh = logging.FileHandler(os.path.join(args.save, 'log.txt'))
-#fh.setFormatter(logging.Formatter(log_format))
-#logging.getLogger().addHandler(fh)
+fh = logging.FileHandler(os.path.join(args.save, 'snas_cifar10_eval_{}.log'.format(args.seed)))
+fh.setFormatter(logging.Formatter(log_format))
+logging.getLogger().addHandler(fh)
 
 CIFAR_CLASSES = 10
 
@@ -70,14 +73,15 @@ def main():
         logging.info('no gpu device available')
         sys.exit(1)
 
+    random.seed(args.seed)
     np.random.seed(args.seed)
-    torch.cuda.set_device(args.gpu)
-    cudnn.benchmark = True
     torch.manual_seed(args.seed)
-    cudnn.enabled = True
+    os.environ['PYTHONHASSEED'] = str(args.seed)
+    cudnn.enabled=True
+    cudnn.benchmark = False
     torch.cuda.manual_seed(args.seed)
-    logging.info('gpu device = %d' % args.gpu)
-    logging.info("args = %s", args)
+    torch.cuda.manual_seed_all(args.seed)
+    torch.backends.cudnn.deterministic = True
 
     genotype = eval("genotypes.%s" % args.arch)
     model = Network(args.init_channels, CIFAR_CLASSES, args.layers, args.auxiliary, genotype)
@@ -106,6 +110,7 @@ def main():
 
     scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, float(args.epochs))
 
+    best_valid_acc = 0.0
     for epoch in range(args.epochs):
         scheduler.step()
         logging.info('epoch %d lr %e', epoch, scheduler.get_lr()[0])
@@ -113,11 +118,16 @@ def main():
 
         train_acc, train_obj = train(train_queue, model, criterion, optimizer, epoch)
         logging.info('train_acc %f', train_acc)
-        logger.add_scalar("epoch_train_acc", train_acc, epoch)
+        # logger.add_scalar("epoch_train_acc", train_acc, epoch)
 
         valid_acc, valid_obj = infer(valid_queue, model, criterion)
         logging.info('valid_acc %f', valid_acc)
-        logger.add_scalar("epoch_valid_acc", valid_acc, epoch)
+        # logger.add_scalar("epoch_valid_acc", valid_acc, epoch)
+        
+        if valid_acc > best_valid_acc:
+            best_valid_acc = valid_acc
+            utils.save(model, os.path.join(args.save, 'best_weights.pt'))
+        logging.info('best_valid_acc %f', best_valid_acc)
 
         utils.save(model, os.path.join(args.save, 'weights.pt'))
 
@@ -152,7 +162,7 @@ def train(train_queue, model, criterion, optimizer, epoch):
 
         if step % args.report_freq == 0:
             logging.info('train %03d %e %f %f', step, objs.avg, top1.avg, top5.avg)
-            logger.add_scalar("iter_train_loss", objs.avg, step + len(train_queue.dataset) * epoch)
+            # logger.add_scalar("iter_train_loss", objs.avg, step + len(train_queue.dataset) * epoch)
 
     return top1.avg, objs.avg
 

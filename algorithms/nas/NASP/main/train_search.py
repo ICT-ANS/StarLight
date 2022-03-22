@@ -21,6 +21,7 @@ from models.model_search import Network
 from models.architect import Architect
 # from tensorboard_logger import configure, log_value
 import pdb
+import random
 
 # from nas.classification_sampled.config import C
 # data_dir=os.path.join(C.cache_dir, 'data')
@@ -43,7 +44,7 @@ parser.add_argument('--cutout', action='store_true', default=False, help='use cu
 parser.add_argument('--cutout_length', type=int, default=16, help='cutout length')
 parser.add_argument('--drop_path_prob', type=float, default=0.3, help='drop path probability')
 parser.add_argument('--save', type=str, default='EXP', help='experiment name')
-parser.add_argument('--seed', type=int, default=2, help='random seed')
+parser.add_argument('--seed', type=int, default=3, help='random seed')
 parser.add_argument('--grad_clip', type=float, default=5, help='gradient clipping')
 parser.add_argument('--train_portion', type=float, default=0.5, help='portion of training data')
 parser.add_argument('--arch_learning_rate', type=float, default=3e-4, help='learning rate for arch encoding')
@@ -55,7 +56,7 @@ parser.add_argument('--l2', type=float, default=0, help='additional l2 regulariz
 args = parser.parse_args()
 
 #args.save = 'search-{}-{}'.format(args.save, time.strftime("%Y%m%d-%H%M%S"))
-args.save = 'search_output'
+args.save = 'nas_output/NASP/search_3'
 if args.debug:
   args.save += "_debug"
 #utils.create_exp_dir(args.save, scripts_to_save=glob.glob('*.py'))
@@ -65,7 +66,7 @@ log_format = '%(asctime)s %(message)s'
 logging.basicConfig(stream=sys.stdout, level=logging.INFO,
     format=log_format, datefmt='%m/%d %I:%M:%S %p')
 #fh = logging.FileHandler(os.path.join(args.save, 'log.txt'))
-fh = logging.FileHandler(os.path.join(args.save, 'nasp_cifar10_{}.log'.format(args.seed)))
+fh = logging.FileHandler(os.path.join(args.save, 'nasp_cifar10_search_{}.log'.format(args.seed)))
 fh.setFormatter(logging.Formatter(log_format))
 logging.getLogger().addHandler(fh)
 # configure(args.save + "/%s"%(args.name))
@@ -79,12 +80,16 @@ def main():
     logging.info('no gpu device available')
     sys.exit(1)
 
+  random.seed(args.seed)
   np.random.seed(args.seed)
-  torch.cuda.set_device(args.gpu)
-  cudnn.benchmark = True
   torch.manual_seed(args.seed)
+  os.environ['PYTHONHASSEED'] = str(args.seed)
   cudnn.enabled=True
+  cudnn.benchmark = False
   torch.cuda.manual_seed(args.seed)
+  torch.cuda.manual_seed_all(args.seed)
+  torch.backends.cudnn.deterministic = True
+
   logging.info('gpu device = %d' % args.gpu)
   logging.info("args = %s", args)
 
@@ -156,7 +161,7 @@ def main():
     logging.info('alphas_normal = %s', model.alphas_normal)
     logging.info('alphas_reduce = %s', model.alphas_reduce)
 
-    #utils.save(model, os.path.join(args.save, 'weights.pt'))
+    utils.save(model, os.path.join(args.save, 'weights.pt'))
 
 
 def train(train_queue, valid_queue, model, architect, criterion, optimizer, lr):

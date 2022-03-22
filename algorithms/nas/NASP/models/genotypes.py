@@ -2,23 +2,43 @@ from collections import namedtuple
 
 Genotype = namedtuple('Genotype', 'normal normal_concat reduce reduce_concat')
 
-PARAMS = {'conv_3x1_1x3':864, 'conv_7x1_1x7':2016, 'sep_7x7': 1464, 'conv 3x3':1296, 'sep_5x5': 888, 'sep_3x3':504, 'dil_conv_5x5': 444, 'conv 1x1':144, 'dil_conv_3x3':252, 'skip_connect':0}
+PARAMS = {'conv_3x1_1x3':864, 'conv_7x1_1x7':2016, 'sep_7x7': 1464, 'conv 3x3':1296, 'sep_5x5': 888, 'sep_3x3':504, 'dil_conv_5x5': 444, 'conv 1x1':144, 'dil_conv_3x3':252, 'skip_connect':0, 'max_pool_3x3':0, 'avg_pool_3x3':0}
 PRIMITIVES_NORMAL = [
-    "skip_connect",
-    "conv_3x1_1x3",
-    "dil_conv_3x3",
-    "conv 1x1",
-    "conv 3x3",
-    "sep_3x3",
-    "sep_5x5",
-    "sep_7x7"]
+    'max_pool_3x3',
+    'avg_pool_3x3',
+    'skip_connect',
+    'sep_3x3',
+    'sep_5x5',
+    'dil_conv_3x3',
+    'dil_conv_5x5'
+    ]
 
 PRIMITIVES_REDUCE = [
-    "skip_connect",
-    "avg_pool_3x3",
-    "max_pool_3x3",
-    "max_pool_5x5",
-    "max_pool_7x7"]
+    'max_pool_3x3',
+    'avg_pool_3x3',
+    'skip_connect',
+    'sep_3x3',
+    'sep_5x5',
+    'dil_conv_3x3',
+    'dil_conv_5x5'
+    ]
+
+# PRIMITIVES_NORMAL = [
+#     "skip_connect",
+#     "conv_3x1_1x3",
+#     "dil_conv_3x3",
+#     "conv 1x1",
+#     "conv 3x3",
+#     "sep_3x3",
+#     "sep_5x5",
+#     "sep_7x7"]
+
+# PRIMITIVES_REDUCE = [
+#     "skip_connect",
+#     "avg_pool_3x3",
+#     "max_pool_3x3",
+#     "max_pool_5x5",
+#     "max_pool_7x7"]
 
 NASNet = Genotype(
   normal = [
@@ -80,4 +100,19 @@ AmoebaNet = Genotype(
 
 NASP = Genotype(normal=[('conv_3x1_1x3', 0), ('conv 3x3', 1), ('dil_conv_3x3', 2), ('conv 3x3', 1), ('dil_conv_3x3', 2), ('conv 3x3', 0), ('skip_connect', 0), ('dil_conv_3x3', 3)], normal_concat=range(2, 6), reduce=[('max_pool_3x3', 0), ('max_pool_3x3', 1), ('skip_connect', 2), ('max_pool_5x5', 1), ('skip_connect', 2), ('skip_connect', 3), ('skip_connect', 0), ('skip_connect', 1)], reduce_concat=range(2, 6))
 
-My_NASP = Genotype(normal=[('conv 1x1', 0), ('dil_conv_3x3', 1), ('conv 3x3', 0), ('conv 3x3', 2), ('sep_3x3', 0), ('sep_3x3', 3), ('sep_7x7', 1), ('sep_7x7', 3)], normal_concat=range(2, 6), reduce=[('max_pool_3x3', 1), ('skip_connect', 0), ('max_pool_3x3', 1), ('skip_connect', 2), ('skip_connect', 2), ('skip_connect', 3), ('skip_connect', 4), ('skip_connect', 2)], reduce_concat=range(2, 6))
+# My_NASP = Genotype(normal=[('conv 1x1', 0), ('dil_conv_3x3', 1), ('conv 3x3', 0), ('conv 3x3', 2), ('sep_3x3', 0), ('sep_3x3', 3), ('sep_7x7', 1), ('sep_7x7', 3)], normal_concat=range(2, 6), reduce=[('max_pool_3x3', 1), ('skip_connect', 0), ('max_pool_3x3', 1), ('skip_connect', 2), ('skip_connect', 2), ('skip_connect', 3), ('skip_connect', 4), ('skip_connect', 2)], reduce_concat=range(2, 6))
+
+# My_NASP = Genotype(normal=[('skip_connect', 1), ('conv_3x1_1x3', 0), ('conv 3x3', 0), ('dil_conv_3x3', 2), ('conv_3x1_1x3', 0), ('skip_connect', 3), ('conv 3x3', 4), ('dil_conv_3x3', 0)], normal_concat=range(2, 6), reduce=[('skip_connect', 0), ('max_pool_5x5', 1), ('skip_connect', 2), ('max_pool_3x3', 0), ('skip_connect', 2), ('max_pool_3x3', 1), ('skip_connect', 2), ('skip_connect', 4)], reduce_concat=range(2, 6))
+
+
+#seed=0
+My_NASP = Genotype(normal=[('sep_5x5', 0), ('sep_3x3', 1), ('skip_connect', 0), ('sep_3x3', 1), ('dil_conv_3x3', 3), ('sep_5x5', 1), ('dil_conv_5x5', 4), ('dil_conv_5x5', 3)], normal_concat=range(2, 6), reduce=[('max_pool_3x3', 1), ('max_pool_3x3', 0), ('dil_conv_3x3', 2), ('sep_5x5', 1), ('sep_5x5', 2), ('max_pool_3x3', 0), ('sep_3x3', 0), ('sep_3x3', 2)], reduce_concat=range(2, 6))
+
+#seed=2
+# My_NASP = Genotype(normal=[('skip_connect', 1), ('dil_conv_5x5', 0), ('dil_conv_5x5', 0), ('skip_connect', 2), ('dil_conv_5x5', 0), ('dil_conv_3x3', 1), ('dil_conv_3x3', 2), ('dil_conv_5x5', 0)], normal_concat=range(2, 6), reduce=[('avg_pool_3x3', 1), ('skip_connect', 0), ('sep_5x5', 0), ('max_pool_3x3', 1), ('max_pool_3x3', 0), ('skip_connect', 3), ('dil_conv_5x5', 0), ('sep_3x3', 2)], reduce_concat=range(2, 6))
+
+#seed=1
+# My_NASP = Genotype(normal=[('skip_connect', 0), ('dil_conv_3x3', 1), ('sep_5x5', 2), ('sep_5x5', 1), ('skip_connect', 3), ('sep_3x3', 2), ('dil_conv_5x5', 3), ('sep_5x5', 2)], normal_concat=range(2, 6), reduce=[('avg_pool_3x3', 1), ('sep_5x5', 0), ('sep_5x5', 1), ('sep_5x5', 0), ('dil_conv_3x3', 3), ('skip_connect', 1), ('max_pool_3x3', 1), ('skip_connect', 2)], reduce_concat=range(2, 6))
+
+#seed=3
+# My_NASP = Genotype(normal=[('dil_conv_3x3', 0), ('dil_conv_3x3', 1), ('dil_conv_5x5', 2), ('sep_3x3', 1), ('sep_3x3', 2), ('sep_5x5', 0), ('sep_5x5', 0), ('dil_conv_3x3', 2)], normal_concat=range(2, 6), reduce=[('avg_pool_3x3', 1), ('avg_pool_3x3', 0), ('dil_conv_5x5', 0), ('skip_connect', 1), ('max_pool_3x3', 0), ('skip_connect', 2), ('dil_conv_5x5', 4), ('dil_conv_3x3', 1)], reduce_concat=range(2, 6))

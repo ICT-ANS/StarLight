@@ -21,14 +21,14 @@ parser = argparse.ArgumentParser("cifar")
 # General settings
 parser.add_argument('--snas', action='store_true', default=True, help='true if using snas model')
 parser.add_argument('--dsnas', action='store_true', default=False, help='true if using dsnas')
-parser.add_argument('--seed', type=int, default=2, help='random seed')
+parser.add_argument('--seed', type=int, default=0, help='random seed')
 parser.add_argument("--local_rank", type=int)
 parser.add_argument('--report_freq', type=float, default=50, help='report frequency')
 
 # Training settings
 parser.add_argument('--gpu', type=int, default=0, help='gpu device id')
 parser.add_argument('--distributed', action='store_true', default=False, help='true if using multi-GPU training')
-parser.add_argument('--fix_seedcudnn', action='store_true', default=False, help='true if fixing cudnn')
+parser.add_argument('--fix_seedcudnn', action='store_true', default=True, help='true if fixing cudnn')
 parser.add_argument('--port', type=int, default=23333, help='distributed port')
 
 parser.add_argument('--epochs', type=int, default=150, help='num of training epochs')
@@ -117,7 +117,7 @@ parser.add_argument('--remark', type=str, default='SNAS', help='further experime
 args = parser.parse_args()
 
 #args.save = 'search-{}-{}-{}'.format(args.save, time.strftime("%Y%m%d-%H%M%S"), args.remark)
-args.save = 'search_output'
+args.save = 'nas_output/SNAS/search_0'
 
 if args.distributed:
     import torch.distributed as dist

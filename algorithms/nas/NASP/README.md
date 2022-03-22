@@ -1,7 +1,7 @@
 # Efficient Neural Architecture Search via Proximal Iterations
 ## Requirements
 ```
-Python >= 3.5.5, PyTorch == 0.3.1, torchvision == 0.2.0
+Python >= 3.5.5, PyTorch == 1.1.0, torchvision >= 0.3.0
 ```
 ## Dataset
 Prepare dataset firstly, and the path are 
@@ -12,8 +12,27 @@ Prepare dataset firstly, and the path are
 ## Neural Architecture Search
 ```
 cd StarLight/algorithms
-bash NASP/run/run_nasp.sh
+bash nas/NASP/run/run_nasp_search.sh
 ```
+
+## Architecture Evaluation
+```
+cd StarLight/algorithms
+bash nas/NASP/run/run_nasp_eval.sh
+```
+
+## Architecture Test
+```
+cd StarLight/algorithms
+bash nas/NASP/run/run_nasp_test.sh
+```
+
+
+## Experimental Results
+|          | Top1   | Params | FLOPs |
+|   ----   | ----   | ----   | ----  |
+| 论文结果  | 97.17% |  3.3M  |  --   |  
+| 复现结果  | 97.33% |  3.7M  |  605M |
 
 
 ## Reference
@@ -30,4 +49,4 @@ bash NASP/run/run_nasp.sh
 ```
 
 ## Acknowledgement
-The codes of this paper are based on the codes of DARTS (https://github.com/quark0/darts). We appreciate DARTS's codes and thank the authors of DARTS.
+The codes are based on the codes of NASP (https://github.com/xujinfan/NASP-codes). We appreciate NASP's codes and thank the authors of NASP.

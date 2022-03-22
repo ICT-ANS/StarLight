@@ -1,7 +1,7 @@
 # SNAS: Stochastic Neural Architecture Search
 ## Requirements
 ```
-Python >= 3.5.5, PyTorch >= 0.3.1, torchvision == 0.2.0
+Python >= 3.5.5, PyTorch >= 1.1.0, torchvision >= 0.3.0
 ```
 ## Dataset
 Prepare dataset firstly, and the path are 
@@ -12,8 +12,27 @@ Prepare dataset firstly, and the path are
 ## Neural Architecture Search
 ```
 cd StarLight/algorithms
-bash SNAS/run/run_snas.sh
+bash nas/SNAS/run/run_snas_search.sh
 ```
+
+## Architecture Evaluation
+```
+cd StarLight/algorithms
+bash nas/SNAS/run/run_snas_eval.sh
+```
+
+## Architecture Test
+```
+cd StarLight/algorithms
+bash nas/SNAS/run/run_snas_test.sh
+```
+
+
+## Experimental Results
+|          | Top1   | Params | FLOPs |
+|   ----   | ----   | ----   | ----  |
+| 论文结果  | 97.0% |  2.9M  |  --   |  
+| 复现结果  | 97.1% |  5.1M  |  824M |
 
 
 ## Reference
@@ -26,3 +45,5 @@ bash SNAS/run/run_snas.sh
 }
 ```
 
+## Acknowledgement
+The codes are based on the codes of SNAS (https://github.com/SNAS-Series/SNAS-Series). We appreciate SNAS's codes and thank the authors of SNAS.

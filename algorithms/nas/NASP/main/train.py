@@ -16,6 +16,7 @@ sys.path.append(os.path.dirname(__file__)+ os.sep + '../')
 from utils import utils
 import models.genotypes as genotypes
 from models.model import NetworkCIFAR as Network
+import random
 
 
 parser = argparse.ArgumentParser("cifar")
@@ -25,7 +26,7 @@ parser.add_argument('--learning_rate', type=float, default=0.025, help='init lea
 parser.add_argument('--momentum', type=float, default=0.9, help='momentum')
 parser.add_argument('--weight_decay', type=float, default=3e-4, help='weight decay')
 parser.add_argument('--report_freq', type=float, default=50, help='report frequency')
-parser.add_argument('--gpu', type=int, default=6, help='gpu device id')
+parser.add_argument('--gpu', type=int, default=7, help='gpu device id')
 parser.add_argument('--epochs', type=int, default=600, help='num of training epochs')
 parser.add_argument('--init_channels', type=int, default=36, help='num of init channels')
 parser.add_argument('--layers', type=int, default=20, help='total number of layers')
@@ -41,15 +42,17 @@ parser.add_argument('--arch', type=str, default='My_NASP', help='which architect
 parser.add_argument('--grad_clip', type=float, default=5, help='gradient clipping')
 args = parser.parse_args()
 
-args.save = 'eval-{}-{}'.format(args.save, time.strftime("%Y%m%d-%H%M%S"))
+# args.save = 'eval-{}-{}'.format(args.save, time.strftime("%Y%m%d-%H%M%S"))
 #utils.create_exp_dir(args.save, scripts_to_save=glob.glob('*.py'))
+args.save = 'nas_output/NASP/eval3'
+utils.create_exp_dir(args.save)
 
 log_format = '%(asctime)s %(message)s'
 logging.basicConfig(stream=sys.stdout, level=logging.INFO,
     format=log_format, datefmt='%m/%d %I:%M:%S %p')
-#fh = logging.FileHandler(os.path.join(args.save, 'log.txt'))
-#fh.setFormatter(logging.Formatter(log_format))
-#logging.getLogger().addHandler(fh)
+fh = logging.FileHandler(os.path.join(args.save, 'nasp_cifar10_eval_{}.log'.format(args.seed)))
+fh.setFormatter(logging.Formatter(log_format))
+logging.getLogger().addHandler(fh)
 
 CIFAR_CLASSES = 10
 
@@ -64,14 +67,15 @@ def main():
     logging.info('no gpu device available')
     sys.exit(1)
 
+  random.seed(args.seed)
   np.random.seed(args.seed)
-  torch.cuda.set_device(args.gpu)
-  cudnn.benchmark = True
   torch.manual_seed(args.seed)
+  os.environ['PYTHONHASSEED'] = str(args.seed)
   cudnn.enabled=True
+  cudnn.benchmark = False
   torch.cuda.manual_seed(args.seed)
-  logging.info('gpu device = %d' % args.gpu)
-  logging.info("args = %s", args)
+  torch.cuda.manual_seed_all(args.seed)
+  torch.backends.cudnn.deterministic = True
 
   genotype = eval("genotypes.%s" % args.arch)
   model = Network(args.init_channels, CIFAR_CLASSES, args.layers, args.auxiliary, genotype)
@@ -100,6 +104,7 @@ def main():
 
   scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, float(args.epochs))
 
+  best_valid_acc = 0.0
   for epoch in range(args.epochs):
     scheduler.step()
     logging.info('epoch %d lr %e', epoch, scheduler.get_lr()[0])
@@ -110,6 +115,11 @@ def main():
 
     valid_acc, valid_obj = infer(valid_queue, model, criterion)
     logging.info('valid_acc %f', valid_acc)
+
+    if valid_acc > best_valid_acc:
+      best_valid_acc = valid_acc
+      utils.save(model, os.path.join(args.save, 'best_weights.pt'))
+    logging.info('best_valid_acc %f', best_valid_acc)
 
     utils.save(model, os.path.join(args.save, 'weights.pt'))
 

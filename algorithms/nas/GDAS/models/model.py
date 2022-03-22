@@ -1,8 +1,8 @@
 import torch
 import torch.nn as nn
-from nas.classification_sampled.models.gdas.operations import *
 from torch.autograd import Variable
-from nas.classification_sampled.models.gdas.utils import drop_path
+from models.operations import *
+from utils.utils import drop_path
 import pdb
 
 
