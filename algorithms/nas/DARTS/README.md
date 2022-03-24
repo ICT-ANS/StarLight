@@ -9,11 +9,11 @@ This repo uses CIFAR-10 dataset. Make sure the dataset is located in the followi
 ```shell
 ./StarLight/data/cifar
 ```
-Specify the log path in the code:
+Specify the log path in the nas/DARTS/run/search.sh and nas/DARTS/run/train.sh:
 ```shell
 ./StarLight/data/logs
 ```
-Specify the checkpoint path in the code:
+Specify the checkpoint path in the nas/DARTS/run/search.sh and nas/DARTS/run/train.sh:
 ```shell
 ./StarLight/data/models
 ```
