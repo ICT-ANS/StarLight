@@ -37,7 +37,7 @@ bash nas/DARTS/run/train.sh
 | Result \ Metric | Params/M |        Top1        |
 |:---------------:|:--------:|:------------------:|
 |      Paper      |   3.3    | 3.00 &plusmn; 0.14 |
-|      Ours       |    -     |         -          |
+|      Ours       |   2.5    |        2.99        |
 
 ## Acknowledgement
 This code is re-organized based on the official release [DARTS](https://github.com/quark0/darts).
