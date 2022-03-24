@@ -5,17 +5,17 @@
 * PyTorch 1.7.1
 
 ## Prepare dataset and output path
-This repo uses CIFAR-10 dataset. Make sure the dataset is located in the following path:
+Specify the data_dir in the nas/DARTS/run/search.sh and nas/DARTS/run/train.sh:
 ```shell
-./StarLight/data/cifar
+./StarLight/data/Cifar10
 ```
-Specify the log path in the nas/DARTS/run/search.sh and nas/DARTS/run/train.sh:
+Specify the log_path in the nas/DARTS/run/search.sh and nas/DARTS/run/train.sh:
 ```shell
-./StarLight/data/logs
+./StarLight/data/logs/DARTS
 ```
-Specify the checkpoint path in the nas/DARTS/run/search.sh and nas/DARTS/run/train.sh:
+Specify the ckpt_path in the nas/DARTS/run/search.sh and nas/DARTS/run/train.sh:
 ```shell
-./StarLight/data/models
+./StarLight/data/models/DARTS
 ```
 
 ## Usage
