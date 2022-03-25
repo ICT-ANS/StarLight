@@ -107,7 +107,7 @@ class CompressVisTask(QThread):
             self.sleep(1)
         
         with open(logs_file) as f:
-            log_config = yaml.load(f)
+            log_config = yaml.safe_load(f)
 
         uiBaseline = {}
         uiInitMethod = {}
@@ -123,7 +123,7 @@ class CompressVisTask(QThread):
             return
 
         with open(logs_file) as f:
-            log_config = yaml.load(f)
+            log_config = yaml.safe_load(f)
 
         uiBaseline = {}
         uiInitMethod = {}
@@ -137,7 +137,7 @@ class CompressVisTask(QThread):
         while True: # 每隔 10 s 检查程序是否运行完成，如果运行完成，则返回
             is_finished = True
             with open(logs_file) as f:
-                log_config = yaml.load(f)
+                log_config = yaml.safe_load(f)
             for key in self.var_names: # 检查程序是否运行完成
                 if log_config[key]['method'] == None:
                     is_finished = False
@@ -167,7 +167,7 @@ class CompressVisTask(QThread):
             return
 
         with open(logs_file) as f:
-            log_config = yaml.load(f)
+            log_config = yaml.safe_load(f)
 
         uiBaseline = {}
         uiMethod = {}
@@ -237,7 +237,7 @@ class MainWindow(QMainWindow):
         currentfolder = os.path.abspath(os.path.dirname(__file__))
         global_config_file = os.path.join(os.path.dirname(currentfolder), "compression_vis/config", "global.yaml")
         with open(global_config_file) as f:
-            global_config = yaml.load(f)
+            global_config = yaml.safe_load(f)
         # dataset and model
         self.ui.comboBox.clear()
         self.ui.comboBox.addItems(global_config['dataset,model'])
@@ -388,7 +388,7 @@ class MainWindow(QMainWindow):
         currentfolder = os.path.abspath(os.path.dirname(__file__))
         global_config_file = os.path.join(os.path.dirname(currentfolder), "compression_vis/config", "global.yaml")
         with open(global_config_file) as f:
-            global_config = yaml.load(f)
+            global_config = yaml.safe_load(f)
         dataset = self.getData('dataset')
         model = self.getData('model')
         if '{},{}'.format(dataset, model) in global_config['origin_performance']:

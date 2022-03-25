@@ -85,7 +85,7 @@ class HyperparametersSettingWindow(QDialog):
         currentfolder = os.path.abspath(os.path.dirname(__file__))
         hp_config_file = os.path.join(os.path.dirname(currentfolder), "compression_vis", "config", "hyperparameters_setting.yaml")
         with open(hp_config_file) as f:
-            hp_config = yaml.load(f)
+            hp_config = yaml.safe_load(f)
         
         ft_bs = str(hp_config['default_setting']['{},{}'.format(self.dataset, self.model)]['ft_bs'])
         ft_epochs = str(hp_config['default_setting']['{},{}'.format(self.dataset, self.model)]['ft_epochs'])
