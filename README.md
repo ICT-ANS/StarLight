@@ -115,14 +115,43 @@ StarLight is a general framework, which provides various algorithms for Neural A
 
 ## Environment
 
+- 1. create Conda Envirment
 
-- python >= 3.6
+```
+conda create -n starlight python=3.6
+conda activate starlight
+```
 
-- pyqt5==5.12, simply use pip to for installation: 
+- 2. install pytorch, cudnn 8.0.0
+
+```
+conda install pytorch==1.6.0 torchvision==0.7.0 cudatoolkit=10.2
+conda install --channel https://conda.anaconda.org/nvidia cudnn=8.0.0
+```
+
+- 3. install TensorRT
+
+```
+# Download TensorRT 7.1.3.4 from https://developer.nvidia.com/compute/machine-learning/tensorrt 
+
+cd TensorRT-7.1.3.4/ 
+pip install python/tensorrt-7.1.3.4-cp36-none-linux_x86_64.whl
+pip install uff/uff-0.6.9-py2.py3-none-any.whl
+pip install graphsurgeon/graphsurgeon-0.4.5-py2.py3-none-any.whl
+```
+
+
+- 4. pyqt5==5.12, simply use pip to for installation: 
 
 ```shell
-    pip install pyqt5==5.12
+    pip install pyqt5==5.12,
     pip install PyQtWebEngine==5.12	
+```
+
+- 5. others
+
+```shell
+    pip install easydict, opencv-python, flask, flask_cors, gevent, imageio, pynvml, pyyaml, psutil
 ```
 
 ## Usage
