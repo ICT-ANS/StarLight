@@ -129,3 +129,5 @@ data/
 tmp/
 
 eval/
+
+model.json
