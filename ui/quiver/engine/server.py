@@ -133,6 +133,8 @@ def update_model(model, hooks, input_folder, image_size, use_gpu=False, temp_fol
     if _use_gpu and torch.cuda.is_available():
         x = x.cuda()
         _model = model.cuda()
+    else:
+        x = x.cpu()
 
     _model = model
 

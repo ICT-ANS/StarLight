@@ -290,6 +290,9 @@ def main():
 
     device = torch.device('cuda')
 
+    # torch.save(net, '/home/xingxing/projects/StarLight/data/compression/model_vis/VOC-ResNet50SSD/model.pth')
+    # exit()
+
     # baseline
     print("\nInfer before pruning:")
     flops, params = count_flops_params(net)

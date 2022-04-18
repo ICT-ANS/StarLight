@@ -105,3 +105,9 @@ shell_path:
   TinyImageNet,ResNet101: algorithms/compression/nets/ResNet50/shell/compress.sh
   VOC,ResNet50SSD: algorithms/compression/nets/ResNet50_SSD/shell/compress.sh
   ZhiJiangDataset,CFNet: algorithms/compression/nets/ResNet50/shell/compress.sh
+
+img_size:
+  TinyImageNet,ResNet50: [200, 200]
+  TinyImageNet,ResNet101: [200, 200]
+  VOC,ResNet50SSD: [300, 300]
+  ZhiJiangDataset,CFNet: [200, 200]

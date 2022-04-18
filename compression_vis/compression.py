@@ -20,6 +20,7 @@ import ui.echarts.utils as echarts
 from ui.quiver.utils import ModelViewer
 from ui.qtui.compression.compression_ui import * 
 from compression_vis.hyperparameters_setting import HyperparametersSettingWindow
+from algorithms import *
 
 import torch
 
@@ -534,6 +535,7 @@ class MainWindow(QMainWindow):
             # QMessageBox.about(self, "提示", )
             return
         model = torch.load(model_path).cpu().eval()
+        self.modelVis.set_img_size(self.global_config['img_size']['{},{}'.format(self.getData('dataset'), self.getData('model'))])
         self.modelVis.slotUpdateModel(model, datapath)
     
     def prunedModelVisBtnCallback(self):
@@ -557,6 +559,7 @@ class MainWindow(QMainWindow):
             self.jumpQMessageBox("提示", '模型不存在: {}'.format(model_path))
             return
         model = torch.load(model_path).cpu().eval()
+        self.modelVis.set_img_size(self.global_config['img_size']['{},{}'.format(self.getData('dataset'), self.getData('model'))])
         self.modelVis.slotUpdateModel(model, datapath)
 
     def resizeEvent(self, a0):
