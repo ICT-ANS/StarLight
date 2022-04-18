@@ -221,7 +221,8 @@ class VOCDetection(data.Dataset):
         all_boxes[class][image] = [] or np.array of shape #dets x 5
         """
         self._write_voc_results_file(all_boxes)
-        self._do_python_eval(output_dir)
+        mAP = self._do_python_eval(output_dir)
+        return mAP
 
     def _get_voc_results_file_template(self):
         filename = 'comp3_det_test' + '_{:s}.txt'
@@ -298,6 +299,7 @@ class VOCDetection(data.Dataset):
         print('Recompute with `./tools/reval.py --matlab ...` for your paper.')
         print('-- Thanks, The Management')
         print('--------------------------------------------------------------')
+        return np.mean(aps)
 
 
 def detection_collate(batch):

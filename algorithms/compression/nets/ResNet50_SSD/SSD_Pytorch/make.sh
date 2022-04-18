@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-cd ./utils/
+cd ./utils_/
+pwd
 
 CUDA_PATH=/usr/local/cuda/
 

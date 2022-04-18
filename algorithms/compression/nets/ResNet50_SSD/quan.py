@@ -12,7 +12,7 @@ from torch.utils.data import sampler
 from data_ import COCODetection, VOCDetection, detection_collate, BaseTransform, preproc
 from layers.modules import MultiBoxLoss, RefineMultiBoxLoss
 from layers.functions import Detect
-from utils.nms_wrapper import nms, soft_nms
+from utils_.nms_wrapper import nms, soft_nms
 from configs.config import cfg, cfg_from_file
 import numpy as np
 import time
@@ -35,7 +35,7 @@ from lib.compression.pytorch.quantization_speedup import ModelSpeedupTensorRT
 def arg_parse():
     parser = argparse.ArgumentParser(description='Single Shot MultiBox Detection')
     parser.add_argument('--weights', default='SSD_Pytorch/weights/ssd_res50_epoch_250_300.pth', type=str, help='Trained state_dict file path to open')
-    parser.add_argument('--cfg', dest='cfg_file', default='./configs/quan.yaml', help='Config file for training (and optionally testing)')
+    parser.add_argument('--cfg', dest='cfg_file', default='algorithms/compression/nets/ResNet50_SSD/configs/quan.yaml', help='Config file for training (and optionally testing)')
     parser.add_argument('--num_workers', default=8, type=int, help='Number of workers used in dataloading')
     parser.add_argument('--retest', default=False, type=bool, help='test cache results')
 
@@ -47,6 +47,10 @@ def arg_parse():
     parser.add_argument('--calib_num', type=int, default=1280, help='random seed')
 
     parser.add_argument('--save_folder', default='logs/prune_quan/test', type=str, help='File path to save results')
+    
+    parser.add_argument('--data', default='', type=str, help='dataset path')
+    parser.add_argument('--batch_size', default=32, type=int, metavar='N', help='mini-batch size (default: 32)')
+    parser.add_argument('--write_yaml', action='store_true', default=False, help='write yaml file')
     args = parser.parse_args()
 
     if not os.path.exists(args.save_folder):
@@ -64,20 +68,20 @@ def seed_torch(seed=0):
     torch.cuda.manual_seed(seed)
     torch.backends.cudnn.benchmark = False
     torch.backends.cudnn.deterministic = True
-
-
+    
 def count_flops_params(net):
     # flops and params
     torch.set_default_tensor_type('torch.FloatTensor')
     input = torch.randn(1, 3, 300, 300).cuda()
     macs, params = profile(net, inputs=(input, ), verbose=False)
-    macs, params = clever_format([macs, params], "%.3f")
-    print('FLOPs: {}, params: {}'.format(macs, params))
+    macs_f, params_f = clever_format([macs, params], "%.3f")
+    print('FLOPs: {}, params: {}'.format(macs_f, params_f))
     for m in net.modules():
         if hasattr(m, 'total_params'):
             del m.total_params
         if hasattr(m, 'total_ops'):
             del m.total_ops
+    return macs, params
 
 
 def eval_net(val_dataset, val_loader, net, detector, cfg, transform, eval_save_folder, max_per_image=300, thresh=0.01, batch_size=1):
@@ -97,6 +101,8 @@ def eval_net(val_dataset, val_loader, net, detector, cfg, transform, eval_save_f
         val_dataset.evaluate_detections(all_boxes, eval_save_folder)
         return
 
+    total_infer_time = 0
+    count = 0
     for idx, (imgs, _, img_info) in enumerate(val_loader):
         with torch.no_grad():
             t1 = time.time()
@@ -137,14 +143,17 @@ def eval_net(val_dataset, val_loader, net, detector, cfg, transform, eval_save_f
             detect_time = t2 - t1
             nms_time = t3 - t2
             # forward_time = t4 - t1
+            total_infer_time += forward_time
+            count += 1
             if idx % 10 == 0:
                 print('im_detect: {:d}/{:d} {:.3f}s {:.3f}s {:.3f}s'.format(i + 1, num_images, forward_time, detect_time, nms_time))
 
     with open(det_file, 'wb') as f:
         pickle.dump(all_boxes, f, pickle.HIGHEST_PROTOCOL)
     print('Evaluating detections')
-    val_dataset.evaluate_detections(all_boxes, eval_save_folder)
+    mAP = val_dataset.evaluate_detections(all_boxes, eval_save_folder)
     print("detect time: ", time.time() - st)
+    return float(mAP), total_infer_time / count
 
 
 def main():
@@ -161,7 +170,7 @@ def main():
     else:
         trainvalDataset = COCODetection
         top_k = 300
-    dataroot = cfg.DATASETS.DATAROOT
+    dataroot = args.data
     if cfg.MODEL.SIZE == '300':
         size_cfg = cfg.SMALL
     else:
@@ -195,9 +204,23 @@ def main():
     top_k = 300
     thresh = cfg.TEST.CONFIDENCE_THRESH
 
-    count_flops_params(net)
+    flops, params = count_flops_params(net)
     if args.baseline:
         eval_net(val_dataset, val_loader, net, detector, cfg, ValTransform, os.path.join(args.save_folder, 'baseline'), top_k, thresh=thresh, batch_size=batch_size)
+
+    if args.write_yaml:
+        flops, params = flops, params
+        mAP, infer_time = eval_net(val_dataset, val_loader, net, detector, cfg, ValTransform, os.path.join(args.save_folder, 'baseline'), top_k, thresh=thresh, batch_size=batch_size)
+        storage = os.path.getsize(args.weights)
+        with open(os.path.join(args.save_folder, 'logs.yaml'), 'w') as f:
+            yaml_data = {
+                'mAP': {'baseline': round(mAP*100, 2), 'method': None},
+                'FLOPs': {'baseline': round(flops/1e9, 2), 'method': None},
+                'Parameters': {'baseline': round(params/1e6, 2), 'method': None},
+                'Infer_times': {'baseline': round(infer_time*1e3, 2), 'method': None},
+                'Storage': {'baseline': round(storage/1e6, 2), 'method': None},
+            }
+            yaml.dump(yaml_data, f)
 
     device = torch.device('cuda')
     if args.prune_eval_path:
@@ -271,8 +294,20 @@ def main():
 
     net.load_engine(engine)
 
-    eval_net(val_dataset, val_loader, net, detector, cfg, ValTransform, os.path.join(args.save_folder, 'quan'), top_k, thresh=thresh, batch_size=batch_size)
+    mAP, infer_time = eval_net(val_dataset, val_loader, net, detector, cfg, ValTransform, os.path.join(args.save_folder, 'quan'), top_k, thresh=thresh, batch_size=batch_size)
 
+    if args.write_yaml:
+        storage = os.path.getsize(trt_path)
+        with open(os.path.join(args.save_folder, 'logs.yaml'), 'w') as f:
+            yaml_data = {
+                'mAP': {'baseline': yaml_data['mAP']['baseline'], 'method': round(mAP*100, 2)},
+                'FLOPs': {'baseline': yaml_data['FLOPs']['baseline'], 'method': round(flops/1e9, 2)},
+                'Parameters': {'baseline': yaml_data['Parameters']['baseline'], 'method': round(params/1e6, 2)},
+                'Infer_times': {'baseline': yaml_data['Infer_times']['baseline'], 'method': round(infer_time*1e3, 2)},
+                'Storage': {'baseline': yaml_data['Storage']['baseline'], 'method': round(storage/1e6, 2)},
+                'Output_file': os.path.join(args.save_folder, '{}.trt'.format(args.quan_mode)),
+            }
+            yaml.dump(yaml_data, f)
 
 if __name__ == '__main__':
     st = time.time()

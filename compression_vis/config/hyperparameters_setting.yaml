@@ -12,4 +12,18 @@ default_setting:
     ft_epochs: 10
     prune_sparisity: 0.2
     gpus: "0"
+  
+  VOC,ResNet50SSD:
+    ft_lr: 0.001
+    ft_bs: 32
+    ft_epochs: 25
+    prune_sparisity: 0.2
+    gpus: "0"
+
+  ZhiJiangDataset,CFNet:
+    ft_lr: 0.001
+    ft_bs: 128
+    ft_epochs: 10
+    prune_sparisity: 0.2
+    gpus: "0"
 

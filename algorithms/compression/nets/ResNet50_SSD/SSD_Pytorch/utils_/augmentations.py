@@ -4,7 +4,7 @@ import cv2
 import numpy as np
 import types
 from numpy import random
-from utils.box_utils import matrix_iou
+from utils_.box_utils import matrix_iou
 
 def intersect(box_a, box_b):
     max_xy = np.minimum(box_a[:, 2:], box_b[2:])

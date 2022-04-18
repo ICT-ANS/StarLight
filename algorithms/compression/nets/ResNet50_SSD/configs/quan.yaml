@@ -4,7 +4,7 @@ MODEL:
   REFINE: False
   CONV_BODY: resnet.SSDResnet50
   NUM_CLASSES: 21
-  LOAD_PRETRAINED_WEIGHTS: True
+  LOAD_PRETRAINED_WEIGHTS: False
   PRETRAIN_WEIGHTS: 'data/logs/ResNet50_SSD/pretrained_models/resnet50-19c8e357.pth'
 
 TRAIN:

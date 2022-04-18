@@ -12,7 +12,7 @@ import torch.utils.data as data
 from data_ import COCODetection, VOCDetection, detection_collate, BaseTransform, preproc
 from layers.modules import MultiBoxLoss, RefineMultiBoxLoss
 from layers.functions import Detect
-from utils.nms_wrapper import nms, soft_nms
+from utils_.nms_wrapper import nms, soft_nms
 from configs.config import cfg, cfg_from_file
 import numpy as np
 import time
@@ -31,7 +31,7 @@ from lib.algorithms.pytorch.pruning import (TaylorFOWeightFilterPruner, FPGMPrun
 
 def arg_parse():
     parser = argparse.ArgumentParser(description='SSD Training')
-    parser.add_argument('--cfg', dest='cfg_file', default='./configs/prune.yaml', help='Config file for training (and optionally testing)')
+    parser.add_argument('--cfg', dest='cfg_file', default='algorithms/compression/nets/ResNet50_SSD/configs/prune.yaml', help='Config file for training (and optionally testing)')
     parser.add_argument('--num_workers', default=8, type=int, help='Number of workers used in dataloading')
     parser.add_argument('--ngpu', default=1, type=int, help='gpus')
     parser.add_argument('--resume_net', default="./checkpoint/origin.pth", help='resume net for retraining')
@@ -42,6 +42,13 @@ def arg_parse():
     parser.add_argument('--baseline', action='store_true', default=False, help='evaluate model on validation set')
     parser.add_argument('--pruner', default='fpgm', type=str, help='pruner: agp|taylor|fpgm')
     parser.add_argument('--sparsity', default=0.2, type=float, metavar='LR', help='prune sparsity')
+
+    parser.add_argument('--data', default='', type=str, help='dataset path')
+    parser.add_argument('--finetune_epochs', default=10, type=int, metavar='N', help='number of epochs for exported model')
+    parser.add_argument('--finetune_lr', default=0.001, type=float, metavar='N', help='number of lr for exported model')
+    parser.add_argument('--batch_size', default=32, type=int, metavar='N', help='mini-batch size (default: 32)')
+    parser.add_argument('--write_yaml', action='store_true', default=False, help='write yaml file')
+    parser.add_argument('--no_write_yaml_after_prune', action='store_true', default=False, help='')
     args = parser.parse_args()
 
     if not os.path.exists(args.save_folder):
@@ -122,71 +129,79 @@ def save_checkpoint(name, net):
 
 
 def eval_net(val_dataset, val_loader, net, detector, cfg, transform, eval_save_folder, max_per_image=300, thresh=0.01, batch_size=1):
-    net.eval()
-    num_images = len(val_dataset)
-    num_classes = cfg.MODEL.NUM_CLASSES
-    if not os.path.exists(eval_save_folder):
-        os.mkdir(eval_save_folder)
-    all_boxes = [[[] for _ in range(num_images)] for _ in range(num_classes)]
-    det_file = os.path.join(eval_save_folder, 'detections.pkl')
-    st = time.time()
-    for idx, (imgs, _, img_info) in enumerate(val_loader):
-        with torch.no_grad():
-            t1 = time.time()
-            x = imgs
-            x = x.cuda()
-            output = net(x)
-            output = (output[0], output[1], net.priors)
-            t4 = time.time()
-            boxes, scores = detector.forward(output)
-            t2 = time.time()
-            for k in range(boxes.size(0)):
-                i = idx * batch_size + k
-                boxes_ = boxes[k]
-                scores_ = scores[k]
-                boxes_ = boxes_.cpu().numpy()
-                scores_ = scores_.cpu().numpy()
-                img_wh = img_info[k]
-                scale = np.array([img_wh[0], img_wh[1], img_wh[0], img_wh[1]])
-                boxes_ *= scale
-                for j in range(1, num_classes):
-                    # print(idx, k, j)
-                    inds = np.where(scores_[:, j] > thresh)[0]
-                    if len(inds) == 0:
-                        all_boxes[j][i] = np.empty([0, 5], dtype=np.float32)
-                        continue
-                    c_bboxes = boxes_[inds]
-                    c_scores = scores_[inds, j]
-                    c_dets = np.hstack((c_bboxes, c_scores[:, np.newaxis])).astype(np.float32, copy=False)
-                    keep = nms(c_dets, cfg.TEST.NMS_OVERLAP, force_cpu=True)
-                    keep = keep[:50]
-                    c_dets = c_dets[keep, :]
-                    all_boxes[j][i] = c_dets
-            t3 = time.time()
-            detect_time = t2 - t1
-            nms_time = t3 - t2
-            forward_time = t4 - t1
-            if idx % 10 == 0:
-                print('im_detect: {:d}/{:d} {:.3f}s {:.3f}s {:.3f}s'.format(i + 1, num_images, forward_time, detect_time, nms_time))
-    print("detect time: ", time.time() - st)
-    with open(det_file, 'wb') as f:
-        pickle.dump(all_boxes, f, pickle.HIGHEST_PROTOCOL)
-    print('Evaluating detections')
-    val_dataset.evaluate_detections(all_boxes, eval_save_folder)
+    with torch.no_grad():
+        net.eval()
+        num_images = len(val_dataset)
+        num_classes = cfg.MODEL.NUM_CLASSES
+        if not os.path.exists(eval_save_folder):
+            os.mkdir(eval_save_folder)
+        all_boxes = [[[] for _ in range(num_images)] for _ in range(num_classes)]
+        det_file = os.path.join(eval_save_folder, 'detections.pkl')
+        st = time.time()
+        total_infer_time = 0
+        count = 0
+        for idx, (imgs, _, img_info) in enumerate(val_loader):
+            with torch.no_grad():
+                t1 = time.time()
+                x = imgs
+                x = x.cuda()
+                output = net(x)
+                output = (output[0], output[1], net.priors)
+                t4 = time.time()
+                boxes, scores = detector.forward(output)
+                t2 = time.time()
+                for k in range(boxes.size(0)):
+                    i = idx * batch_size + k
+                    boxes_ = boxes[k]
+                    scores_ = scores[k]
+                    boxes_ = boxes_.cpu().numpy()
+                    scores_ = scores_.cpu().numpy()
+                    img_wh = img_info[k]
+                    scale = np.array([img_wh[0], img_wh[1], img_wh[0], img_wh[1]])
+                    boxes_ *= scale
+                    for j in range(1, num_classes):
+                        # print(idx, k, j)
+                        inds = np.where(scores_[:, j] > thresh)[0]
+                        if len(inds) == 0:
+                            all_boxes[j][i] = np.empty([0, 5], dtype=np.float32)
+                            continue
+                        c_bboxes = boxes_[inds]
+                        c_scores = scores_[inds, j]
+                        c_dets = np.hstack((c_bboxes, c_scores[:, np.newaxis])).astype(np.float32, copy=False)
+                        keep = nms(c_dets, cfg.TEST.NMS_OVERLAP, force_cpu=True)
+                        keep = keep[:50]
+                        c_dets = c_dets[keep, :]
+                        all_boxes[j][i] = c_dets
+                t3 = time.time()
+                detect_time = t2 - t1
+                nms_time = t3 - t2
+                forward_time = t4 - t1
+                if idx % 10 == 0:
+                    print('im_detect: {:d}/{:d} {:.3f}s {:.3f}s {:.3f}s'.format(i + 1, num_images, forward_time, detect_time, nms_time))
+                total_infer_time += forward_time
+                count += 1
+        print("detect time: ", time.time() - st)
+        with open(det_file, 'wb') as f:
+            pickle.dump(all_boxes, f, pickle.HIGHEST_PROTOCOL)
+        print('Evaluating detections')
+        mAP = val_dataset.evaluate_detections(all_boxes, eval_save_folder)
+        return float(mAP), total_infer_time / count
 
 
 def count_flops_params(net):
     # flops and params
-    torch.set_default_tensor_type('torch.FloatTensor')
-    input = torch.randn(1, 3, 300, 300).cuda()
-    macs, params = profile(net, inputs=(input, ), verbose=False)
-    macs, params = clever_format([macs, params], "%.3f")
-    print('FLOPs: {}, params: {}'.format(macs, params))
-    for m in net.modules():
-        if hasattr(m, 'total_params'):
-            del m.total_params
-        if hasattr(m, 'total_ops'):
-            del m.total_ops
+    with torch.no_grad():
+        torch.set_default_tensor_type('torch.FloatTensor')
+        input = torch.randn(1, 3, 300, 300).cuda()
+        macs, params = profile(net, inputs=(input, ), verbose=False)
+        macs_f, params_f = clever_format([macs, params], "%.3f")
+        print('FLOPs: {}, params: {}'.format(macs_f, params_f))
+        for m in net.modules():
+            if hasattr(m, 'total_params'):
+                del m.total_params
+            if hasattr(m, 'total_ops'):
+                del m.total_ops
+        return macs, params
 
 
 def main():
@@ -194,7 +209,10 @@ def main():
     args = arg_parse()
     cfg_from_file(args.cfg_file)
     save_folder = args.save_folder
-    batch_size = cfg.TRAIN.BATCH_SIZE
+    batch_size = args.batch_size
+    print('\n\n\n')
+    print(batch_size)
+    print('\n\n\n')
     bgr_means = cfg.TRAIN.BGR_MEAN
     p = 0.6
     gamma = cfg.SOLVER.GAMMA
@@ -209,13 +227,13 @@ def main():
         trainvalDataset = COCODetection
         top_k = 300
     dataset_name = cfg.DATASETS.DATA_TYPE
-    dataroot = cfg.DATASETS.DATAROOT
+    dataroot = args.data
     trainSet = cfg.DATASETS.TRAIN_TYPE
     valSet = cfg.DATASETS.VAL_TYPE
     num_classes = cfg.MODEL.NUM_CLASSES
     start_epoch = args.resume_epoch
     epoch_step = cfg.SOLVER.EPOCH_STEPS
-    end_epoch = cfg.SOLVER.END_EPOCH
+    end_epoch = args.finetune_epochs
     if not os.path.exists(save_folder):
         os.mkdir(save_folder)
     torch.set_default_tensor_type('torch.cuda.FloatTensor')
@@ -274,9 +292,23 @@ def main():
 
     # baseline
     print("\nInfer before pruning:")
-    count_flops_params(net)
+    flops, params = count_flops_params(net)
     if args.baseline:
         eval_net(val_dataset, val_loader, net, detector, cfg, ValTransform, os.path.join(args.save_folder, 'baseline'), top_k, thresh=thresh, batch_size=batch_size)
+
+    if args.write_yaml:
+        flops, params = flops, params
+        mAP, infer_time = eval_net(val_dataset, val_loader, net, detector, cfg, ValTransform, os.path.join(args.save_folder, 'baseline'), top_k, thresh=thresh, batch_size=batch_size)
+        storage = os.path.getsize(args.resume_net)
+        with open(os.path.join(args.save_folder, 'logs.yaml'), 'w') as f:
+            yaml_data = {
+                'mAP': {'baseline': round(mAP*100, 2), 'method': None},
+                'FLOPs': {'baseline': round(flops/1e9, 2), 'method': None},
+                'Parameters': {'baseline': round(params/1e6, 2), 'method': None},
+                'Infer_times': {'baseline': round(infer_time*1e3, 2), 'method': None},
+                'Storage': {'baseline': round(storage/1e6, 2), 'method': None},
+            }
+            yaml.dump(yaml_data, f)
 
     op_names = [
         'extractor.conv1',
@@ -374,8 +406,8 @@ def main():
     else:
         raise NotImplementedError
     pruner.compress()
-    print("\nInfer after pruning:")
-    eval_net(val_dataset, val_loader, net, detector, cfg, ValTransform, os.path.join(args.save_folder, 'after_prune'), top_k, thresh=thresh, batch_size=batch_size)
+    # print("\nInfer after pruning:")
+    # eval_net(val_dataset, val_loader, net, detector, cfg, ValTransform, os.path.join(args.save_folder, 'after_prune'), top_k, thresh=thresh, batch_size=batch_size)
 
     # save masked pruned model (model + mask)
     pruner.export_model(os.path.join(args.save_folder, 'model_masked.pth'), os.path.join(args.save_folder, 'mask.pth'))
@@ -392,16 +424,35 @@ def main():
     net.priors = net.priors.to(device)
 
     # finetune
-    optimizer = optim.SGD(net.parameters(), lr=cfg.SOLVER.BASE_LR, momentum=momentum, weight_decay=weight_decay)
+    optimizer = optim.SGD(net.parameters(), lr=args.finetune_lr, momentum=momentum, weight_decay=weight_decay)
     for epoch in range(start_epoch + 1, end_epoch + 1):
         train_dataset = trainvalDataset(dataroot, trainSet, TrainTransform, dataset_name)
         epoch_size = len(train_dataset)
         train_loader = data.DataLoader(train_dataset, batch_size, shuffle=True, num_workers=args.num_workers, collate_fn=detection_collate)
         train(train_loader, net, criterion, optimizer, epoch, epoch_step, gamma, end_epoch, cfg)
     print("\nInfer after finetune:")
-    count_flops_params(net)
-    eval_net(val_dataset, val_loader, net, detector, cfg, ValTransform, os.path.join(args.save_folder, 'export'), top_k, thresh=thresh, batch_size=batch_size)
+    flops, params = count_flops_params(net)
+    mAP, infer_time = eval_net(val_dataset, val_loader, net, detector, cfg, ValTransform, os.path.join(args.save_folder, 'export'), top_k, thresh=thresh, batch_size=batch_size)
     save_checkpoint("export_pruned_model.pth", net)
+
+    if args.write_yaml and not args.no_write_yaml_after_prune:
+        storage = os.path.getsize(os.path.join(args.save_folder, 'export_pruned_model.pth'))
+        with open(os.path.join(args.save_folder, 'logs.yaml'), 'w') as f:
+            yaml_data = {
+                'mAP': {'baseline': yaml_data['mAP']['baseline'], 'method': round(mAP*100, 2)},
+                'FLOPs': {'baseline': yaml_data['FLOPs']['baseline'], 'method': round(flops/1e9, 2)},
+                'Parameters': {'baseline': yaml_data['Parameters']['baseline'], 'method': round(params/1e6, 2)},
+                'Infer_times': {'baseline': yaml_data['Infer_times']['baseline'], 'method': round(infer_time*1e3, 2)},
+                'Storage': {'baseline': yaml_data['Storage']['baseline'], 'method': round(storage/1e6, 2)},
+                'Output_file': os.path.join(args.save_folder, 'model_speed_up_finetuned.pth'),
+            }
+            yaml.dump(yaml_data, f)
+        torch.save(net, \
+            os.path.join(
+                args.save_folder, \
+                '../../..', \
+                'model_vis/VOC-ResNet50SSD', \
+                'online-{}.pth'.format(args.pruner)))
 
     ######################## prune end   ########################
 

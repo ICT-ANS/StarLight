@@ -1,17 +1,14 @@
 # StarLight
+
 ![lincense](https://img.shields.io/badge/license-MIT-brightgreen)
 ![Python](https://img.shields.io/badge/Python-%3E%3D3.6-important)
 ![Pytorch](https://img.shields.io/badge/PyTorch-%3E%3D1.0-important)
 ![release](https://img.shields.io/badge/release-v1.0-informational)
 ![docs](https://img.shields.io/badge/docs-updating-ff69b4)
 
-StarLight is a general framework, which provides various algorithms for Neural Architecture Search (NAS), Model Pruning, and Model Quantization. 
+StarLight is a general framework, which provides various algorithms for Neural Architecture Search (NAS), Model Pruning, and Model Quantization.
 
-[comment]: <> (![image-20201206193807891]&#40;./docs/img/ans.png&#41;)
-
------------
-
-
+---
 
 ## Capabilities in a glance
 
@@ -96,12 +93,6 @@ StarLight is a general framework, which provides various algorithms for Neural A
               <li><a href="docs/multi-task/MTL.md">MTL</a></li>
               <li><a href="docs/multi-task/Prune.md">Prune</a></li>
             </ul>
-            
-[comment]: <> (      </td>)
-
-[comment]: <> (    </tr>)
-  </tbody>
-</table>
 
 ## File Structure
 
@@ -111,7 +102,6 @@ StarLight is a general framework, which provides various algorithms for Neural A
 - nas - 模型搜索对应的代码文件夹
 - qtui - qt对应的ui文件
 - tools - 共用的一些小函数
-
 
 ## Environment
 
@@ -140,23 +130,23 @@ pip install uff/uff-0.6.9-py2.py3-none-any.whl
 pip install graphsurgeon/graphsurgeon-0.4.5-py2.py3-none-any.whl
 ```
 
-
-- 4. pyqt5==5.12, simply use pip to for installation: 
+- 4. pyqt5==5.12, simply use pip to for installation:
 
 ```shell
     pip install pyqt5==5.12,
-    pip install PyQtWebEngine==5.12	
+    pip install PyQtWebEngine==5.12
 ```
 
 - 5. others
 
 ```shell
-    pip install easydict, opencv-python, flask, flask_cors, gevent, imageio, pynvml, pyyaml, psutil
+    pip install easydict, opencv-python, flask, flask_cors, gevent, imageio, pynvml, pyyaml, psutil, matplotlib, pycocotools, Cython, thop, tensorboard, schema, onnx, pycuda==2019.1.1
 ```
 
 ## Usage
 
 1. Example for model compression
+
 ```shell
     cd modelcompress
     python modelcomp.py
@@ -170,8 +160,7 @@ pip install graphsurgeon/graphsurgeon-0.4.5-py2.py3-none-any.whl
     sudo apt install qtcreator
 ```
 
-- For other systems, you can download the suitable version of Qt Creator from this link: <http://download.qt.io/archive/qtcreator/4.4/4.4.1/>
-
+- For other systems, you can download the suitable version of Qt Creator from this link: [http://download.qt.io/archive/qtcreator/4.4/4.4.1/](http://download.qt.io/archive/qtcreator/4.4/4.4.1/)
 - After editing the UI file, you can get its corresponding Python code by running:
 
 ```shell
@@ -179,4 +168,4 @@ pip install graphsurgeon/graphsurgeon-0.4.5-py2.py3-none-any.whl
     pyuic5 -o modelcomp_ui.py modelcompress.ui 
 ```
 
-
+[comment]: [comment]:

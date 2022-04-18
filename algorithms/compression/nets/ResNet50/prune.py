@@ -1,3 +1,5 @@
+import numpy as np
+
 import torch
 import torch.nn as nn
 import torchvision.datasets as datasets
@@ -10,7 +12,7 @@ import os
 import sys
 import logging
 import random
-import numpy as np
+
 import time
 import glob
 from utils import *

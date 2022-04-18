@@ -4,6 +4,10 @@ rootpath = os.path.abspath(os.path.join(os.path.dirname(__file__), "../"))
 sys.path.append(rootpath)
 sys.path.append(os.path.join(os.path.dirname(__file__), "tmp/"))
 
+os.environ['MKL_THREADING_LAYER'] = 'GNU'
+
+import numpy as np
+
 import time
 from PyQt5.QtGui import QPixmap, QPalette
 from PyQt5.QtCore import Qt, QUrl, QTimer, QThread, pyqtSignal
@@ -19,7 +23,6 @@ from compression_vis.hyperparameters_setting import HyperparametersSettingWindow
 
 import torch
 
-import numpy as np
 import cgitb
 import inspect
 import ctypes

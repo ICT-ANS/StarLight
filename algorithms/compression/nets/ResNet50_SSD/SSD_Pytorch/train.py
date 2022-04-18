@@ -12,7 +12,7 @@ import torch.utils.data as data
 from data import COCODetection, VOCDetection, detection_collate, BaseTransform, preproc
 from layers.modules import MultiBoxLoss, RefineMultiBoxLoss
 from layers.functions import Detect
-from utils.nms_wrapper import nms, soft_nms
+from utils_.nms_wrapper import nms, soft_nms
 from configs.config import cfg, cfg_from_file
 import numpy as np
 import time

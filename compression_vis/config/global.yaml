@@ -9,6 +9,8 @@ dataset,model:
   - 'null,null'
   - TinyImageNet,ResNet50
   - TinyImageNet,ResNet101
+  - VOC,ResNet50SSD
+  - ZhiJiangDataset,CFNet
 
 prune_method:
   - 'null'
@@ -35,6 +37,14 @@ support_combinations:
     - null,int8
     - fpgm,fp16
     - fpgm,int8
+  VOC,ResNet50SSD:
+    - fpgm,null
+    - null,fp16
+    - null,int8
+    - fpgm,fp16
+    - fpgm,int8
+  ZhiJiangDataset,CFNet:
+    - fpgm,null
 
 origin_performance:
   TinyImageNet,ResNet50:
@@ -45,6 +55,14 @@ origin_performance:
     Accuracy: 61.90 %
     FLOPs: 637.09 M
     Parameters: 42.80 M
+  VOC,ResNet50SSD:
+    mAP: 76.30 %
+    FLOPs: 9.93 G
+    Parameters: 38.06 M
+  ZhiJiangDataset,CFNet:
+    EPE: 61.80 %
+    FLOPs: 334.05 M
+    Parameters: 23.86 M
 
 figures:
   TinyImageNet,ResNet50:
@@ -63,8 +81,27 @@ figures:
     method_legends: ['method accuracy/%', 'method FLOPs/M', 'method infer_time/ms', 'method parameters/M', 'method storage/MB']
     baseline_colors: ['#FB3207', '#FB3207', '#FB3207', '#FB3207', '#FB3207']
     method_colors: ['#0780FB', '#0780FB', '#0780FB', '#0780FB', '#0780FB']
+  VOC,ResNet50SSD:
+    # top_center, top_right, down_left, down_center, down_right
+    var_names: [mAP, FLOPs, Infer_times, Parameters, Storage] # 输出文件logs.yaml中的变量名字
+    titles: ['mAP对比', 'FLOPs对比', 'Infer_time对比', 'Parameters对比', 'Storage对比']
+    baseline_legends: ['baseline mAP/%', 'baseline FLOPs/M', 'baseline infer_time/ms', 'baseline parameters/M', 'baseline storage/MB']
+    method_legends: ['method mAP/%', 'method FLOPs/M', 'method infer_time/ms', 'method parameters/M', 'method storage/MB']
+    baseline_colors: ['#FB3207', '#FB3207', '#FB3207', '#FB3207', '#FB3207']
+    method_colors: ['#0780FB', '#0780FB', '#0780FB', '#0780FB', '#0780FB']
+  ZhiJiangDataset,CFNet:
+    # top_center, top_right, down_left, down_center, down_right
+    var_names: [EPE, FLOPs, Infer_times, Parameters, Storage] # 输出文件logs.yaml中的变量名字
+    titles: ['EPE对比', 'FLOPs对比', 'Infer_time对比', 'Parameters对比', 'Storage对比']
+    baseline_legends: ['baseline EPE/%', 'baseline FLOPs/M', 'baseline infer_time/ms', 'baseline parameters/M', 'baseline storage/MB']
+    method_legends: ['method EPE/%', 'method FLOPs/M', 'method infer_time/ms', 'method parameters/M', 'method storage/MB']
+    baseline_colors: ['#FB3207', '#FB3207', '#FB3207', '#FB3207', '#FB3207']
+    method_colors: ['#0780FB', '#0780FB', '#0780FB', '#0780FB', '#0780FB']
+
 
 
 shell_path:
   TinyImageNet,ResNet50: algorithms/compression/nets/ResNet50/shell/compress.sh
   TinyImageNet,ResNet101: algorithms/compression/nets/ResNet50/shell/compress.sh
+  VOC,ResNet50SSD: algorithms/compression/nets/ResNet50_SSD/shell/compress.sh
+  ZhiJiangDataset,CFNet: algorithms/compression/nets/ResNet50/shell/compress.sh
