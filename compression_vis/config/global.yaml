@@ -14,13 +14,13 @@ dataset,model:
 
 prune_method:
   - 'null'
-  - fpgm
-  - agp
+  # - fpgm
+  # - agp
 
 quan_method:
   - 'null'
-  - fp16
-  - int8
+  # - fp16
+  # - int8
 
 support_combinations:
   TinyImageNet,ResNet50:

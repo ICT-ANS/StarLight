@@ -206,6 +206,7 @@ class MainWindow(QMainWindow):
 
         self.setPerformance()
         self.ui.comboBox.currentIndexChanged.connect(self.setPerformance)
+        self.ui.comboBox.currentIndexChanged.connect(self.setMethod)
 
         self.ui.pushButton_2.clicked.connect(self.setHyperparameters)
         self.ui.pushButton_modelvis.clicked.connect(self.modelVisBtnCallback)
@@ -387,6 +388,29 @@ class MainWindow(QMainWindow):
             return False
 
         return True
+
+    def setMethod(self):
+        dataset = self.getData('dataset')
+        model = self.getData('model')
+        dataset_model_key = '{},{}'.format(dataset, model)
+        method_list = self.global_config['support_combinations'][dataset_model_key]
+        prune_list = ['null']
+        quan_list = ['null']
+        for m in method_list:
+            prune_m, quan_m = m.split(',')
+            if prune_m not in prune_list:
+                prune_list.append(prune_m)
+            if quan_m not in quan_list:
+                quan_list.append(quan_m)
+            
+        # prune
+        self.ui.comboBox_4.clear()
+        self.ui.comboBox_4.addItems(prune_list)
+        self.ui.comboBox_4.setCurrentIndex(prune_list.index('null'))
+        # quan
+        self.ui.comboBox_5.clear()
+        self.ui.comboBox_5.addItems(quan_list)
+        self.ui.comboBox_5.setCurrentIndex(quan_list.index('null'))
 
     def setPerformance(self):
         currentfolder = os.path.abspath(os.path.dirname(__file__))
