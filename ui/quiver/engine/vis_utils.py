@@ -24,6 +24,8 @@ def save_layer_outputs(model, hooks, graph, layer_name, input_folder, input_name
 
     if use_gpu and torch.cuda.is_available():
         img_tensor = img_tensor.cuda()
+    else:
+        img_tensor = img_tensor.cpu()
 
     outputs = model(img_tensor)
 
