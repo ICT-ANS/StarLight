@@ -4,6 +4,11 @@ import torch.backends.cudnn as cudnn
 from torch.autograd import Function
 from torch.autograd import Variable
 import torch.nn.functional as F
+
+import sys, os
+
+sys.path.append(os.path.dirname(__file__)+  os.sep + '../../')
+
 from utils.box_utils import decode, center_size
 
 

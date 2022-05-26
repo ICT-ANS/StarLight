@@ -1,5 +1,5 @@
 import os
-os.environ["CUDA_VISIBLE_DEVICES"] = "1"
+# os.environ["CUDA_VISIBLE_DEVICES"] = "1"
 import torch
 # torch.backends.cudnn.enabled = False
 # torch.backends.cudnn.benchmark = True
@@ -31,17 +31,20 @@ from thop import profile
 from lib.compression.pytorch import ModelSpeedup
 from lib.algorithms.pytorch.pruning import (TaylorFOWeightFilterPruner, FPGMPruner, AGPPruner)
 
+from data.voc_eval import voc_eval
+
+
 def arg_parse():
     parser = argparse.ArgumentParser(
         description='Single Shot MultiBox Detection')
     parser.add_argument(
         '--weights',
-        default='weights/ssd_vgg_epoch_250_300_2.pth',
+        default='/home/xingxing/projects/StarLight/data/compression/inputs/VOC-VGGSSD/model.pth',
         type=str,
         help='Trained state_dict file path to open')
     parser.add_argument(
         '--cfg',
-        default='./configs/ssd_vgg_voc.yaml',
+        default='./algorithms/compression/nets/VGG_SSD/configs/ssd_vgg_voc.yaml',
         dest='cfg_file',
         #required=True,
         help='Config file for training (and optionally testing)')
@@ -147,12 +150,17 @@ def eval_net(val_dataset,
             total_id += 1
     print('im_detect: average_forward_time {:.3f}s average_detect_time {:.3f}s average_nms_time {:.3f}s'.format(
                     total_forward_time/total_id, total_detect_time/total_id, total_nms_time/total_id))
-
+    average_forward_time = float('%.3f' % (total_forward_time/total_id))
     with open(det_file, 'wb') as f:
         pickle.dump(all_boxes, f, pickle.HIGHEST_PROTOCOL)
     print('Evaluating detections')
-    val_dataset.evaluate_detections(all_boxes, eval_save_folder)
+    mAP = val_dataset.evaluate_detections(all_boxes, eval_save_folder)
+    mAP = float('%.3f' % mAP)
+    print('final mAP = ', mAP)
     print("detect time: ", time.time() - st)
+
+    return mAP, average_forward_time
+
 
 
 def main():
@@ -209,6 +217,31 @@ def main():
             name = k
         new_state_dict[name] = v
     net.load_state_dict(new_state_dict)
+
+    # Val Origianl model
+    detector = Detect(cfg)
+    ValTransform = BaseTransform(size_cfg.IMG_WH, bgr_means, (2, 0, 1))
+    val_dataset = trainvalDataset(dataroot, valSet, ValTransform, "val")
+    val_loader = data.DataLoader(
+        val_dataset,
+        batch_size,
+        shuffle=False,
+        num_workers=num_workers,
+        collate_fn=detection_collate)
+    
+    ## Val pruned model without finetuning ##
+    top_k = 300
+    thresh = cfg.TEST.CONFIDENCE_THRESH
+    mAP, average_forward_time = eval_net(
+        val_dataset,
+        val_loader,
+        net,
+        detector,
+        cfg,
+        ValTransform,
+        top_k,
+        thresh=thresh,
+        batch_size=batch_size)
     
 # extractor.vgg.0
 # extractor.vgg.2
@@ -325,7 +358,7 @@ def main():
     ## Val pruned model without finetuning ##
     top_k = 300
     thresh = cfg.TEST.CONFIDENCE_THRESH
-    eval_net(
+    mAP, average_forward_time = eval_net(
         val_dataset,
         val_loader,
         model,

@@ -26,4 +26,32 @@ default_setting:
     ft_epochs: 10
     prune_sparisity: 0.2
     gpus: "0"
+    
+  VOC,VGGSSD:
+    ft_lr: 0.001
+    ft_bs: 128
+    ft_epochs: 10
+    prune_sparisity: 0.2
+    gpus: "0"
+
+  Cityscapes,PSPNet:
+    ft_lr: 0.01
+    ft_bs: 6
+    ft_epochs: 100
+    prune_sparisity: 0.3
+    gpus: "0"
+
+  Cityscapes,DeepLabV3:
+    ft_lr: 0.01
+    ft_bs: 16
+    ft_epochs: 100
+    prune_sparisity: 0.3
+    gpus: "0"
+  
+  KeTi3Dataset,UNet:
+    ft_lr: 1e-8
+    ft_bs: 1
+    ft_epochs: 20
+    prune_sparisity: 0.2
+    gpus: "0"
 

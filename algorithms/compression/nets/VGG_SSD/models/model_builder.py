@@ -5,6 +5,10 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torch.autograd import Variable
+import sys, os
+
+sys.path.append(os.path.dirname(__file__)+  os.sep + '../')
+
 from layers import *
 import os
 from models.model_helper import weights_init

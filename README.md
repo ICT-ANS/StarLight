@@ -140,7 +140,7 @@ pip install graphsurgeon/graphsurgeon-0.4.5-py2.py3-none-any.whl
 - 5. others
 
 ```shell
-    pip install easydict, opencv-python, flask, flask_cors, gevent, imageio, pynvml, pyyaml, psutil, matplotlib, pycocotools, Cython, thop, tensorboard, schema, onnx, pycuda==2019.1.1
+    pip install easydict, opencv-python, flask, flask_cors, gevent, imageio, pynvml, pyyaml, psutil, matplotlib, pycocotools, Cython, thop, tensorboard, schema, onnx, pycuda==2019.1.1, tqdm
 ```
 
 ## Usage

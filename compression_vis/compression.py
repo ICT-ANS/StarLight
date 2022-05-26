@@ -17,7 +17,7 @@ from PyQt5.QtWebEngineWidgets import QWebEngineView
 from _init_paths import C
 
 import ui.echarts.utils as echarts
-from ui.quiver.utils import ModelViewer
+
 from ui.qtui.compression.compression_ui import * 
 from compression_vis.hyperparameters_setting import HyperparametersSettingWindow
 from algorithms import *
@@ -36,6 +36,13 @@ cgitb.enable(format='text')
 from torchvision import models
 import psutil
 import subprocess
+
+sys.path.append("/home/xingxing/projects/StarLight/algorithms/compression/nets/VGG_SSD")
+from models.model_builder import SSD
+from ui.quiver.utils import ModelViewer
+
+sys.path.append(os.path.join(C.work_dir, 'algorithms/compression/nets/PSPNet/models'))
+sys.path.append(os.path.join(C.work_dir, 'algorithms/compression/nets/DeepLabV3Plus'))
 
 sub_process = None
 

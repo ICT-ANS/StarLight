@@ -1,5 +1,5 @@
 import os
-os.environ["CUDA_VISIBLE_DEVICES"] = "7"
+# os.environ["CUDA_VISIBLE_DEVICES"] = "7"
 import torch
 # torch.backends.cudnn.enabled = False
 # torch.backends.cudnn.benchmark = True
@@ -36,12 +36,12 @@ def arg_parse():
         description='Single Shot MultiBox Detection')
     parser.add_argument(
         '--weights',
-        default='weights/ssd_vgg_epoch_250_300_2.pth',
+        default='/home/xingxing/projects/StarLight/data/compression/inputs/VOC-VGGSSD/model.pth',
         type=str,
         help='Trained state_dict file path to open')
     parser.add_argument(
         '--cfg',
-        default='./configs/ssd_vgg_voc.yaml',
+        default='./algorithms/compression/nets/VGG_SSD/configs/ssd_vgg_voc.yaml',
         dest='cfg_file',
         #required=True,
         help='Config file for training (and optionally testing)')
@@ -60,7 +60,10 @@ def arg_parse():
 
     parser.add_argument('--pruner', default='fpgm', type=str, help='pruner: agp|taylor|fpgm')
     parser.add_argument('--sparsity', default=0.2, type=float, metavar='LR', help='prune sparsity')
-    parser.add_argument('--save_dir', default='./prune', help='The directory used to save the trained models', type=str)
+    parser.add_argument('--save_dir', type=str, help='The directory used to save the trained models')
+    parser.add_argument('--finetune_epochs', default=10, type=int, help='number of finetune epochs for exported model')
+    parser.add_argument('--write_yaml', action='store_true', default=False, help='write yaml file')
+    parser.add_argument('--no_write_yaml_after_prune', action='store_true', default=False, help='')
 
     args = parser.parse_args()
     return args
@@ -147,12 +150,16 @@ def eval_net(val_dataset,
             total_id += 1
     print('im_detect: average_forward_time {:.3f}s average_detect_time {:.3f}s average_nms_time {:.3f}s'.format(
                     total_forward_time/total_id, total_detect_time/total_id, total_nms_time/total_id))
-
+    average_forward_time = float('%.3f' % (total_forward_time/total_id))
     with open(det_file, 'wb') as f:
         pickle.dump(all_boxes, f, pickle.HIGHEST_PROTOCOL)
     print('Evaluating detections')
-    val_dataset.evaluate_detections(all_boxes, eval_save_folder)
+    mAP = val_dataset.evaluate_detections(all_boxes, eval_save_folder)
+    mAP = float('%.3f' % mAP)
+    print('final mAP = ', mAP)
     print("detect time: ", time.time() - st)
+
+    return mAP, average_forward_time
 
 
 def adjust_learning_rate(optimizer, epoch, step_epoch, gamma, epoch_size,
@@ -296,6 +303,44 @@ def main():
             name = k
         new_state_dict[name] = v
     net.load_state_dict(new_state_dict)
+
+    # torch.save(net, '/home/user/yanglongxing/StarLight_Sun/data/compression/model_vis/VOC-VGGSSD/model.pth')
+
+    # Val Origianl model
+    detector = Detect(cfg)
+    ValTransform = BaseTransform(size_cfg.IMG_WH, bgr_means, (2, 0, 1))
+    val_dataset = trainvalDataset(dataroot, valSet, ValTransform, "val")
+    val_loader = data.DataLoader(
+        val_dataset,
+        batch_size,
+        shuffle=False,
+        num_workers=num_workers,
+        collate_fn=detection_collate)
+    
+    ## Val pruned model without finetuning ##
+    top_k = 300
+    thresh = cfg.TEST.CONFIDENCE_THRESH
+    mAP, average_forward_time = eval_net(
+        val_dataset,
+        val_loader,
+        net,
+        detector,
+        cfg,
+        ValTransform,
+        top_k,
+        thresh=thresh,
+        batch_size=batch_size)
+    if args.write_yaml:
+        storage = os.path.getsize(args.weights)
+        with open(os.path.join(args.save_dir, 'logs.yaml'), 'w') as f:
+            yaml_data = {
+                'Accuracy': {'baseline': round(mAP, 2), 'method': None},
+                'FLOPs': {'baseline': round(flops/1e6, 2), 'method': None},
+                'Parameters': {'baseline': round(params/1e6, 2), 'method': None},
+                'Infer_times': {'baseline': round(average_forward_time*1e3, 2), 'method': None},
+                'Storage': {'baseline': round(storage/1e6, 2), 'method': None},
+            }
+            yaml.dump(yaml_data, f)
     
 # extractor.vgg.0
 # extractor.vgg.2
@@ -370,7 +415,9 @@ def main():
         raise NotImplementedError
     
     pruned_model = pruner.compress()
-
+    print(args)
+    print('args.save_dir', args.save_dir)
+    print(os.path.join(args.save_dir, 'model_masked.pth'))
     pruner.export_model(os.path.join(args.save_dir, 'model_masked.pth'), 
                                 os.path.join(args.save_dir, 'mask.pth'))
     
@@ -410,19 +457,20 @@ def main():
         num_workers=num_workers,
         collate_fn=detection_collate)
     
-    ## Val pruned model without finetuning ##
-    # top_k = 300
-    # thresh = cfg.TEST.CONFIDENCE_THRESH
-    # eval_net(
-    #     val_dataset,
-    #     val_loader,
-    #     model,
-    #     detector,
-    #     cfg,
-    #     ValTransform,
-    #     top_k,
-    #     thresh=thresh,
-    #     batch_size=batch_size)
+    # Val pruned model without finetuning ##
+    top_k = 300
+    thresh = cfg.TEST.CONFIDENCE_THRESH
+    eval_net(
+        val_dataset,
+        val_loader,
+        model,
+        detector,
+        cfg,
+        ValTransform,
+        top_k,
+        thresh=thresh,
+        batch_size=batch_size)
+
     
     ## Finetune Pruned Model ##
     trainSet = cfg.DATASETS.TRAIN_TYPE
@@ -451,14 +499,16 @@ def main():
     end_epoch = cfg.SOLVER.END_EPOCH
     gamma = cfg.SOLVER.GAMMA
 
+    train_batch_size = cfg.TRAIN.BATCH_SIZE
+
     # for epoch in range(start_epoch + 1, end_epoch + 1):
-    for epoch in range(1, 11):
+    for epoch in range(1, 1+args.finetune_epochs):
         train_dataset = trainvalDataset(dataroot, trainSet, TrainTransform,
                                         dataset_name)
         epoch_size = len(train_dataset)
         train_loader = data.DataLoader(
             train_dataset,
-            batch_size,
+            train_batch_size,
             shuffle=True,
             num_workers=args.num_workers,
             collate_fn=detection_collate)
@@ -466,12 +516,12 @@ def main():
               gamma, end_epoch, cfg)
         
         #保存微调后的剪枝模型
-        torch.save(model.state_dict(), os.path.join(args.save_dir, 'model_pruned_finetune_10.pth'))
+        torch.save(model.state_dict(), os.path.join(args.save_dir, 'model_pruned_finetune_{}.pth'.format(epoch)))
 
         #加载微调后的剪枝模型
-        model.load_state_dict(torch.load(os.path.join(args.save_dir, 'model_pruned_finetune_10.pth')))
-        
-        eval_net(val_dataset,
+        model.load_state_dict(torch.load(os.path.join(args.save_dir, 'model_pruned_finetune_{}.pth'.format(epoch))))
+
+        mAP, average_forward_time = eval_net(val_dataset,
                 val_loader,
                 model,
                 detector,
@@ -480,6 +530,26 @@ def main():
                 top_k,
                 thresh=thresh,
                 batch_size=batch_size)
+
+        if epoch == args.finetune_epochs:
+            if args.write_yaml and not args.no_write_yaml_after_prune:
+                storage = os.path.getsize(os.path.join(args.save_dir, 'model_pruned_finetune_{}.pth'.format(epoch)))
+                with open(os.path.join(args.save_dir, 'logs.yaml'), 'w') as f:
+                    yaml_data = {
+                        'Accuracy': {'baseline': yaml_data['Accuracy']['baseline'], 'method': round(mAP, 2)},
+                        'FLOPs': {'baseline': yaml_data['FLOPs']['baseline'], 'method': round(flops/1e6, 2)},
+                        'Parameters': {'baseline': yaml_data['Parameters']['baseline'], 'method': round(params/1e6, 2)},
+                        'Infer_times': {'baseline': yaml_data['Infer_times']['baseline'], 'method': round(average_forward_time*1e3, 2)},
+                        'Storage': {'baseline': yaml_data['Storage']['baseline'], 'method': round(storage/1e6, 2)},
+                        'Output_file': os.path.join(args.save_dir, 'model_pruned_finetune_{}.pth'.format(epoch)),
+                    }
+                    yaml.dump(yaml_data, f)
+                torch.save(model, \
+                    os.path.join(
+                        args.save_dir, \
+                        '../../..', \
+                        'model_vis/VOC-VGGSSD', \
+                        'online-{}.pth'.format(args.pruner)))
     
     # top_k = 300
     # thresh = cfg.TEST.CONFIDENCE_THRESH

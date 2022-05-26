@@ -11,6 +11,10 @@ dataset,model:
   - TinyImageNet,ResNet101
   - VOC,ResNet50SSD
   - ZhiJiangDataset,CFNet
+  - VOC,VGGSSD
+  - Cityscapes,PSPNet
+  - Cityscapes,DeepLabV3
+  - KeTi3Dataset,UNet
 
 prune_method:
   - 'null'
@@ -45,6 +49,30 @@ support_combinations:
     - fpgm,int8
   ZhiJiangDataset,CFNet:
     - fpgm,null
+  VOC,VGGSSD:
+    - fpgm,null
+    - null,fp32
+    - null,fp16
+    - null,int8
+    - fpgm,fp32
+    - fpgm,fp16
+    - fpgm,int8
+  Cityscapes,PSPNet:
+    - fpgm,null
+    - null,fp16
+    - null,int8
+    - fpgm,fp16
+    - fpgm,int8
+  Cityscapes,DeepLabV3:
+    - fpgm,null
+    - null,fp16
+    - null,int8
+    - fpgm,fp16
+    - fpgm,int8
+  KeTi3Dataset,UNet:
+    - fpgm,null
+    - null,fp16
+    - fpgm,fp16
 
 origin_performance:
   TinyImageNet,ResNet50:
@@ -63,6 +91,22 @@ origin_performance:
     EPE: 61.80 %
     FLOPs: 334.05 M
     Parameters: 23.86 M
+  VOC,VGGSSD:
+    Accuracy: 77.8%
+    FLOPs: 31.4G
+    Parameters: 26.28M
+  Cityscapes,PSPNet:
+    mIoU: 77.30 %
+    FLOPs: 728.84 G
+    Parameters: 46.72 M
+  Cityscapes,DeepLabV3:
+    mIoU: 76.21 %
+    FLOPs: 633.17 G
+    Parameters: 58.75 M
+  KeTi3Dataset,UNet:
+    MPA: 90.61 %
+    FLOPs: 891.31 M
+    Parameters: 483.44 K
 
 figures:
   TinyImageNet,ResNet50:
@@ -97,6 +141,38 @@ figures:
     method_legends: ['method EPE/%', 'method FLOPs/M', 'method infer_time/ms', 'method parameters/M', 'method storage/MB']
     baseline_colors: ['#FB3207', '#FB3207', '#FB3207', '#FB3207', '#FB3207']
     method_colors: ['#0780FB', '#0780FB', '#0780FB', '#0780FB', '#0780FB']
+  VOC,VGGSSD:
+    # top_center, top_right, down_left, down_center, down_right
+    var_names: [Accuracy, FLOPs, Infer_times, Parameters, Storage] # 输出文件logs.yaml中的变量名字
+    titles: ['Accuracy对比', 'FLOPs对比', 'Infer_time对比', 'Parameters对比', 'Storage对比']
+    baseline_legends: ['baseline accuracy/%', 'baseline FLOPs/M', 'baseline infer_time/ms', 'baseline parameters/M', 'baseline storage/MB']
+    method_legends: ['method accuracy/%', 'method FLOPs/M', 'method infer_time/ms', 'method parameters/M', 'method storage/MB']
+    baseline_colors: ['#FB3207', '#FB3207', '#FB3207', '#FB3207', '#FB3207']
+    method_colors: ['#0780FB', '#0780FB', '#0780FB', '#0780FB', '#0780FB']
+  Cityscapes,PSPNet:
+    # top_center, top_right, down_left, down_center, down_right
+    var_names: [mIoU, FLOPs, Infer_times, Parameters, Storage] # 输出文件logs.yaml中的变量名字
+    titles: ['mIoU对比', 'FLOPs对比', 'Infer_time对比', 'Parameters对比', 'Storage对比']
+    baseline_legends: ['baseline mIoU/%', 'baseline FLOPs/M', 'baseline infer_time/ms', 'baseline parameters/M', 'baseline storage/MB']
+    method_legends: ['method mIoU/%', 'method FLOPs/M', 'method infer_time/ms', 'method parameters/M', 'method storage/MB']
+    baseline_colors: ['#FB3207', '#FB3207', '#FB3207', '#FB3207', '#FB3207']
+    method_colors: ['#0780FB', '#0780FB', '#0780FB', '#0780FB', '#0780FB']
+  Cityscapes,DeepLabV3:
+    # top_center, top_right, down_left, down_center, down_right
+    var_names: [mIoU, FLOPs, Infer_times, Parameters, Storage] # 输出文件logs.yaml中的变量名字
+    titles: ['mIoU对比', 'FLOPs对比', 'Infer_time对比', 'Parameters对比', 'Storage对比']
+    baseline_legends: ['baseline mIoU/%', 'baseline FLOPs/M', 'baseline infer_time/ms', 'baseline parameters/M', 'baseline storage/MB']
+    method_legends: ['method mIoU/%', 'method FLOPs/M', 'method infer_time/ms', 'method parameters/M', 'method storage/MB']
+    baseline_colors: ['#FB3207', '#FB3207', '#FB3207', '#FB3207', '#FB3207']
+    method_colors: ['#0780FB', '#0780FB', '#0780FB', '#0780FB', '#0780FB']
+  KeTi3Dataset,UNet:
+    # top_center, top_right, down_left, down_center, down_right
+    var_names: [MPA, FLOPs, Infer_times, Parameters, Storage] # 输出文件logs.yaml中的变量名字
+    titles: ['MPA对比', 'FLOPs对比', 'Infer_time对比', 'Parameters对比', 'Storage对比']
+    baseline_legends: ['baseline MPA/%', 'baseline FLOPs/M', 'baseline infer_time/ms', 'baseline parameters/M', 'baseline storage/MB']
+    method_legends: ['method MPA/%', 'method FLOPs/M', 'method infer_time/ms', 'method parameters/M', 'method storage/MB']
+    baseline_colors: ['#FB3207', '#FB3207', '#FB3207', '#FB3207', '#FB3207']
+    method_colors: ['#0780FB', '#0780FB', '#0780FB', '#0780FB', '#0780FB']
 
 
 
@@ -105,9 +181,17 @@ shell_path:
   TinyImageNet,ResNet101: algorithms/compression/nets/ResNet50/shell/compress.sh
   VOC,ResNet50SSD: algorithms/compression/nets/ResNet50_SSD/shell/compress.sh
   ZhiJiangDataset,CFNet: algorithms/compression/nets/ResNet50/shell/compress.sh
+  VOC,VGGSSD: algorithms/compression/nets/VGG_SSD/shell/compress.sh
+  Cityscapes,PSPNet: algorithms/compression/nets/PSPNet/shell/compress.sh
+  Cityscapes,DeepLabV3: algorithms/compression/nets/DeepLabV3/shell/compress.sh
+  KeTi3Dataset,UNet: algorithms/compression/nets/UNet/shell/compress.sh
 
 img_size:
   TinyImageNet,ResNet50: [200, 200]
   TinyImageNet,ResNet101: [200, 200]
   VOC,ResNet50SSD: [300, 300]
   ZhiJiangDataset,CFNet: [200, 200]
+  VOC,VGGSSD: [300, 300]
+  Cityscapes,PSPNet: [713, 713]
+  Cityscapes,DeepLabV3: [513, 513]
+  KeTi3Dataset,UNet: [150, 150]
