@@ -28,6 +28,22 @@ infer_times = []
 
 
 def newMPA(pred, label, threshold=0.05):
+    """compute MPA metric
+
+    Parameters
+    ----------
+    pred : torch.tensor
+        predict data
+    label : torch.tensor
+        ground truth
+    threshold : float, optional
+        default 0.05
+
+    Returns
+    -------
+    float
+        MPA
+    """    
     A = label.view(-1).float()
     B = pred.view(-1).float()
     TP = np.fabs(A - B) > threshold + 0.
@@ -220,6 +236,20 @@ def img_predict(net, device, root_path='Pytorch-UNet-master/data/data/predict/',
 
 
 def count_flops_params(net, device):
+    """count net FLOPs and parameters
+
+    Parameters
+    ----------
+    net : torch.Module
+        network
+    device : torch.device
+        device
+
+    Returns
+    -------
+    tuple
+        FLOPs, Params
+    """    
     input = torch.randn(1, 3, 150, 150).to(device)
     net = net.eval()
     macs, params = profile(net, inputs=(input, ), verbose=False)

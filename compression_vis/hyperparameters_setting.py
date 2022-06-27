@@ -19,6 +19,23 @@ from _init_paths import C
 # 超参输入界面
 class HyperparametersSettingWindow(QDialog):
     def __init__(self, dataset, model, prune_method, quan_method, is_online, is_offline):
+        """Init HyperparametersSettingWindow class
+
+        Parameters
+        ----------
+        dataset : str
+            dataset name
+        model : str
+            model name
+        prune_method : str
+            prune method name
+        quan_method : str
+            quan method name
+        is_online : bool
+            whether is online mode
+        is_offline : bool
+            whether is offline mode
+        """        
         QDialog.__init__(self)
         self.ui = Ui_Dialog()
         self.ui.setupUi(self)
@@ -41,7 +58,7 @@ class HyperparametersSettingWindow(QDialog):
 
         self.data = self.get_dict_data()
 
-    def set_enable(self):
+    def set_enable(self):   
         if self.is_offline:
             # self.ui.lineEdit_output_path.setEnabled(False)
             # self.ui.lineEdit_input_path.setEnabled(False)
@@ -82,6 +99,8 @@ class HyperparametersSettingWindow(QDialog):
             msg_box.exec_()
 
     def reset(self):
+        """reset all message
+        """        
         currentfolder = os.path.abspath(os.path.dirname(__file__))
         hp_config_file = os.path.join(os.path.dirname(currentfolder), "compression_vis", "config", "hyperparameters_setting.yaml")
         with open(hp_config_file) as f:
@@ -121,6 +140,13 @@ class HyperparametersSettingWindow(QDialog):
         self.reject()
 
     def get_data(self):
+        """get list
+
+        Returns
+        -------
+        list
+            data
+        """        
         data = []
         data.append('超参数设置:')
         data.append('finetune learning rate：' + self.ui.lineEdit_ft_lr.text())
@@ -134,6 +160,13 @@ class HyperparametersSettingWindow(QDialog):
         return data
 
     def get_dict_data(self):
+        """get dict
+
+        Returns
+        -------
+        dict
+            data
+        """        
         data = {}
         # base
         data['ft_lr'] = float(self.ui.lineEdit_ft_lr.text())
@@ -153,6 +186,8 @@ class HyperparametersSettingWindow(QDialog):
         return data
 
     def valid_check(self):
+        """check whether the input is valid
+        """        
         def is_float(data):
             try:
                 float(data)

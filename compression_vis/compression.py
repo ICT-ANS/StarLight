@@ -53,30 +53,40 @@ class CompressVisTask(QThread):
     signalUpdateUi = pyqtSignal(bool, dict, dict, str, str)  # 定义更新UI信号: is_finish, baseline_dict, method_dict, error_str, output_file
 
     def __init__(self, shell_path, var_names, args):
-        '''
-        args为{}，应包含如下参数
-        dataset: str
-        model: model
-        is_online: bool
-        is_offline: bool
-        prune_method: str
-        quan_method: str
-        ft_lr: float
-        ft_bs: int
-        ft_epochs: int
-        sparsity: float
-        prune_epochs: int
-        gpus: str
-        output_path: str
-        intput_path: str
-        dataset_path: str
-        '''
+        """Init CompressVisTask class
+
+        Parameters
+        ----------
+        shell_path : str
+            the shell path for compressing
+        var_names : list
+            metrics for evaluting network, e.g. accuracy, FLOPs, Parameters
+        args : dict
+            args should contain follows:
+                dataset: str
+                model: model
+                is_online: bool
+                is_offline: bool
+                prune_method: str
+                quan_method: str
+                ft_lr: float
+                ft_bs: int
+                ft_epochs: int
+                sparsity: float
+                prune_epochs: int
+                gpus: str
+                output_path: str
+                intput_path: str
+                dataset_path: str
+        """        
         super().__init__()
         self.shell_path = shell_path
         self.var_names = var_names
         self.args = args
 
     def run_algo(self):
+        """run algorithm by shell
+        """        
         global sub_process
         command = 'bash {}'.format(self.shell_path) + \
                     ' {}'.format(self.args['dataset']) + \
@@ -95,12 +105,16 @@ class CompressVisTask(QThread):
         sub_process = subprocess.Popen(command, shell=True)
 
     def run(self):
+        """run online mode or offline mode
+        """        
         if self.args['is_online']:
             self.online()
         elif self.args['is_offline']:
             self.offline()
 
     def online(self):
+        """online mode
+        """        
         thread = threading.Thread(target=self.run_algo)
         thread.start()
 
@@ -171,6 +185,8 @@ class CompressVisTask(QThread):
             self.sleep(10) # 睡眠 10s
 
     def offline(self):
+        """offline mode
+        """        
         logs_file = os.path.join(self.args['output_path'], 'logs.yaml')
 
         if not os.path.exists(logs_file):
@@ -195,6 +211,15 @@ class CompressVisTask(QThread):
 # 主界面
 class MainWindow(QMainWindow):
     def __init__(self, parent=None, flags=Qt.WindowFlags()):
+        """Init QMainWindow class
+
+        Parameters
+        ----------
+        parent : optional
+            default None
+        flags : optional
+            default Qt.WindowFlags()
+        """        
         super(MainWindow, self).__init__(parent=parent, flags=flags)
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
@@ -246,6 +271,8 @@ class MainWindow(QMainWindow):
         self.show()  # QMainWindow必须调用该函数，但QDialog不用
     
     def initConfig(self):
+        """read config file and init
+        """        
         currentfolder = os.path.abspath(os.path.dirname(__file__))
         global_config_file = os.path.join(os.path.dirname(currentfolder), "compression_vis/config", "global.yaml")
         with open(global_config_file) as f:
@@ -269,6 +296,8 @@ class MainWindow(QMainWindow):
         self.global_config = global_config
 
     def initHtml(self):
+        """init Html for bar figure
+        """        
         currentfolder = os.path.abspath(os.path.dirname(__file__))
         root = os.path.join(os.path.dirname(currentfolder), "ui/echarts", "html")
         lineHtmlfile = os.path.join(root, "line.html")
@@ -291,6 +320,8 @@ class MainWindow(QMainWindow):
         self.infertimeBarHtml = echarts.Bar(cvtPath(barHtmlfile), self.ui.scrollArea_4, xAxis=[], legends=["baseline infer_time/ms", "method infer_time/ms"], colors=['#FB3207', '#0780FB'], title='Infer Time对比') 
 
     def setHtml(self):
+        """set Html for bar figure
+        """        
         key = '{},{}'.format(self.getData('dataset'), self.getData('model'))
         if key not in self.global_config['figures']:
             return
@@ -316,6 +347,8 @@ class MainWindow(QMainWindow):
         self.storageBarHtml = echarts.Bar(cvtPath(barHtmlfile), self.ui.scrollArea_6, xAxis=[], legends=[baseline_legends[4], method_legends[4]], colors=[baseline_colors[4], method_colors[4]], title=titles[4]) 
 
     def updateEpochDisplay(self):
+        """update data each epoch
+        """        
         pe = QPalette()
         pe.setColor(QPalette.WindowText, Qt.red)  #设置字体颜色
         self.ui.label_7.setPalette(pe)
@@ -342,6 +375,18 @@ class MainWindow(QMainWindow):
                 self.timerCount = 0
 
     def getData(self, type):
+        """_summary_
+
+        Parameters
+        ----------
+        type : str
+            dataset | model | prune_method | quan_method | is_online | is_offline
+
+        Returns
+        -------
+        str
+            str of data
+        """        
         if type == 'dataset':
             if len(self.ui.comboBox.currentText().split(',')) == 1:
                 return 'null' # 当self.ui.comboBox.clear()是，其内容会为‘’，导致调用setPerformanc并报错
@@ -360,6 +405,13 @@ class MainWindow(QMainWindow):
             return self.ui.checkBox_3.isChecked()
     
     def checkData(self):
+        """_summary_
+
+        Returns
+        -------
+        bool
+            whether the input is valid
+        """        
         if self.getData('dataset') == 'null' or self.getData('model') == 'null': # 如果数据集和模型为null，弹出提醒框
             self.jumpQMessageBox("提示", '请选择数据集和模型')
             # QMessageBox.about(self, "提示", '请选择数据集和模型')
@@ -397,6 +449,8 @@ class MainWindow(QMainWindow):
         return True
 
     def setMethod(self):
+        """set default value
+        """        
         dataset = self.getData('dataset')
         model = self.getData('model')
         dataset_model_key = '{},{}'.format(dataset, model)
@@ -420,6 +474,8 @@ class MainWindow(QMainWindow):
         self.ui.comboBox_5.setCurrentIndex(quan_list.index('null'))
 
     def setPerformance(self):
+        """set Performance based on config file
+        """        
         currentfolder = os.path.abspath(os.path.dirname(__file__))
         global_config_file = os.path.join(os.path.dirname(currentfolder), "compression_vis/config", "global.yaml")
         with open(global_config_file) as f:
@@ -438,6 +494,8 @@ class MainWindow(QMainWindow):
         self.ui.label_3.setText(text)
 
     def setHyperparameters(self):
+        """set Hyperparameters 
+        """        
         if not self.checkData():
             return
         dialog = HyperparametersSettingWindow(self.getData('dataset'), self.getData('model'), self.getData('prune_method'), self.getData('quan_method'), self.getData('is_online'), self.getData('is_offline'))
@@ -450,26 +508,50 @@ class MainWindow(QMainWindow):
             self.dialog = dialog
     
     def jumpQMessageBox(self, title, message):
+        """jump QMessageBox
+
+        Parameters
+        ----------
+        title : str
+            QMessageBox title
+        message : str
+            QMessageBox message
+        """        
         box = QMessageBox(QMessageBox.Warning, title, message)
         box.addButton("确定", QMessageBox.YesRole)
         #self.box.addButton(self.tr("取消"), QMessageBox.NoRole)
         box.exec_()
 
     def getHyperparameters(self):
+        """get Hyperparameters
+
+        Returns
+        -------
+        dict
+            Hyperparameters
+        """        
         return self.dialog.data
 
     def tabWidgetClickedCallback(self):
+        """Callback when clicking tabWidget
+        """        
         self.resizeEvent(None)
 
     def onlineClickedCallback(self):
+        """Callback when clicking online
+        """        
         self.ui.checkBox_3.setChecked(not self.ui.checkBox_4.isChecked())
         self.ui.pushButton_2.setEnabled(True)
 
     def offlineClickedCallback(self):
+        """Callback when clicking offline
+        """        
         self.ui.checkBox_4.setChecked(not self.ui.checkBox_3.isChecked())
         self.ui.pushButton_2.setEnabled(True)
 
     def closeEvent(self, event):  # 函数名固定不可变
+        """check whether the process is finished
+        """        
         global sub_process
         if sub_process and psutil.pid_exists(sub_process.pid):  # (self.getData('is_online') and self.process_running):
             self.jumpQMessageBox('在线程序正在运行', '请手动结束在线程序')
@@ -480,6 +562,8 @@ class MainWindow(QMainWindow):
 
     # 压缩确认按钮回调函数
     def compressStartBtnCallback(self):
+        """Callback when clicking compressStart Butten
+        """        
         # 初始化
         self.resizeEvent(None)
         self.ui.label_17.setText('') # 压缩输出
@@ -537,6 +621,8 @@ class MainWindow(QMainWindow):
     
     # 重置按钮回调函数
     def resetStartBtnCallback(self):
+        """Callback when clicking reset Butten
+        """        
         # 如果程序运行，弹出提醒框，提示用户手动关闭程序，返回
         global sub_process 
         if sub_process and psutil.pid_exists(sub_process.pid):
@@ -557,6 +643,8 @@ class MainWindow(QMainWindow):
         self.ui.pushButton_reset.setEnabled(False)
 
     def modelVisBtnCallback(self):
+        """Callback when clicking modelVis Butten
+        """        
         dataset = self.getData('dataset')
         model = self.getData('model')
         datapath = os.path.join(C.quiver_dir, dataset)
@@ -570,6 +658,8 @@ class MainWindow(QMainWindow):
         self.modelVis.slotUpdateModel(model, datapath)
     
     def prunedModelVisBtnCallback(self):
+        """Callback when clicking prunedModel Butten
+        """        
         dataset = self.getData('dataset')
         model = self.getData('model')
         prune_method = self.getData('prune_method')
@@ -593,7 +683,7 @@ class MainWindow(QMainWindow):
         self.modelVis.set_img_size(self.global_config['img_size']['{},{}'.format(self.getData('dataset'), self.getData('model'))])
         self.modelVis.slotUpdateModel(model, datapath)
 
-    def resizeEvent(self, a0):
+    def resizeEvent(self, a0):    
         num = self.ui.tabWidget.count()
         cur_index = self.ui.tabWidget.currentIndex()
         for i in range(num):
@@ -610,6 +700,21 @@ class MainWindow(QMainWindow):
         self.infertimeBarHtml.destroy()
 
     def updateUiCompressCallback(self, is_finished, uiBaseline, uiMethod, error, output_file):
+        """Callback when updating Compress UI
+
+        Parameters
+        ----------
+        is_finished : bool
+            whether the process is finished
+        uiBaseline : dict
+            accuracy, FLOPs, Params, Storage, Infer Time of Baseline
+        uiMethod : dict
+            accuracy, FLOPs, Params, Storage, Infer Time of Method
+        error : str
+            error message
+        output_file : str
+            output file path
+        """        
         if error != '':
             # QMessageBox.about(self, "错误", '发生错误：{:s}， 请检查后重新运行'.format(error))
             self.jumpQMessageBox("错误", '发生错误：{:s}， 请检查后重新运行'.format(error))

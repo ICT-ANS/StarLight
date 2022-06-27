@@ -61,6 +61,26 @@ def arg_parse():
 
 
 def im_detect(img, net, detector, transform, thresh=0.01):
+    """
+    The function of detect one image
+
+    Parameters
+    ----------
+    img : 
+        The image for detecting
+    net : dict
+        The trained network for detecting
+    detector : 
+        The function of network for detection
+    transform : 
+        The transform for dataset
+    thresh : float, optional
+        The threshold of top_k number of output predictions, by default 0.01
+
+    Returns
+    -------
+    The network output that contains the object loacted in the image
+    """    
     with torch.no_grad():
         t0 = time.time()
         w, h = img.shape[1], img.shape[0]

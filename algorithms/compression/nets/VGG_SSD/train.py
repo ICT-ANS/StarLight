@@ -85,6 +85,30 @@ def adjust_learning_rate(optimizer, epoch, step_epoch, gamma, epoch_size,
 
 def train(train_loader, net, criterion, optimizer, epoch, epoch_step, gamma,
           end_epoch, cfg):
+    """
+    The function to train the network weights
+
+    Parameters
+    ----------
+    train_loader : _type_
+        The data loader of train dataset
+    net : dict
+        A dict object that contains the network property, the key is the name of the network layers.
+    criterion : _type_
+        The function for calculating network losses
+    optimizer : _type_
+        The optimizer for updating network weights
+    epoch : int
+        The number of epoches for network training
+    epoch_step : int
+        The number of steps per epoch
+    gamma : int
+        The number of solver
+    end_epoch : int
+        The number of end epoch for network training
+    cfg : 
+        The config file
+    """    
     net.train()
     begin = time.time()
     epoch_size = len(train_loader)
@@ -137,6 +161,20 @@ def train(train_loader, net, criterion, optimizer, epoch, epoch_step, gamma,
 
 
 def save_checkpoint(net, epoch, size, optimizer):
+    """
+    The function of saving the trained network checkpoint
+
+    Parameters
+    ----------
+    net : 
+        The network which to train
+    epoch : int
+        The number of epochs that the model trained
+    size : int
+        The size of the image
+    optimizer : dict
+        The optimizer of updating the network weights 
+    """    
     save_name = os.path.join(
         args.save_folder,
         cfg.MODEL.TYPE + "_epoch_{}_{}_3".format(str(epoch), str(size)) + '.pth')
@@ -158,6 +196,34 @@ def eval_net(val_dataset,
              max_per_image=300,
              thresh=0.01,
              batch_size=1):
+    """_summary_
+    The function of forward propagation to verify the network performance
+
+    Parameters
+    ----------
+    val_dataset : list
+        The list of images on validation dataset
+    val_loader : list
+        The data loader of validation dataset
+    net : dict
+        A dict object that contains the network property, the key is the name of the network layers.
+    detector : 
+        The function of network for detection
+    cfg : 
+        The config file
+    transform : 
+        The transform for dataset
+    max_per_image : int, optional
+        The max size of per image, by default 300
+    thresh : float, optional
+        The threshold of top_k number of output predictions, by default 0.01
+    batch_size : int, optional
+        The batch size of validation dataset, by default 1
+
+    Returns
+    -------
+        The detection results, that is, the mAP, as well as the forward_time
+    """    
     net.eval()
     num_images = len(val_dataset)
     num_classes = cfg.MODEL.NUM_CLASSES
@@ -215,6 +281,9 @@ def eval_net(val_dataset,
 
 
 def main():
+    """
+    The main function to train the network weights 
+    """    
     global args
     args = arg_parse()
     cfg_from_file(args.cfg_file)

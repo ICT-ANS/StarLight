@@ -12,6 +12,15 @@ import threading, time
 
 class ModelViewer():
     def __init__(self, qtcontainer, img_size=None) -> None:
+        """The easy interface for quiver 
+
+        Parameters
+        ----------
+        qtcontainer : _type_
+            recommand QScroolAera
+        img_size : list, optional
+            specify [height, width] of image for DNN, by default None
+        """        
         self.myHtml = QWebEngineView()
         self.myHtml.loadFinished.connect(self.slotHtmlLoadFinished)
 
@@ -33,10 +42,19 @@ class ModelViewer():
         self.http_server = None
         pass
     
-    def set_img_size(self, img_size):
+    def set_img_size(self, img_size:list):
+        """set image size
+
+        Parameters
+        ----------
+        img_size : list
+            [height, width]
+        """        
         self.img_size = img_size
 
     def slotTimeout(self):
+        """wait for http_server started
+        """        
         if self.http_server is not None:
             if self.http_server.started: # 等待 http_server 完成启动
                 self.htmlLoadFinished = False
@@ -44,11 +62,22 @@ class ModelViewer():
                 self.myHtml.load(QUrl("http://localhost:5000/"))
                 
     def slotHtmlLoadFinished(self):
+        """slot for html load finished
+        """        
         self.htmlLoadFinished = True
-        self.timer.stop()
+        self.timer.stop() #stop executing slotYimeout
         # print("timer stop")
     
-    def slotUpdateModel(self, model, datapath):
+    def slotUpdateModel(self, model, datapath:str):
+        """load & update model for visulization
+
+        Parameters
+        ----------
+        model : Any
+            pytorch model
+        datapath : str
+            image path for visulization
+        """        
         hook_list = register_hook(model)
 
         self.timer.start()

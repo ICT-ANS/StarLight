@@ -30,14 +30,26 @@ default_symbols = [
 
 
 class Line(object):
-    '''
-    @param: basehtml: absolute path of html file
-    @param: qtcontainer: container to visualize html, only test on QScrollArea now
-    @param: legends: list of str for legends
-    '''
-    def __init__(self, basehtml: str, qtcontainer: QScrollArea, \
-                 legends: list, colors=[], symbols=[], title="") -> None:
+    def __init__(self, basehtml: str, qtcontainer: QScrollArea, legends: list, colors=[], symbols=[], title="") -> None:      
+        """init method for Line class
+
+        Parameters
+        ----------
+        basehtml : str
+            absolute path of html file
+        qtcontainer : QScrollArea
+            container to visualize html, only test on QScrollArea now
+        legends : list
+            legend name
+        colors : list, optional
+            line color, by default []
+        symbols : list, optional
+            line symbol, by default []
+        title : str, optional
+            chater title, by default ""
+        """        
         super().__init__()
+        
 
         self.myHtml = QWebEngineView()
         self.myHtml.loadFinished.connect(self.slotHtmlLoadFinished)
@@ -71,12 +83,16 @@ class Line(object):
         self.width = self.container.width()
         self.height = self.container.height()
 
-    def slotHtmlLoadFinished(self):
+    def slotHtmlLoadFinished(self): 
+        """slot function for loadFinished signal triggered by QWebEngineView 
+        """               
         self.htmlLoadFinished = True
         self.setTitle(self.title)
         self.build()
     
     def slotResize(self):
+        """function for auto resize
+        """        
         if self.htmlLoadFinished:
             if self.width != self.container.width() or self.height != self.container.height():
                 self.width  = self.container.width()
@@ -84,6 +100,15 @@ class Line(object):
                 self.build()
 
     def update(self, xAxisData: any, yAxisData: list):
+        """_summary_
+
+        Parameters
+        ----------
+        xAxisData : any
+            specify xAxisData
+        yAxisData : list
+            specify yAxisData
+        """        
         assert len(self.legends) == len(yAxisData)
         yAxisData = [str(i) for i in yAxisData]
         xAxisData = str(xAxisData)
@@ -91,18 +116,31 @@ class Line(object):
         self.myHtml.page().runJavaScript(jscode)   
 
     def setTitle(self, title: str):
+        """set title
+
+        Parameters
+        ----------
+        title : str
+            title name 
+        """        
         jscode = '''setTitle('{}');'''.format(title)
         self.myHtml.page().runJavaScript(jscode)      
 
     def build(self):
+        """create Line entry
+        """        
         self.myHtml.page().runJavaScript("build('{}', '{}', {}, {}, {}); ".format(int(self.container.width()-offset), 
                                                                     int(self.container.height()-offset), 
                                                                     self.legends, self.colors, self.symbols))
     def clearData(self):
+        """only clear data, you can still call update.
+        """        
         self.myHtml.page().runJavaScript("clearData();")
         pass
 
     def destroy(self):
+        """destroy Line entry, you must call build after destroy.
+        """        
         self.myHtml.page().runJavaScript("destroy();")
         pass      
 
@@ -112,8 +150,24 @@ class Bar(object):
     @param: qtcontainer: container to visualize html, only test on QScrollArea now
     @param: legends: list of str for legends
     '''
-    def __init__(self, basehtml: str, qtcontainer: QScrollArea, \
-                 xAxis: list, legends: list, colors=[], title="") -> None:
+    def __init__(self, basehtml: str, qtcontainer: QScrollArea, xAxis: list, legends: list, colors=[], title="") -> None:
+        """init method for Bar class
+
+        Parameters
+        ----------
+        basehtml : str
+            absolute path of html file
+        qtcontainer : QScrollArea
+            container to visualize html, only test on QScrollArea now
+        xAxis : list
+            names for xAxis
+        legends : list
+            legend name
+        colors : list, optional
+            Bar color, by default []
+        title : str, optional
+            chater title, by default""
+        """           
         super().__init__()
 
         self.myHtml = QWebEngineView()
@@ -147,11 +201,15 @@ class Bar(object):
 
 
     def slotHtmlLoadFinished(self):
+        """slot function for loadFinished signal triggered by QWebEngineView 
+        """            
         self.htmlLoadFinished = True
         self.setTitle(self.title)
         self.build()
 
     def slotResize(self):
+        """function for auto resize
+        """          
         if self.htmlLoadFinished:
             if self.width != self.container.width() or self.height != self.container.height():
                 self.width  = self.container.width()
@@ -159,32 +217,61 @@ class Bar(object):
                 self.build()
     
     def update(self, yAxisData: list):
+        """update Bar
+
+        Parameters
+        ----------
+        yAxisData : list
+            specify Bar values
+        """        
         yAxisData = [str(i) for i in yAxisData]
         jscode = '''update({})'''.format(yAxisData)
         self.myHtml.page().runJavaScript(jscode)   
     
     def setTitle(self, title: str):
+        """set title
+
+        Parameters
+        ----------
+        title : str
+            title name 
+        """             
         jscode = '''setTitle('{}')'''.format(title)
         self.myHtml.page().runJavaScript(jscode)      
 
     def build(self):
+        """create Bar entry
+        """              
         self.myHtml.page().runJavaScript("build('{}', '{}', {}, {}, {}); ".format(int(self.container.width()-offset), 
                                                                     int(self.container.height()-offset), 
                                                                     self.xAxis, self.legends, self.colors))
     def clearData(self):
+        """only clear data, you can still call update.
+        """          
         self.myHtml.page().runJavaScript("clearData();")
         pass
 
     def destroy(self):
+        """destroy Bar entry, you must call build after destroy.
+        """          
         self.myHtml.page().runJavaScript("destroy();")
         pass       
 
 class Pie(object):
-    '''
-    @param: basehtml: absolute path of html file
-    @param: qtcontainer: container to visualize html, only test on QScrollArea now
-    '''
     def __init__(self, basehtml: str, qtcontainer: QScrollArea, colors=[], title="") -> None:
+        """init method for Pie class
+
+        Parameters
+        ----------
+        basehtml : str
+            absolute path of html file
+        qtcontainer : QScrollArea
+            container to visualize html, only test on QScrollArea now
+        colors : list, optional
+            Pie color, by default []
+        title : str, optional
+            title name, by default ""
+        """        
         super().__init__()
 
         self.myHtml = QWebEngineView()
@@ -212,11 +299,15 @@ class Pie(object):
         self.height = self.container.height()        
 
     def slotHtmlLoadFinished(self):
+        """slot function for loadFinished signal triggered by QWebEngineView 
+        """         
         self.htmlLoadFinished = True
         self.build()
         self.setTitle(self.title)
 
     def slotResize(self):
+        """function for auto resize
+        """             
         if self.htmlLoadFinished:
             if self.width != self.container.width() or self.height != self.container.height():
                 self.width  = self.container.width()
@@ -224,6 +315,14 @@ class Pie(object):
                 self.build()
 
     def update(self, data: dict):
+        """update Pie
+
+        Parameters
+        ----------
+        data : dict
+            key -> name
+            value -> data
+        """
         keys = [str(i) for i in data.keys()]
         values = [str(i) for i in data.values()]
 
@@ -235,17 +334,30 @@ class Pie(object):
         self.myHtml.page().runJavaScript(jscode)
     
     def setTitle(self, title: str):
+        """set title
+
+        Parameters
+        ----------
+        title : str
+            title name 
+        """            
         jscode = '''setTitle('{}')'''.format(title)
         self.myHtml.page().runJavaScript(jscode)      
 
     def build(self):
+        """create Bar entry
+        """         
         self.myHtml.page().runJavaScript("build('{}', '{}'); ".format(int(self.container.width()-offset), 
                                                                     int(self.container.height()-offset)))
     
     def clearData(self):
+        """only clear data, you can still call update.
+        """          
         self.myHtml.page().runJavaScript("clearData();")
         pass
 
     def destroy(self):
+        """destroy Bar entry, you must call build after destroy.
+        """          
         self.myHtml.page().runJavaScript("destroy();")
         pass       
