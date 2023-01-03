@@ -27,7 +27,7 @@ parser.add_argument("--separable_conv", action='store_true', default=False,
 parser.add_argument("--output_stride", type=int, default=16, choices=[8, 16])
 
 parser.add_argument('--dataset', default='cityscapes', type=str, help='dataset name')
-parser.add_argument('--data_root', default='/home/lushun/dataset/cityscapes', type=str, help='dataset path')
+parser.add_argument('--data_root', default='./dataset/cityscapes', type=str, help='dataset path')
 parser.add_argument('--index_start', default=0, type=int)
 parser.add_argument('--index_step', default=0, type=int)
 parser.add_argument('--index_split', default=5, type=int)

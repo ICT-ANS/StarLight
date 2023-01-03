@@ -25,6 +25,7 @@ parser.add_argument('--model', default='pspnet', type=str, help='model name')
 parser.add_argument('--data_root', default='./dataset/cityscapes', type=str, help='dataset path')
 parser.add_argument('--train_list', default='./dataset/cityscapes/cityscapes_train_list.txt', type=str)
 parser.add_argument('--test_list', default='./dataset/cityscapes/cityscapes_val_list.txt', type=str)
+parser.add_argument('--pretrained', default='./pretrained/train_epoch_200.pth', type=str)
 parser.add_argument('--index_start', default=0, type=int)
 parser.add_argument('--index_step', default=0, type=int)
 parser.add_argument('--index_split', default=5, type=int)
@@ -250,7 +251,8 @@ def get_model(model_name):
         from models.PSPNet.pspnet import PSPNet
         model = PSPNet(layers=50, bins=(1, 2, 3, 6), dropout=0.1, classes=args.num_classes, zoom_factor=8, use_ppm=True,
                        pretrained=False)
-        pretrained_model_path = './semseg-master/exp/cityscapes/pspnet50/model/train_epoch_200.pth'
+        # pretrained_model_path = './semseg-master/exp/cityscapes/pspnet50/model/train_epoch_200.pth'
+        pretrained_model_path = args.pretrained
         checkpoint = torch.load(pretrained_model_path, map_location=args.device)
 
         # change keys format

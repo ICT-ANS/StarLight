@@ -8,7 +8,21 @@ For a detailed description of technical details and experimental results, please
 Hengshuang Zhao, Jianping Shi, Xiaojuan Qi, Xiaogang Wang, Jiaya Jia
 
 ## Prepare dataset
-Please refer to the [official Cityscapes Repo](https://github.com/mcordts/cityscapesScripts).
+* Download and process the dataset according to the [official Cityscapes repo](https://github.com/mcordts/cityscapesScripts).
+* Make sure the dataset and list of the samples are located in the following path: 
+```shell
+data_root=./dataset/cityscapes
+train_list=./dataset/cityscapes/cityscapes_train_list.txt
+test_list=./dataset/cityscapes/cityscapes_val_list.txt
+```
+
+## Prepare pre-trained model
+* Download the pre-trained PSPNet50 checkpoint from the [Google Drive](https://drive.google.com/drive/folders/1A8JaqItMjz2XNzV6gNurW4WzUcYY5op_) provided by [the above repo](https://github.com/hszhao/semseg).
+* Move the pre-trained checkpoint to the following path:
+```shell
+./pretrained/train_epoch_200.pth
+```
+
 
 ## Usage
 Model pruning. Set the sparsity in the following script and run this command:

@@ -8,8 +8,18 @@ For a detailed description of technical details and experimental results, please
 Liang-Chieh Chen, Yukun Zhu, George Papandreou, Florian Schroff, Hartwig Adam
 
 ## Prepare dataset
-Please refer to the [official Cityscapes Repo](https://github.com/mcordts/cityscapesScripts).
+* Download and process the dataset according to the [official Cityscapes repo](https://github.com/mcordts/cityscapesScripts).
+* Make sure the dataset is located in the following path: 
+```shell
+data_root=./dataset/cityscapes
+```
 
+## Prepare pre-trained model
+* Download the pre-trained DeepLabV3Plus-ResNet101 checkpoint from the [Google Drive](https://drive.google.com/file/d/1t7TC8mxQaFECt4jutdq_NMnWxdm6B-Nb/view) provided by [the above repo](https://github.com/VainF/DeepLabV3Plus-Pytorch).
+* Move the pre-trained checkpoint to the following path:
+```shell
+ckpt=./checkpoints/best_deeplabv3plus_resnet101_cityscapes_os16.pth.tar
+```
 ## Usage
 Model pruning. Set the sparsity in the following script and run this command:
 ```shell
