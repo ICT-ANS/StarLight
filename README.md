@@ -73,7 +73,7 @@ StarLight helps in obtaining lightweight deep neural networks. StarLight consist
 | Method                       |          Algorithms          |
 |------------------------------|:----------------------------:|
 | Pruning                      |  AGP, FPGM, Taylor, L1, L2   |
-| Quantization                 |       QAT, DoReFa, LSQ       |
+| Quantization                 |       QAT        |
 | Neural Architecture Search  | DARTS, GDAS, DU-DARTS, DDSAS |
 
 
