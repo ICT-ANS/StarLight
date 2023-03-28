@@ -138,7 +138,11 @@ def update_model(model, hooks, input_folder, image_size, use_gpu=False, temp_fol
 
     _model = model
 
+    for p in model.parameters():
+        p.requires_grad = True
+
     out = _model(x)
+
     _json_graph = make_dot(out, params = dict(model.named_parameters()))
 
     _input_folder = input_folder
