@@ -26,7 +26,7 @@ pip install torch==1.5.1+cpu torchvision==0.6.1+cpu -f https://download.pytorch.
     model = models.alexnet(pretrained=False)
     # 2.register hook function for conv. layers
     hook_list = register_hook(model) 
-    # 3.start
+    # 3.set the port as you like and start
     server.launch(model, hook_list, input_folder="./data/Cat", image_size=[50,50], use_gpu=False, port=5001)
 ```
 
