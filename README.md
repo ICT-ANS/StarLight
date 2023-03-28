@@ -93,11 +93,11 @@ StarLight helps in obtaining lightweight deep neural networks. StarLight consist
 
 
 ## Guide for compressing your own networks
-You can easily compress your own networks according to [our illustrations]().
+You can easily compress your own networks according to our [Compress Guide](https://ict-ans.github.io/StarLight.github.io/docs/Compress%20Guide.html).
 
 
 ## Visualize your own networks in StarLight
-With **just 1 yaml file**, you can conveniently visualize your own lightweight networks in StarLight. Please refer to the [Visualization in StarLight]() for more details.
+With **just 1 yaml file**, you can conveniently visualize your own lightweight networks in StarLight. Please refer to the [Visualization in StarLight](https://ict-ans.github.io/StarLight.github.io/docs/Visualization%20in%20StarLight.html) for more details.
 
 ## Acknowledgments
 * This work is funded by xxx xxx xxx.
