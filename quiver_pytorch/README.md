@@ -4,6 +4,8 @@ To visualize the intermediate features of each layer in a CNN, we add hooks for 
 Our code is based on the [Quiver for Keras](https://github.com/keplr-io/quiver).
 
 
+<img src="https://github.com/ICT-ANS/StarLight.github.io/blob/main/assets/QuiverPyTorch_ScreenShot.gif" alt="QuiverPyTorch-ScreenShot" width="100%"/>
+
 ## Installation
 
 ```shell
