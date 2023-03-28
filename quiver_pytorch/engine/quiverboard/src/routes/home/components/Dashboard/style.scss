@@ -1,0 +1,143 @@
+@import './mixins';
+
+.inputs-container {
+    padding: 10px 20px;
+    border-radius: 3px;
+    display: inline-block;
+
+    .input-container {
+        display: inline-block;
+        margin: 10px;
+        border-radius: 3px;
+        overflow: hidden;
+        opacity: 0.3;
+        cursor: pointer;
+        width: 100px;
+        height: 100px;
+
+        @include simple-shadow();
+        @include simple-transition();
+        &.selected-input {
+            opacity: 1;
+        }
+
+        &:hover {
+            opacity: 1;
+        }
+    }
+}
+
+.dash-loader {
+    padding: 150px;
+    text-align: center;
+}
+.dash-message  {
+    color: rgba(0, 0, 0, 0.5);
+    text-align: center;
+    padding: 50px;
+    background-color: rgba(0, 0, 0, 0.01);
+    border-radius: 3px;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    max-width: 500px;
+    margin: 100px auto;
+}
+
+.layer-img-container {
+    display: inline-block;
+    margin: 0 2px;
+    border-radius: 3px;
+    overflow: hidden;
+    position: relative;
+    width: 100px;
+    height: 100px;
+
+    .layer-img-img {
+        position: absolute;
+        top: 0;
+        left:0;
+        width: 100%;
+        height: 100%;
+    }
+
+    .layer-output {
+        @include transition(all .5s);
+        &:hover {
+            opacity: 0.5;
+        }
+    }
+    &:hover {
+        opacity: 1;
+    }
+}
+
+.layer-info-container {
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    z-index: 99;
+    background-color: rgba(255, 255, 255, 0.95);
+    margin: 20px;
+    @include simple-shadow();
+    @include simple-transition();
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    max-width: 30%;
+
+    border-radius: 3px;
+    .layer-name {
+        color: rgba(0, 0, 0, 0.5);
+        padding: 30px;
+    }
+    .layer-config {
+        max-height: 300px;
+        overflow: auto;
+        pre {
+            padding: 40px!important;
+            background-color: rgba(0, 0, 0, 0.02)!important;
+            border: 1px solid rgba(0, 0, 0, 0.1)!important;
+            margin: 0;
+        }
+    }
+}
+
+.output-container {
+    margin-top: 20px;
+}
+
+
+.collapse-expand-btn {
+    margin-top: -20px;
+    padding: 10px;
+    font-weight: lighter;
+    cursor: pointer;
+    opacity: 0.5;
+    float: right;
+    font-size: 2em;
+    @include simple-transition();
+
+    &:hover {
+        opacity: 1;
+    }
+}
+
+.predictions-container {
+    padding: 15px;
+}
+
+.prediction-container {
+    display: inline-block;
+    margin: 5px 15px;
+    background-color: #fff;
+    @include simple-shadow();
+    padding: 15px;
+    border-radius: 3px;
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    opacity: 0.8;
+
+    &:hover {
+        opacity: 1;
+    }
+
+    .confidence {
+        color: #1758c1
+    }
+}
