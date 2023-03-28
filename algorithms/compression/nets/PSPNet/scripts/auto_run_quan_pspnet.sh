@@ -4,7 +4,7 @@
 
 #SparsityList=(0.3 0.5 0.7)
 #SparsityList=(0.5)
-QuanMode=(fp16 int8)
+QuanMode=(int8)
 IDX=0
 #ModelName=pspnet_sparse
 ModelName=pspnet

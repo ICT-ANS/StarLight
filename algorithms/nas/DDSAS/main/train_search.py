@@ -1,17 +1,17 @@
+import os
 import sys
 sys.path.append(os.path.dirname(__file__)+ os.sep + '../')
 print(sys.path)
 
 import torch
-import os
 import time
 import glob
 import numpy as np
-import utils
+from utils import utils
 import logging
 import argparse
 import torch.nn as nn
-import torch.utils
+# import torch.utils
 import torch.nn.functional as F
 import torchvision.datasets as dset
 import torch.backends.cudnn as cudnn
@@ -225,7 +225,7 @@ def train(epoch, train_queue, valid_queue, model, architect, criterion, optimize
         n = input.size(0)
 
         input = Variable(input).cuda()
-        target = Variable(target).cuda(async=True)
+        target = Variable(target).cuda()
         data_time.update(time.time() - end)
 
         if epoch >= args.begin:
@@ -280,7 +280,7 @@ def infer(valid_queue, model, criterion):
     end = time.time()
     for step, (input, target) in enumerate(valid_queue):
         input = Variable(input).cuda()
-        target = Variable(target).cuda(async=True)
+        target = Variable(target).cuda()
         data_time.update(time.time() - end)
 
         logits = model(input)

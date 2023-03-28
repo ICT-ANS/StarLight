@@ -1,2 +1,2 @@
-import imp
-from .compression import *
+# import imp
+# from .compression import *

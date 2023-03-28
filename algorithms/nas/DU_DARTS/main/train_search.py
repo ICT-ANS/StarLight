@@ -2,6 +2,7 @@ import glob
 import logging
 import os
 import sys
+sys.path.append('../')
 sys.path.append('../../../')
 import time
 
@@ -17,10 +18,10 @@ from algorithms.nas.DU_DARTS.models.architect import Architect
 from algorithms.nas.DU_DARTS.models.model_search import Network
 from algorithms.nas.DU_DARTS.config.search_config import args
 
-if args.debug:
-    args.save = 'log/debug-search-{}-{}'.format(args.save, time.strftime("%Y%m%d-%H%M%S"))
-else:
-    args.save = 'log/search-{}-{}-{}'.format(args.dataset, args.save, time.strftime("%Y%m%d-%H%M%S"))
+# if args.debug:
+#     args.save = 'log/debug-search-{}-{}'.format(args.save, time.strftime("%Y%m%d-%H%M%S"))
+# else:
+#     args.save = 'log/search-{}-{}-{}'.format(args.dataset, args.save, time.strftime("%Y%m%d-%H%M%S"))
 
 if not os.path.exists('log'):
     os.mkdir('log')
@@ -60,11 +61,11 @@ def main():
 
     if args.dataset == 'cifar10':
         train_transform, valid_transform = utils.data_transforms_cifar10(args)
-        train_data = dset.CIFAR10(root=args.data + args.dataset, train=True, download=True,
+        train_data = dset.CIFAR10(root=args.data, train=True, download=True,
                                   transform=train_transform)
     elif args.dataset == 'cifar100':
         train_transform, valid_transform = utils.data_transforms_cifar100(args)
-        train_data = dset.CIFAR100(root=args.data + args.dataset, train=True, download=True,
+        train_data = dset.CIFAR100(root=args.data, train=True, download=True,
                                    transform=train_transform)
     else:
         raise ValueError('No Defined Dataset!!!')

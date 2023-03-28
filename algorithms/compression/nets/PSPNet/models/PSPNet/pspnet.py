@@ -2,7 +2,7 @@ import torch
 from torch import nn
 import torch.nn.functional as F
 
-import prune_seg.models.PSPNet.resnet as models
+import models.prune_seg.models.PSPNet.resnet as models
 
 
 class PPM(nn.Module):
@@ -83,8 +83,8 @@ class PSPNet(nn.Module):
         x_size = list(x.size())
 
         assert (x_size[2]-1) % 8 == 0 and (x_size[3]-1) % 8 == 0
-        h = int((x_size[2] - 1) / 8 * self.zoom_factor + 1)
-        w = int((x_size[3] - 1) / 8 * self.zoom_factor + 1)
+        h = int((x_size[2] - 1) // 8 * self.zoom_factor + 1)
+        w = int((x_size[3] - 1) // 8 * self.zoom_factor + 1)
         # assert (x_size[2]) % 8 == 0 and (x_size[3]) % 8 == 0
         # h = int((x_size[2]) / 8 * self.zoom_factor)
         # w = int((x_size[3]) / 8 * self.zoom_factor)

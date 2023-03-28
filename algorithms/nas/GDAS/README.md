@@ -15,13 +15,13 @@ cd StarLight/algorithms
 bash nas/GDAS/run/run_gdas_search.sh
 ```
 
-## Neural Architecture Search
+## Neural Architecture Evaluation
 ```
 cd StarLight/algorithms
 bash nas/GDAS/run/run_gdas_eval.sh
 ```
 
-## Architecture Evaluation
+## Architecture Test
 ```
 cd StarLight/algorithms
 bash nas/GDAS/run/run_gdas_test.sh

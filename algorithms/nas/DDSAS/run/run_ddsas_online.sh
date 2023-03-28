@@ -9,8 +9,8 @@ fi
 
 script_name="${excute_dir}/nas/DDSAS/main/train_search.py"
 data_dir="${excute_dir}/data/Cifar10"
-log_path="${excute_dir}/data/StarLight_Cache/nas.classification.ddsas/logdir/online_log/ddsas_online.log"
-nohup python  -u  $script_name --data $data_dir --debug $debug \
+log_path="${excute_dir}/data/logs/DDSAS"
+nohup python  -u  $script_name --data $data_dir \
     --dataset cifar10 \
     --arch DDSAS_cifar10_search \
     --saliency_type simple \

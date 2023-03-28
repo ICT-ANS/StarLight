@@ -29,14 +29,14 @@ script_name="${excute_dir}/nas/GDAS/main/GDAS_search.py"
 data_path="${excute_dir}/data/Cifar10"
 config_path="${excute_dir}/nas/GDAS/config/search-opts/GDAS-NASNet-CIFAR.config"
 model_config="${excute_dir}/nas/GDAS/config/search-archs/GDAS-NASNet-CIFAR.config"
-log_path="${excute_dir}/data/StarLight_Cache/nas.classification.darts/logdir/online_log/gdas_search_3.log"
+log_path="${excute_dir}/data/logs/GDAS"
 save_dir=./nas_output/GDAS/search3
 dataset=cifar10
 track_running_stats=1
 seed=3
 space=darts
 
-nohup python -u $script_name \
+CUDA_VISIBLE_DEVICES=7 nohup python -u $script_name \
 	--save_dir ${save_dir} \
 	--dataset ${dataset} --data_path ${data_path} \
 	--search_space_name ${space} \

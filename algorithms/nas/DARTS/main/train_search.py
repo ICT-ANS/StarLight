@@ -79,8 +79,8 @@ def main():
         weight_decay=args.weight_decay)
 
     train_transform, valid_transform = utils._data_transforms_cifar10(args)
-    train_data = dset.CIFAR10(root=os.path.join(args.dataset, 'cifar10'),
-                              train=True, download=True, transform=train_transform)
+    train_data = dset.CIFAR10(root=os.path.join(args.dataset),
+                              train=True, download=False, transform=train_transform)
 
     num_train = len(train_data)
     indices = list(range(num_train))
@@ -124,7 +124,7 @@ def main():
         scheduler.step()
 
         logging.info('current ev 0.0')
-        # utils.save(model, os.path.join(args.save, 'weights.pt'))
+        utils.save(model, os.path.join(args.save, 'weights.pt'))
 
 
 def train(train_queue, valid_queue, model, architect, criterion, optimizer, lr):

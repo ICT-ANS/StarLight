@@ -244,7 +244,7 @@ def cal_maximum_entropy(num_edges, num_ops):
 
 
 def cal_aux_loss(normal_alpha, reduce_alpha, normal_beta, reduce_beta):
-    from darts_info_entropy.search_config import args
+    from algorithms.nas.DU_DARTS.config.search_config import args
     if args.del_none:
         num_edges = 14
         num_ops = 7

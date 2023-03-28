@@ -45,7 +45,7 @@ class Architect(object):
     def _backward_step(self, input_valid, target_valid):
         if args.aux_loss:
             gamma = 1.
-            aux_loss = cal_aux_loss(
+            aux_loss = utils.cal_aux_loss(
                 F.softmax(self.model.alphas_normal, dim=-1),
                 F.softmax(self.model.alphas_reduce, dim=-1),
                 F.sigmoid(self.model.betas_normal),

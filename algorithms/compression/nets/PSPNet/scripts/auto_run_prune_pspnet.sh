@@ -21,9 +21,9 @@
 
 
 Pruner=fpgm
-GPU_List=(4 5 6 7)
+GPU_List=(7)
 #GPU_List=(0 1 2 3)
-Sparsity_List=(0.2 0.4 0.5 0.7)
+Sparsity_List=(0.5)
 #PruneLR_List=(1e-4 1e-4 8e-5 8e-5 4e-5 4e-5 1e-5 1e-5)
 #FinetuneLR_List=(2e-4 1e-4 6e-5 2e-5 1e-5 8e-6 5e-6 2e-6)
 
