@@ -7,7 +7,7 @@
 ![release](https://img.shields.io/badge/release-v1.0-informational)
 ![docs](https://img.shields.io/badge/docs-updating-ff69b4)
 
-StarLight helps in obtaining lightweight deep neural networks. StarLight consists primarily of three modules: network compression, neural architecture search, and visualization. The network compression module uses pruning and quantization techniques to convert a pre-trained network into a lightweight structure. The neural architecture search module designs efficient structures by utilizing differentiable architecture search methods. The visualization window can display all of the aforementioned processes, as well as visualizations of network intermediate features. We further provide a convenient tool QuiverPyTorch to visualize the intermediate features of any networks.
+StarLight helps in obtaining lightweight deep neural networks. StarLight consists primarily of three modules: network compression, neural architecture search, and visualization. The network compression module uses pruning and quantization techniques to convert a pre-trained network into a lightweight structure. The neural architecture search module designs efficient structures by utilizing differentiable architecture search methods. The visualization window can display all of the aforementioned processes, as well as visualizations of network intermediate features. We further provide a convenient tool [QuiverPyTorch](https://github.com/ICT-ANS/StarLight/tree/main/quiver_pytorch) to visualize the intermediate features of any networks.
 
 <div align="center">
   <h3>
@@ -19,12 +19,12 @@ StarLight helps in obtaining lightweight deep neural networks. StarLight consist
       Documentation
     </a>
     <span> | </span>
-    <a href="https://github.com/ICT-ANS/StarLight">
+    <a href="https://github.com/ICT-ANS/StarLight/tree/main/quiver_pytorch">
       QuiverPyTorch
     </a>
     <span> | </span>
     <a href="https://github.com/ICT-ANS/StarLight">
-      FAQ
+      FAQs
     </a>
   </h3>
 </div>
