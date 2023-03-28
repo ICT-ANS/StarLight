@@ -76,8 +76,11 @@ StarLight helps in obtaining lightweight deep neural networks. StarLight consist
 
 
 ## Demo
-* Wait for a GIF.
+* Pruning, quantization and feature visualization in StarLight. 
+<img src="https://github.com/ICT-ANS/StarLight.github.io/blob/main/assets/StarLight_Compress.gif" alt="StarLight-Compress" width="100%"/>
 
+* Neural architecture search and feature visualization in StarLight. 
+<img src="https://github.com/ICT-ANS/StarLight.github.io/blob/main/assets/StarLight_DARTS.gif" alt="StarLight-DARTS" width="100%"/>
 
 ## Installation
 - Create a conda envirment. You can use the Tsinghua source for the conda and pip to accelerate installation. 
