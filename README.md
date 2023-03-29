@@ -73,11 +73,11 @@ StarLight helps in obtaining lightweight deep neural networks. StarLight consist
 
 * Available algorithms
 
-| Method                       |          Algorithms          |
-|------------------------------|:----------------------------:|
-| Pruning                      |  AGP, FPGM, Taylor, L1, L2   |
-| Quantization                 |       QAT        |
-| Neural Architecture Search  | DARTS, GDAS, DU-DARTS, DDSAS |
+| Method                       |                                                                                                            Algorithms                                                                                                            |
+|------------------------------|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
+| Pruning                      | [AGP](https://arxiv.org/abs/1710.01878), [FPGM](https://github.com/he-y/filter-pruning-geometric-median), [Taylor](http://jankautz.com/publications/Importance4NNPruning_CVPR19.pdf), [L1](https://arxiv.org/abs/1608.08710), L2 |
+| Quantization                 |                                                                  [PTQ](https://docs.nvidia.com/deeplearning/tensorrt/developer-guide/index.html#enable_int8_c)                                                                   |
+| Neural Architecture Search  |  [DARTS](https://github.com/quark0/darts), [GDAS](https://github.com/D-X-Y/AutoDL-Projects/blob/main/docs/CVPR-2019-GDAS.md), [DU-DARTS](https://github.com/ShunLu91/DU-DARTS), [DDSAS](https://github.com/xingxing-123/DDSAS)   |
 
 
 ## Demo
