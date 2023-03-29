@@ -1,5 +1,8 @@
 [//]: # (# StarLight)
-![StarLight](assets/StarLight.png)
+<div align=center>
+<img src="assets/StarLight.png" />
+</div>
+
 
 ![lincense](https://img.shields.io/badge/license-MIT-brightgreen)
 ![Python](https://img.shields.io/badge/Python-%3E%3D3.6-important)
