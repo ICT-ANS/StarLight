@@ -1,6 +1,6 @@
 [//]: # (# StarLight)
 <div align=center>
-<img src="assets/StarLight-GBlue.png" />
+<img src="assets/StarLight.png" />
 </div>
 
 
