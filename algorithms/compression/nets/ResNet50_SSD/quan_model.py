@@ -5,13 +5,13 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torch.autograd import Variable
-from layers import *
+from SSD_Pytorch.layers import *
 import os
 import time
 import numpy as np
-from models.model_helper import weights_init
+from SSD_Pytorch.models.model_helper import weights_init
 import importlib
-from layers.functions.prior_layer import PriorLayer
+from SSD_Pytorch.layers.functions.prior_layer import PriorLayer
 from lib.compression.pytorch.quantization_speedup import trt_pycuda as common
 import pycuda.driver as cuda
 

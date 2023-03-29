@@ -8,7 +8,7 @@ import torch.nn.init as init
 import argparse
 from torch.autograd import Variable
 import torch.utils.data as data
-from data import COCODetection, VOCDetection, detection_collate, BaseTransform, preproc
+from data_ import COCODetection, VOCDetection, detection_collate, BaseTransform, preproc
 from layers.modules import MultiBoxLoss, RefineMultiBoxLoss
 from layers.functions import Detect
 from utils.nms_wrapper import nms, soft_nms

@@ -9,11 +9,11 @@ import torch.nn.init as init
 import argparse
 from torch.autograd import Variable
 import torch.utils.data as data
-from data_ import COCODetection, VOCDetection, detection_collate, BaseTransform, preproc
-from layers.modules import MultiBoxLoss, RefineMultiBoxLoss
-from layers.functions import Detect
-from utils_.nms_wrapper import nms, soft_nms
-from configs.config import cfg, cfg_from_file
+from SSD_Pytorch.data_ import COCODetection, VOCDetection, detection_collate, BaseTransform, preproc
+from SSD_Pytorch.layers.modules import MultiBoxLoss, RefineMultiBoxLoss
+from SSD_Pytorch.layers.functions import Detect
+from SSD_Pytorch.utils_.nms_wrapper import nms, soft_nms
+from SSD_Pytorch.configs.config import cfg, cfg_from_file
 import numpy as np
 import time
 import os
@@ -227,7 +227,8 @@ def main():
         trainvalDataset = COCODetection
         top_k = 300
     dataset_name = cfg.DATASETS.DATA_TYPE
-    dataroot = args.data
+    #dataroot = args.data
+    dataroot = cfg.DATASETS.DATAROOT
     trainSet = cfg.DATASETS.TRAIN_TYPE
     valSet = cfg.DATASETS.VAL_TYPE
     num_classes = cfg.MODEL.NUM_CLASSES
