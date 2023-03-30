@@ -82,7 +82,7 @@ class HyperparametersSettingWindow(QDialog):
             path = 'data/compression/outputs'
         else:
             path = './'
-        path = QtWidgets.QFileDialog.getExistingDirectory(self, "选择文件夹", path)
+        path = QtWidgets.QFileDialog.getExistingDirectory(self, "Please select the folder", path)
         lineEdit.setText(path)
 
 
@@ -121,16 +121,9 @@ class HyperparametersSettingWindow(QDialog):
         output_path = os.path.join(cache_folder, 'outputs', '{}-{}/{}-{}-{}'.format(self.dataset, self.model, "online" if self.is_online else "offline", self.prune_method, self.quan_method))
         input_path = os.path.join(cache_folder, 'inputs', '{}-{}'.format(self.dataset, self.model))
         dataset_path = os.path.join(cache_folder, 'dataset', '{}'.format(self.dataset))
-        # if not os.path.exists(cache_folder):
-        #     os.makedirs(cache_folder)
+
         if not os.path.exists(output_path):
             os.makedirs(output_path)
-        # if not os.path.exists(input_path):
-        #     msg_box = QMessageBox(QMessageBox.Warning, "路径不存在", "请重新输入input path")
-        #     msg_box.exec_()
-        # if not os.path.exists(dataset_path):
-        #     msg_box = QMessageBox(QMessageBox.Warning, "路径不存在", "请重新输入dataset path")
-        #     msg_box.exec_()
 
         self.ui.lineEdit_output_path.setText(output_path)
         self.ui.lineEdit_input_path.setText(input_path)
@@ -148,7 +141,7 @@ class HyperparametersSettingWindow(QDialog):
             data
         """        
         data = []
-        data.append('超参数设置:')
+        data.append('Hyper-parameter setting:')
         data.append('finetune learning rate：' + self.ui.lineEdit_ft_lr.text())
         data.append('finetune batch size：' + self.ui.lineEdit_ft_bs.text())
         data.append('finetune epochs：' + self.ui.lineEdit_ft_epochs.text())
@@ -228,43 +221,43 @@ class HyperparametersSettingWindow(QDialog):
         key = self.ui.label_ft_lr.text()
         text = self.ui.lineEdit_ft_lr.text()
         if not is_float(text):
-            return False, '{}应输入实数'.format(key)
+            return False, '{} please enter a real number'.format(key)
         if not is_in(float(text), 0., min_bound=False):
-            return False, '{}应大于0'.format(key)
+            return False, '{} should be larger than 0'.format(key)
 
         key = self.ui.label_ft_bs.text()
         text = self.ui.lineEdit_ft_bs.text()
         if not is_int(text):
-            return False, '{}应输入整数'.format(key)
+            return False, '{} please enter an integer'.format(key)
         if not is_in(int(text), 0., min_bound=False):
-            return False, '{}应大于0'.format(key)
+            return False, '{} should be larger than 0'.format(key)
 
 
         key = self.ui.label_ft_epochs.text()
         text = self.ui.lineEdit_ft_epochs.text()
         if not is_int(text):
-            return False, '{}应输入整数'.format(key)
+            return False, '{} please enter an integer'.format(key)
         if not is_in(int(text), 0, min_bound=False):
-            return False, '{}应大于0'.format(key)
+            return False, '{} should be larger than 0'.format(key)
 
         key = self.ui.label_gpus.text()
         text = self.ui.lineEdit_gpus.text()
         if not check_gpus(text):
-            return False, 'gpu不存在或输入不合法【输入格式： 0,1,2（多gpu） 或 0（单gpu）】'
+            return False, 'GPU does not exist or the input is invalid. [Input format: 0,1,2 (multiple GPUs) or 0 (single GPU)]'
 
         key = self.ui.label_output_path.text()
         text = self.ui.lineEdit_output_path.text()
         if not is_path(text):
-            return False, '{}路径不存在'.format(key)
+            return False, '{} path does not exist'.format(key)
 
         key = self.ui.label_input_path.text()
         text = self.ui.lineEdit_input_path.text()
         if not is_path(text):
-            return False, '{}路径不存在'.format(key)
+            return False, '{} path does not exist'.format(key)
 
         key = self.ui.label_dataset_path.text()
         text = self.ui.lineEdit_dataset_path.text()
         if not is_path(text):
-            return False, '{}路径不存在'.format(key)
+            return False, '{} path does not exist'.format(key)
 
         return True, 'ok'

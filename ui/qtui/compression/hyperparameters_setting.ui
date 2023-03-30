@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>超参数设置</string>
+   <string>Hyper-parameters</string>
   </property>
   <widget class="QLabel" name="label_base">
    <property name="geometry">
@@ -23,7 +23,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>超参数设置：</string>
+    <string>Hyper-parameters</string>
    </property>
   </widget>
   <widget class="QLineEdit" name="lineEdit_ft_bs">
@@ -88,7 +88,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>选择</string>
+    <string>Choose</string>
    </property>
   </widget>
   <widget class="QPushButton" name="pushButton_confirm">
@@ -101,7 +101,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>确定</string>
+    <string>OK</string>
    </property>
   </widget>
   <widget class="QPushButton" name="pushButton_reset">
@@ -114,7 +114,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>重置</string>
+    <string>Reset</string>
    </property>
   </widget>
   <widget class="QPushButton" name="pushButton_quit">
@@ -127,7 +127,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>退出</string>
+    <string>Exit</string>
    </property>
   </widget>
   <widget class="QLabel" name="label_input_path">
@@ -221,7 +221,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>选择</string>
+    <string>Choose</string>
    </property>
   </widget>
   <widget class="QPushButton" name="pushButton_dataset_path">
@@ -234,7 +234,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>选择</string>
+    <string>Choose</string>
    </property>
   </widget>
   <widget class="QLabel" name="label_ft_epochs">

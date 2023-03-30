@@ -1,5 +1,5 @@
 # -*- coding: UTF-8 -*-
-import sys, os
+import sys, os, re
 rootpath = os.path.abspath(os.path.join(os.path.dirname(__file__), "../"))
 sys.path.append(rootpath)
 sys.path.append(os.path.join(os.path.dirname(__file__), "tmp/"))
@@ -9,6 +9,7 @@ os.environ['MKL_THREADING_LAYER'] = 'GNU'
 import numpy as np
 
 import time
+import shutil
 from PyQt5.QtGui import QPixmap, QPalette
 from PyQt5.QtCore import Qt, QUrl, QTimer, QThread, pyqtSignal
 from PyQt5.QtWidgets import (QWidget, QMainWindow, QSlider, QLabel, QHBoxLayout, QPushButton, QApplication, QLineEdit, QDialog, QGraphicsPixmapItem, QGraphicsScene, QMessageBox)
@@ -37,12 +38,14 @@ from torchvision import models
 import psutil
 import subprocess
 
-sys.path.append("/home/xingxing/projects/StarLight/algorithms/compression/nets/VGG_SSD")
-from models.model_builder import SSD
+sys.path.append(os.path.join(C.work_dir, "algorithms/compression/nets/VGG_SSD"))
+from algorithms.compression.nets.VGG_SSD.models.model_builder import SSD
 from ui.quiver.utils import ModelViewer
 
 sys.path.append(os.path.join(C.work_dir, 'algorithms/compression/nets/PSPNet/models'))
 sys.path.append(os.path.join(C.work_dir, 'algorithms/compression/nets/DeepLabV3Plus'))
+
+
 
 sub_process = None
 
@@ -101,8 +104,9 @@ class CompressVisTask(QThread):
                     ' {}'.format(self.args['input_path']) + \
                     ' {}'.format(self.args['output_path']) + \
                     ' {}'.format(self.args['dataset_path'])
-        print(command)
+        # print(command)
         sub_process = subprocess.Popen(command, shell=True)
+
 
     def run(self):
         """run online mode or offline mode
@@ -126,7 +130,7 @@ class CompressVisTask(QThread):
 
         while not os.path.exists(logs_file): # 每隔 1s 检测是否生成 log_file, 未生成则检查程序是否成功运行
             if not (sub_process and psutil.pid_exists(sub_process.pid)): # 程序未运行
-                self.signalUpdateUi.emit(False, {}, {}, '程序未成功运行', '')
+                self.signalUpdateUi.emit(False, {}, {}, 'The program did not run successfully.', '')
                 return
             
             self.sleep(1)
@@ -144,7 +148,7 @@ class CompressVisTask(QThread):
 
 
         if not os.path.exists(logs_file):
-            self.signalUpdateUi.emit(False, {}, {}, '文件{:s}不存在'.format(logs_file), '')
+            self.signalUpdateUi.emit(False, {}, {}, 'File of {:s} does not exist'.format(logs_file), '')
             return
 
         with open(logs_file) as f:
@@ -161,6 +165,10 @@ class CompressVisTask(QThread):
 
         while True: # 每隔 10 s 检查程序是否运行完成，如果运行完成，则返回
             is_finished = True
+            if not os.path.exists(logs_file):
+                self.sleep(1)
+                continue
+            
             with open(logs_file) as f:
                 log_config = yaml.safe_load(f)
             for key in self.var_names: # 检查程序是否运行完成
@@ -190,7 +198,7 @@ class CompressVisTask(QThread):
         logs_file = os.path.join(self.args['output_path'], 'logs.yaml')
 
         if not os.path.exists(logs_file):
-            self.signalUpdateUi.emit(False, {}, {}, '文件{:s}不存在'.format(logs_file), '')
+            self.signalUpdateUi.emit(False, {}, {}, 'File of {:s} does not exist'.format(logs_file), '')
             return
 
         with open(logs_file) as f:
@@ -270,6 +278,9 @@ class MainWindow(QMainWindow):
         self.showMaximized()
         self.show()  # QMainWindow必须调用该函数，但QDialog不用
     
+    # def slotRezise(self):
+    #     self.resizeEvent(None)
+
     def initConfig(self):
         """read config file and init
         """        
@@ -348,19 +359,21 @@ class MainWindow(QMainWindow):
 
     def updateEpochDisplay(self):
         """update data each epoch
-        """        
+        """    
+        # self.resizeEvent(None)
+
         pe = QPalette()
         pe.setColor(QPalette.WindowText, Qt.red)  #设置字体颜色
         self.ui.label_7.setPalette(pe)
 
-        global sub_process
-        if sub_process:
-            sub_process.poll()
+        # global sub_process
+        # if sub_process:
+        #     sub_process.poll()
 
         if self.getData('is_offline'):
-            self.ui.label_7.setText('当前为离线模式')
+            self.ui.label_7.setText('Offline Mode')
         elif self.getData('is_online'):
-            self.ui.label_7.setText('当前为在线模式')
+            self.ui.label_7.setText('Online Mode')
             if self.display:
                 if self.timerCount % 3 == 0:
                     strs = '...'
@@ -369,7 +382,7 @@ class MainWindow(QMainWindow):
                 elif self.timerCount % 3 == 2:
                     strs = '.........'
 
-                self.ui.label_7.setText('当前为在线模式，程序运行中{}'.format(strs))
+                self.ui.label_7.setText('Online mode and the program is running: {}'.format(strs))
                 self.timerCount += 1
             else:
                 self.timerCount = 0
@@ -413,16 +426,16 @@ class MainWindow(QMainWindow):
             whether the input is valid
         """        
         if self.getData('dataset') == 'null' or self.getData('model') == 'null': # 如果数据集和模型为null，弹出提醒框
-            self.jumpQMessageBox("提示", '请选择数据集和模型')
-            # QMessageBox.about(self, "提示", '请选择数据集和模型')
+            self.jumpQMessageBox("Message", 'Please select a dataset and a network')
+            # QMessageBox.about(self, "Message", 'Please select a dataset and a network')
             return False
         if self.getData('is_online') is False and self.getData('is_offline') is False: # 如果在线离线模式为空，弹出提醒框
-            self.jumpQMessageBox("提示", '请选择在线或离线模式')
-            # QMessageBox.about(self, "提示", '请选择在线或离线模式”')
+            self.jumpQMessageBox("Message", 'Please select online or offline mode')
+            # QMessageBox.about(self, "Message", 'Please select online or offline mode”')
             return False
         if self.getData('prune_method') == 'null' and self.getData('quan_method') == 'null': # 如果剪枝为null且量化为null，弹出提醒框
-            self.jumpQMessageBox("提示", '请选择剪枝或量化方法')
-            # QMessageBox.about(self, "提示", '请选择剪枝或量化方法')
+            self.jumpQMessageBox("Message", 'Please select a pruning or quantization method')
+            # QMessageBox.about(self, "Message", 'Please select a pruning or quantization method')
             return False
 
         dataset = self.getData('dataset')
@@ -432,21 +445,42 @@ class MainWindow(QMainWindow):
         dataset_model_key = '{},{}'.format(dataset, model)
         method_key = '{},{}'.format(prune_method, quan_method)
         if not dataset_model_key in self.global_config['support_combinations']: # 如果数据集、模型不在支持的组合内，弹出提示框
-            text = '请选择如下（模型，数据集）之一：\n'
+            text = 'Please select one of the (dataset, network) pairs: \n'
             for key in self.global_config['support_combinations']:
                 text += '  ({})\n'.format(key)
-            self.jumpQMessageBox("提示", text)
-            # QMessageBox.about(self, "提示", text)
+            self.jumpQMessageBox("Message", text)
+            # QMessageBox.about(self, "Message", text)
             return False
         if not method_key in self.global_config['support_combinations'][dataset_model_key]:  # 如果剪枝、量化方法不在支持的组合内，弹出提示框
-            text = '请选择如下（剪枝，量化）方法之一：\n'
+            text = 'Please select one of the (pruning, quantization) methods: \n'
             for key in self.global_config['support_combinations'][dataset_model_key]:
                 text += '  ({})\n'.format(key)
-            self.jumpQMessageBox("提示", text)
-            # QMessageBox.about(self, "提示", text)
+            self.jumpQMessageBox("Message", text)
+            # QMessageBox.about(self, "Message", text)
+            return False
+        if dataset in ['Cityscapes'] and self.getData('is_online'):
+            self.jumpQMessageBox("Message", 'This method does support online mode due to GPU memory limitations')
             return False
 
         return True
+    
+    def checkMethod(self):
+        dataset = self.getData('dataset')
+        model = self.getData('model')
+        prune_method = self.getData('prune_method')
+        quan_method = self.getData('quan_method')
+        dataset_model_key = '{},{}'.format(dataset, model)
+        method_key = '{},{}'.format(prune_method, quan_method)
+        if dataset != 'null' and model != 'null':
+            if prune_method != '' or quan_method != '':
+                if prune_method != 'null' or quan_method != 'null':
+                    if not method_key in self.global_config['support_combinations'][dataset_model_key]:  # 如果剪枝、量化方法不在支持的组合内，弹出提示框
+                        text = 'Please select one of the (pruning, quantization) methods: \n'
+                        for key in self.global_config['support_combinations'][dataset_model_key]:
+                            text += '  ({})\n'.format(key)
+                        self.jumpQMessageBox("Message", text)
+                        self.ui.comboBox_4.setCurrentIndex(self.ui.comboBox_4.findText('null'))
+                        self.ui.comboBox_5.setCurrentIndex(self.ui.comboBox_5.findText('null'))
 
     def setMethod(self):
         """set default value
@@ -454,7 +488,10 @@ class MainWindow(QMainWindow):
         dataset = self.getData('dataset')
         model = self.getData('model')
         dataset_model_key = '{},{}'.format(dataset, model)
-        method_list = self.global_config['support_combinations'][dataset_model_key]
+        if dataset_model_key == "null,null":
+            method_list = []
+        else:
+            method_list = self.global_config['support_combinations'][dataset_model_key]
         prune_list = ['null']
         quan_list = ['null']
         for m in method_list:
@@ -463,35 +500,47 @@ class MainWindow(QMainWindow):
                 prune_list.append(prune_m)
             if quan_m not in quan_list:
                 quan_list.append(quan_m)
-            
+
+        if hasattr(self, 'connect_45'):#
+            self.ui.comboBox_4.currentIndexChanged.disconnect(self.checkMethod)
+            self.ui.comboBox_5.currentIndexChanged.disconnect(self.checkMethod)
+        
         # prune
         self.ui.comboBox_4.clear()
         self.ui.comboBox_4.addItems(prune_list)
         self.ui.comboBox_4.setCurrentIndex(prune_list.index('null'))
+        
         # quan
         self.ui.comboBox_5.clear()
         self.ui.comboBox_5.addItems(quan_list)
         self.ui.comboBox_5.setCurrentIndex(quan_list.index('null'))
+        
+
+        self.ui.comboBox_4.currentIndexChanged.connect(self.checkMethod) # check method valid
+        self.ui.comboBox_5.currentIndexChanged.connect(self.checkMethod) # check method valid
+        self.connect_45 = None
 
     def setPerformance(self):
         """set Performance based on config file
         """        
-        currentfolder = os.path.abspath(os.path.dirname(__file__))
-        global_config_file = os.path.join(os.path.dirname(currentfolder), "compression_vis/config", "global.yaml")
-        with open(global_config_file) as f:
-            global_config = yaml.safe_load(f)
-        dataset = self.getData('dataset')
-        model = self.getData('model')
-        if '{},{}'.format(dataset, model) in global_config['origin_performance']:
-            performance = global_config['origin_performance']['{},{}'.format(dataset, model)]
-            text = ''
-            for key in performance:
-                text += '{}: {}\n'.format(key, performance[key])
-            # text = 'Acc: {}\nFLOPs: {}\nParams: {}\n'.format(performance['acc'], performance['flops'], performance['params'])
-        else:
-            text = ''
+        # currentfolder = os.path.abspath(os.path.dirname(__file__))
+        # global_config_file = os.path.join(os.path.dirname(currentfolder), "compression_vis/config", "global.yaml")
+        # with open(global_config_file) as f:
+        #     global_config = yaml.safe_load(f)
+        # dataset = self.getData('dataset')
+        # model = self.getData('model')
+        # if '{},{}'.format(dataset, model) in global_config['origin_performance']:
+        #     performance = global_config['origin_performance']['{},{}'.format(dataset, model)]
+        #     text = ''
+        #     for key in performance:
+        #         text += '{}: {}\n'.format(key, performance[key])
+        #     # text = 'Acc: {}\nFLOPs: {}\nParams: {}\n'.format(performance['acc'], performance['flops'], performance['params'])
+        # else:
+        #     text = ''
 
-        self.ui.label_3.setText(text)
+        # self.ui.label_3.setText(text) 
+
+        self.ui.label_3.setText('')
 
     def setHyperparameters(self):
         """set Hyperparameters 
@@ -506,7 +555,40 @@ class MainWindow(QMainWindow):
                 datastr += d + '\n'
             self.ui.textBrowser.setText(datastr)
             self.dialog = dialog
-    
+            return True
+        else:
+            return False
+
+    def get_online_pid(self, cmd_key):
+        process_list =  list(psutil.process_iter())
+        regex = "pid=(\d+),\sname=\'" + "python" + "\'"
+        ini_regex = re.compile(regex)
+
+        for p in process_list:
+            process_info = str(p)
+
+            result = ini_regex.search(process_info)
+
+            if result != None:
+                argv = p.cmdline()
+                for arg in argv:
+                    if cmd_key in arg:
+                        return p.pid
+        return None
+
+    def kill_online(self, pid):
+        choice = QMessageBox.No
+        p = psutil.Process(pid)
+        choice = QMessageBox.question(self, "Warning", f'Do you want to stop the online training? [PID: {pid}]', QMessageBox.Yes | QMessageBox.No)  # 1
+        if choice == QMessageBox.Yes:
+            for child in p.children(recursive=True):
+                print("kill: ", child)
+                child.kill()
+            print("kill: ", p)
+            p.kill()
+            return True #prcoess killed
+        return False #
+
     def jumpQMessageBox(self, title, message):
         """jump QMessageBox
 
@@ -517,10 +599,11 @@ class MainWindow(QMainWindow):
         message : str
             QMessageBox message
         """        
-        box = QMessageBox(QMessageBox.Warning, title, message)
-        box.addButton("确定", QMessageBox.YesRole)
-        #self.box.addButton(self.tr("取消"), QMessageBox.NoRole)
-        box.exec_()
+        # box = QMessageBox(QMessageBox.Warning, title, message)
+        # box.addButton("确定", QMessageBox.YesRole)
+        # #self.box.addButton(self.tr("取消"), QMessageBox.NoRole)
+        # box.exec_()
+        QMessageBox.information(self, title, message)
 
     def getHyperparameters(self):
         """get Hyperparameters
@@ -551,14 +634,14 @@ class MainWindow(QMainWindow):
 
     def closeEvent(self, event):  # 函数名固定不可变
         """check whether the process is finished
-        """        
-        global sub_process
-        if sub_process and psutil.pid_exists(sub_process.pid):  # (self.getData('is_online') and self.process_running):
-            self.jumpQMessageBox('在线程序正在运行', '请手动结束在线程序')
-            # QtWidgets.QMessageBox.about(self, 'Online process running!', '请手动结束在线程序')
-            event.ignore()
-        else:
-            event.accept()  # 关闭窗口
+        """   
+        pid = None
+        if self.getData('is_online'):   
+            pid = self.get_online_pid(self.getData('model'))
+            if pid is not None and not self.kill_online(pid):
+                event.ignore() #保留窗口
+                return
+        event.accept()  # 关闭窗口
 
     # 压缩确认按钮回调函数
     def compressStartBtnCallback(self):
@@ -572,7 +655,9 @@ class MainWindow(QMainWindow):
         if not self.checkData():
             return
         if self.ui.textBrowser.toPlainText() == '': # 如果超参数文本框为空
-            self.setHyperparameters()
+            flag = self.setHyperparameters()
+            if not flag:
+                return 
             # if self.getData('is_online'): # 如果是在线模式，弹出超参数设置框
             #     self.setHyperparameters()
             # else: # 如果是离线模式，使用默认值设置超参数文本框
@@ -580,7 +665,7 @@ class MainWindow(QMainWindow):
             #     data = dialog.get_data()
             #     datastr = ''
             #     for d in data:
-            #         datastr += d + '\n'
+            #         datastr += d + '\n'jjlllljjjjjjdjflajlsjlfdkfjkdjfkd
             #     self.ui.textBrowser.setText(datastr)
         
         if self.ui.textBrowser.toPlainText() == '' and self.getData('is_online'): # 如果在线模式输出超参数时直接关闭窗口，返回
@@ -592,19 +677,26 @@ class MainWindow(QMainWindow):
         self.paramsBarHtml.build()
         self.infertimeBarHtml.build()
 
-        self.ui.pushButton_start.setEnabled(False)
-        self.ui.pushButton_reset.setEnabled(True)
-
-        self.ui.label_7.setText('程序运行中，请耐心等待')
+        self.ui.label_7.setText('The program is running, please wait.')
         self.process_running = True
 
         # if self.getData('is_offline'):
         #     self.setHyperparameters()
 
-        if self.getData('is_online') and os.path.exists(os.path.join(self.getHyperparameters()['output_path'],'logs.yaml')):
+        oldlogfile = os.path.join(self.getHyperparameters()['output_path'],'logs.yaml')
+        if self.getData('is_online') and os.path.exists(oldlogfile):
             # QtWidgets.QMessageBox.about(self, '提示', '该路径下有其他压缩程序保存的文件，请选择另一个空文件夹运行在线压缩程序')
-            self.jumpQMessageBox('提示', '该路径下有其他压缩程序保存的文件，请选择另一个空文件夹运行在线压缩程序')
-            return
+            # self.jumpQMessageBox('提示', '该路径下有其他压缩程序保存的文件，请选择另一个空文件夹运行在线压缩程序')
+            choice = QMessageBox.question(self, "Message", f'Files exist in this path, do you want to delete them?',  
+                        QMessageBox.Yes | QMessageBox.No)  # 1
+            if choice == QMessageBox.Yes:
+                # shutil.rmtree(self.getHyperparameters()['output_path'])
+                os.remove(oldlogfile)
+            else:
+                return
+
+        self.ui.pushButton_start.setEnabled(False)
+        self.ui.pushButton_reset.setEnabled(True)
 
         args = copy.deepcopy(self.getHyperparameters())
         args['dataset'] = self.getData('dataset')
@@ -623,12 +715,11 @@ class MainWindow(QMainWindow):
     def resetStartBtnCallback(self):
         """Callback when clicking reset Butten
         """        
-        # 如果程序运行，弹出提醒框，提示用户手动关闭程序，返回
-        global sub_process 
-        if sub_process and psutil.pid_exists(sub_process.pid):
-            # QtWidgets.QMessageBox.about(self, 'Online process running!', '请手动结束在线程序')
-            self.jumpQMessageBox('在线程序正在运行', '请手动结束在线程序')
-            return
+        pid = None
+        if self.getData('is_online'):   
+            pid = self.get_online_pid(self.getData('model'))
+            if pid is not None and not self.kill_online(pid):
+                return 
         
         # 把数据集、模型、在线/离线模式和压缩方法变成缺省值，清空在线离线模式，超参数字图，清空柱状图
         self.initConfig()
@@ -641,47 +732,77 @@ class MainWindow(QMainWindow):
         # “重置”按钮变灰，此时“确认”按钮应该是从灰色变成激活状态
         self.ui.pushButton_start.setEnabled(True)
         self.ui.pushButton_reset.setEnabled(False)
+    
 
     def modelVisBtnCallback(self):
         """Callback when clicking modelVis Butten
-        """        
+        """       
         dataset = self.getData('dataset')
         model = self.getData('model')
         datapath = os.path.join(C.quiver_dir, dataset)
         model_path = os.path.join(C.model_vis, '{}-{}'.format(dataset, model), 'model.pth')
+        if dataset == 'null':
+            self.jumpQMessageBox("Message", 'Please select a dataset and a network')
+            return
         if not os.path.exists(model_path):
-            self.jumpQMessageBox("提示", '模型不存在: {}'.format(model_path))
-            # QMessageBox.about(self, "提示", )
+            self.jumpQMessageBox("Message", 'The model does not exist: {}'.format(model_path))
+            # QMessageBox.about(self, "Message", )
             return
         model = torch.load(model_path).cpu().eval()
+        # cnt = 0
+        # for m in model.modules():
+        #     cnt += 1
+        # print('count:', cnt)
         self.modelVis.set_img_size(self.global_config['img_size']['{},{}'.format(self.getData('dataset'), self.getData('model'))])
         self.modelVis.slotUpdateModel(model, datapath)
+        self.resizeEvent(None) 
     
     def prunedModelVisBtnCallback(self):
         """Callback when clicking prunedModel Butten
-        """        
+        """       
+
         dataset = self.getData('dataset')
         model = self.getData('model')
         prune_method = self.getData('prune_method')
         quan_method = self.getData('quan_method')
-        if prune_method == 'null' or quan_method != 'null':
-            # QMessageBox.about(self, "提示", '仅支持可视化剪枝后的压缩网络')
-            self.jumpQMessageBox("提示", '仅支持可视化剪枝后的压缩网络')
-            return
-        datapath = os.path.join(C.quiver_dir, dataset)
-        model_path = os.path.join(C.model_vis, '{}-{}'.format(dataset, model), '{}-{}.pth'.format("online" if self.getData('is_online') else "offline", prune_method))
-        global sub_process 
-        if sub_process and psutil.pid_exists(sub_process.pid):
+        
+        # if prune_method == 'null' or quan_method != 'null':
+        #     # QMessageBox.about(self, "提示", '仅支持可视化剪枝后的压缩网络')
+        #     self.jumpQMessageBox("提示", '仅支持可视化剪枝后的压缩网络')
+        #     return
+        # datapath = os.path.join(C.quiver_dir, dataset)
+        # model_path = os.path.join(C.model_vis, '{}-{}'.format(dataset, model), '{}-{}.pth'.format("online" if self.getData('is_online') else "offline", prune_method))
+
+        if prune_method == 'null':
+            if quan_method != 'null':
+                datapath = os.path.join(C.quiver_dir, dataset)
+                model_path = os.path.join(C.model_vis, '{}-{}'.format(dataset, model), 'model.pth')
+            else:
+                self.jumpQMessageBox("Message", 'Please select a compression method')     
+                return
+        else:
+            datapath = os.path.join(C.quiver_dir, dataset)
+            model_path = os.path.join(C.model_vis, '{}-{}'.format(dataset, model), '{}-{}.pth'.format("online" if self.getData('is_online') else "offline", prune_method))
+
+        if self.get_online_pid(self.getData('model')): #在线进程仍然存在
             # QtWidgets.QMessageBox.about(self, 'Online process running!', '程序正在运行，请结束后再可视化压缩后模型')
-            self.jumpQMessageBox('在线程序正在运行!', '程序正在运行，请结束后再可视化压缩后模型')
+            self.jumpQMessageBox('Message', 'The program is running, please visualize the compressed model after it finishes')
+            return
+        if dataset == 'null':
+            self.jumpQMessageBox("Message", 'Please select a dataset and a network')
             return
         if not os.path.exists(model_path):
             # QMessageBox.about(self, "提示", '模型不存在: {}'.format(model_path))
-            self.jumpQMessageBox("提示", '模型不存在: {}'.format(model_path))
+            self.jumpQMessageBox("Message", 'The model does not exist: {}'.format(model_path))
             return
         model = torch.load(model_path).cpu().eval()
+        # cnt = 0
+        # for m in model.modules():
+        #     cnt += 1
+        # print('count:', cnt)
         self.modelVis.set_img_size(self.global_config['img_size']['{},{}'.format(self.getData('dataset'), self.getData('model'))])
         self.modelVis.slotUpdateModel(model, datapath)
+        self.resizeEvent(None) 
 
     def resizeEvent(self, a0):    
         num = self.ui.tabWidget.count()
@@ -698,6 +819,9 @@ class MainWindow(QMainWindow):
         self.flopsBarHtml.destroy()
         self.paramsBarHtml.destroy()
         self.infertimeBarHtml.destroy()
+        self.modelVis.destroy()
+        # self.modelVis = ModelViewer(self.ui.scrollArea_7)
+        # self.ui.scrollArea_7.hide()
 
     def updateUiCompressCallback(self, is_finished, uiBaseline, uiMethod, error, output_file):
         """Callback when updating Compress UI
@@ -717,7 +841,7 @@ class MainWindow(QMainWindow):
         """        
         if error != '':
             # QMessageBox.about(self, "错误", '发生错误：{:s}， 请检查后重新运行'.format(error))
-            self.jumpQMessageBox("错误", '发生错误：{:s}， 请检查后重新运行'.format(error))
+            self.jumpQMessageBox("Error", 'An error occurred: {:s}, please check and run again.'.format(error))
             self.resetStartBtnCallback()
             return
 
@@ -729,6 +853,12 @@ class MainWindow(QMainWindow):
         self.infertimeBarHtml.update(['{:.2f}'.format(uiBaseline[var_names[2]]), '{:.2f}'.format(uiMethod[var_names[2]])])
         self.paramsBarHtml.update(['{:.2f}'.format(uiBaseline[var_names[3]]), '{:.2f}'.format(uiMethod[var_names[3]])])
         self.storageBarHtml.update(['{:.2f}'.format(uiBaseline[var_names[4]]), '{:.2f}'.format(uiMethod[var_names[4]])])
+
+        performance = self.global_config['origin_performance']['{},{}'.format(self.getData('dataset'), self.getData('model'))]
+        text = ''
+        for key in performance:
+            text += '{}: {} {}\n'.format(key, uiBaseline[var_names[var_names.index(key)]], performance[key].split()[-1]) # 指标名称，数值，单位
+        self.ui.label_3.setText(text)
 
         if is_finished:
             # 压缩输出
@@ -742,9 +872,10 @@ class MainWindow(QMainWindow):
             self.display = False
 
             # 弹出路径
-            info = '压缩模型路径: {}'.format(output_file)
+            info = 'Path of the compressed network: {}'.format(output_file)
             # QMessageBox.about(self, "压缩结果", info)
-            self.jumpQMessageBox("压缩结果", info)
+            self.jumpQMessageBox("Results of compression", info)
+        
 
 
 if __name__ == "__main__":

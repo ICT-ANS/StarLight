@@ -164,7 +164,7 @@ class MainWindow(QMainWindow):
         self.online_killed = False
         self.online_switch = False
 
-        self.ui = Ui_MainWindow()
+        self.ui = Ui_NAS()
         self.ui.setupUi(self)
 
         # 初始化html曲线
@@ -464,13 +464,13 @@ class MainWindow(QMainWindow):
 
     def checkData(self):
         if self.getData('dataset') == 'null':  # 如果数据集和模型为null，弹出提醒框
-            self.jumpQMessageBox("提示", '请选择数据集')
+            self.jumpQMessageBox("Message", 'Please select a dataset')
             return False
         if self.getData('is_online') is False and self.getData('is_offline') is False:  # 如果在线离线模式为空，弹出提醒框
-            self.jumpQMessageBox("提示", '请选择在线或离线模式')
+            self.jumpQMessageBox("Message", 'Please select online or offline mode')
             return False
         if self.getData('method') == 'null':  # 如果剪枝为null且量化为null，弹出提醒框
-            self.jumpQMessageBox("提示", '请选择搜索方法')
+            self.jumpQMessageBox("Message", 'Please select a NAS algorithm')
             return False
 
         return True
@@ -524,7 +524,7 @@ class MainWindow(QMainWindow):
     def kill_online(self, pid):
         choice = QMessageBox.No
         p = psutil.Process(pid)
-        choice = QMessageBox.question(self, "Warning", f'是否关闭在线训练？[PID: {pid}]',
+        choice = QMessageBox.question(self, "Warning", f'Do you want to stop the online training? [PID: {pid}]',
                                       QMessageBox.Yes | QMessageBox.No)  # 1
         if choice == QMessageBox.Yes:
             p.kill()
@@ -568,16 +568,16 @@ class MainWindow(QMainWindow):
             log_name = '{}/{}/logdir/Online_{}_{}.log'.format(
                 C.cache_dir, self.cur_method, self.cur_method, dataset)
             if os.path.exists(log_name):
-                choice = QMessageBox.question(self, "提示", '该路径下有其他旧的log文件，是否删除？', QMessageBox.Yes | QMessageBox.No)  # 1
+                choice = QMessageBox.question(self, "Message", 'Files exist in this path, do you want to delete them?', QMessageBox.Yes | QMessageBox.No)  # 1
                 if choice == QMessageBox.Yes:
                     os.remove(log_name)
                 else:
                     return
-            self.ui.label_status.setText('%s 方法在线展示中' % self.cur_method)
-            self.ui.label_results.setText('在线搜索完成后需重训练搜得模型')
+            self.ui.label_status.setText('%s is running online' % self.cur_method)
+            self.ui.label_results.setText('A fine-tuning process is needed after the online search')
             self.run_algo()
         else:
-            self.ui.label_status.setText('%s 方法离线展示中' % self.cur_method)
+            self.ui.label_status.setText('%s is running offline' % self.cur_method)
             if self.cur_method == 'DARTS':
                 self.ui.label_results.setText('Params: 2.5M\tTop-1: 97.01')
             elif self.cur_method == 'GDAS':
@@ -620,7 +620,7 @@ class MainWindow(QMainWindow):
 
     # 搜索重置按钮回调函数
     def resetStartBtnCallback(self):
-        # 如果程序运行，弹出提醒框，提示用户手动关闭程序，返回
+        # 如果程序运行，弹出提醒框，Message用户手动关闭程序，返回
         pid = None
         if self.getData('is_online'):
             pid = self.get_online_pid(self.cur_method)
@@ -657,7 +657,7 @@ class MainWindow(QMainWindow):
 
     def jumpQMessageBox(self, title, message):
         box = QMessageBox(QMessageBox.Warning, title, message)
-        box.addButton("确定", QMessageBox.YesRole)
+        box.addButton("OK", QMessageBox.YesRole)
         box.exec_()
 
     def stopBtnCallback(self):
@@ -678,7 +678,7 @@ class MainWindow(QMainWindow):
     # 超参设置按钮回调函数
     def getHyperparametersSetting(self):
         if self.getData('method') == 'null':
-            self.jumpQMessageBox("提示", '请先选择搜索方法')
+            self.jumpQMessageBox("Message", 'Please select a NAS algorithm')
             return
         self.diag = HyperparametersSettingWindow(self.cur_method)
         output_dir = os.path.join(C.cache_dir, '%s' % (self.getData('method')))

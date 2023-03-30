@@ -19,13 +19,6 @@ default_setting:
     ft_epochs: 25
     prune_sparisity: 0.2
     gpus: "0"
-
-  ZhiJiangDataset,CFNet:
-    ft_lr: 0.001
-    ft_bs: 128
-    ft_epochs: 10
-    prune_sparisity: 0.2
-    gpus: "0"
     
   VOC,VGGSSD:
     ft_lr: 0.001
@@ -48,10 +41,4 @@ default_setting:
     prune_sparisity: 0.3
     gpus: "0"
   
-  KeTi3Dataset,UNet:
-    ft_lr: 1e-8
-    ft_bs: 1
-    ft_epochs: 20
-    prune_sparisity: 0.2
-    gpus: "0"
 

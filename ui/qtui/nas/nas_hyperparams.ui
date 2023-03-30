@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>超参数设置</string>
+   <string>Hyper-parameters</string>
   </property>
   <widget class="QLabel" name="label">
    <property name="geometry">
@@ -23,7 +23,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>超参数设置：</string>
+    <string>Hyper-parameters:</string>
    </property>
   </widget>
   <widget class="QLabel" name="label_2">
@@ -163,7 +163,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>选择</string>
+    <string>Choose</string>
    </property>
   </widget>
   <widget class="QPushButton" name="pushButton_2">
@@ -176,7 +176,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>确定</string>
+    <string>OK</string>
    </property>
   </widget>
   <widget class="QPushButton" name="pushButton_3">
@@ -189,7 +189,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>重置</string>
+    <string>Reset</string>
    </property>
   </widget>
   <widget class="QPushButton" name="pushButton_4">
@@ -202,7 +202,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>退出</string>
+    <string>Exit</string>
    </property>
   </widget>
   <widget class="QLabel" name="label_7">
