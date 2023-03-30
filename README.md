@@ -141,4 +141,4 @@ Thanks for your interest in [StarLight](https://github.com/ICT-ANS/StarLight) an
 * We are happy to integrate your network to our StarLight. Please provide your network with the results and hyper-parameters to us. And a detailed description would be better. Thank you!
 
 ## License
-This project is under the MIT license - please see the [LICENSE](https://github.com/ICT-ANS/StarLight) for details
+This project is under the MIT license - please see the [LICENSE](https://github.com/ICT-ANS/StarLight/blob/main/LICENSE) for details
