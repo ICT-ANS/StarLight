@@ -87,10 +87,10 @@ StarLight helps in obtaining lightweight deep neural networks. StarLight consist
 
 ## Demo
 * Pruning, quantization and feature visualization in StarLight. 
-<img src="https://github.com/ICT-ANS/StarLight.github.io/blob/main/assets/StarLight_Compress.gif" alt="StarLight-Compress" width="100%"/>
+<img src="https://github.com/ICT-ANS/StarLight.github.io/blob/main/assets/starlight_compress_en.gif" alt="StarLight-Compress" width="100%"/>
 
 * Neural architecture search and feature visualization in StarLight. 
-<img src="https://github.com/ICT-ANS/StarLight.github.io/blob/main/assets/StarLight_DARTS.gif" alt="StarLight-DARTS" width="100%"/>
+<img src="https://github.com/ICT-ANS/StarLight.github.io/blob/main/assets/starlight_darts_en.gif" alt="StarLight-DARTS" width="100%"/>
 
 ## Installation
 * We summarized detailed steps for installation in this [link](https://ict-ans.github.io/StarLight.github.io/docs/Installation.html).
