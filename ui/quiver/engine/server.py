@@ -118,27 +118,120 @@ def update_model(model, hooks, input_folder, image_size, use_gpu=False, temp_fol
     '''
         prepare model
     '''
-    width = 224
-    height = 224
-    if image_size is not None:
-        width = image_size[-1]
-        height = image_size[-2]
+    print('*' * 50)
+    print('Input_folder: %s' % input_folder)
+    print('*' * 50)
     
-    _use_gpu = use_gpu
+    dataset = input_folder.split('/')[-1]
+    if dataset in ['KeTi1DepthEst', '502_dataSet']:
+        from algorithms.compression.nets.CFNet.datasets.zjlab_dataset_quiver import ZjlabDataset
+        data_name = 'second_round_front/navi_cam/left_origin/1517157368.373382.png second_round_front/navi_cam/right_origin/1517157368.373382.png second_round_front/tof/origin/1517157368.373382.tif second_round_front/tof/origin/1517157368.373382.tif'
+        splits = data_name.split()
+        prefix = '/demo_502_dataset'
 
-    _image_size = [width, height]
+        dataset = ZjlabDataset(
+            datapath=input_folder+prefix,
+            list_filename=None,
+            training=False
+        )
+        sample = dataset.getitem_from_splits(splits)
+        imgL, imgR, disp_sparse, sparse_mask = sample['left'].cuda(), sample['right'].cuda(), \
+            sample['sparse'].cuda(), sample['sparse_mask'].cuda()
+        imgL = torch.nn.functional.max_pool2d(imgL, kernel_size=4, stride=4, padding=0)
+        imgR = torch.nn.functional.max_pool2d(imgR, kernel_size=4, stride=4, padding=0)
+        disp_sparse = torch.nn.functional.max_pool2d(disp_sparse.float(), kernel_size=4, stride=4, padding=0).int()
+        sparse_mask = torch.nn.functional.max_pool2d(sparse_mask.float(), kernel_size=4, stride=4, padding=0).int()
+        _model = model.cuda()
+        for p in model.parameters(): # 防止节点显示不全
+            p.requires_grad = True
+        out = _model(imgL, imgR, disp_sparse, sparse_mask)[0][0]
+    elif dataset in ['KeTi2Location']:
+        from algorithms.compression.nets.Hsmnet.dataloader.listfiles import dataloader
+        from algorithms.compression.nets.Hsmnet.dataloader.preprocess import get_transform
+        from _init_paths import C
+        from skimage import io
+        from torch.autograd import Variable
 
-    x = torch.zeros(1, 3, width, height, dtype=torch.float, requires_grad=False)
-    
-    if _use_gpu and torch.cuda.is_available():
+        test_data_path = os.path.join(C.cache_dir, 'dataset/KeTi2Location/test_data_part')
+        test_left_img, test_right_img, left_gt, _ = dataloader(test_data_path)
+        # 读左右rgb及gt
+        inx = 0
+        imgL_o = (io.imread(test_left_img[inx]).astype('float32'))[:, :, :3]
+        imgR_o = (io.imread(test_right_img[inx]).astype('float32'))[:, :, :3]
+        # 归一化及正则化
+        processed = get_transform()
+        imgL = processed(imgL_o).numpy()
+        imgR = processed(imgR_o).numpy()
+        # 重排列到[N,C,H,W]
+        imgL = np.reshape(imgL, [1, 3, imgL.shape[1], imgL.shape[2]])
+        imgR = np.reshape(imgR, [1, 3, imgR.shape[1], imgR.shape[2]])
+        ##fast pad 补到64的倍数
+        max_h = int(imgL.shape[2] // 64 * 64)
+        max_w = int(imgL.shape[3] // 64 * 64)
+        if max_h < imgL.shape[2]:
+            max_h += 64
+        if max_w < imgL.shape[3]:
+            max_w += 64
+        top_pad = max_h - imgL.shape[2]
+        left_pad = max_w - imgL.shape[3]
+        imgL = np.lib.pad(imgL, ((0, 0), (0, 0), (top_pad, 0), (0, left_pad)), mode='constant', constant_values=0)
+        imgR = np.lib.pad(imgR, ((0, 0), (0, 0), (top_pad, 0), (0, left_pad)), mode='constant', constant_values=0)
+        # val
+        DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
+        imgL = Variable(torch.FloatTensor(imgL).to(DEVICE))
+        imgR = Variable(torch.FloatTensor(imgR).to(DEVICE))
+
+        _model = model.to(DEVICE)
+        for p in model.parameters():  # 防止节点显示不全
+            p.requires_grad = True
+        out = _model(imgL, imgR)[0]
+    elif dataset in ['KeTi2Tracking']:
+        width = 175
+        height = 175
+        if image_size is not None:
+            width = image_size[-1]
+            height = image_size[-2]
+        x = torch.randn(2, 1, 3, width, height, dtype=torch.float, requires_grad=False)
+        
+        _use_gpu = use_gpu
+
+        _image_size = [width, height]
+
         x = x.cuda()
         _model = model.cuda()
+        
+        for p in model.parameters(): # 防止节点显示不全
+            p.requires_grad = True
+        out = _model(x)
     else:
-        x = x.cpu()
+        width = 224
+        height = 224
+        if image_size is not None:
+            width = image_size[-1]
+            height = image_size[-2]
+        
+        _use_gpu = use_gpu
 
-    _model = model
+        _image_size = [width, height]
 
-    out = _model(x)
+        x = torch.randn(1, 3, width, height, dtype=torch.float, requires_grad=False)
+        # x = torch.zeros(1, 3, width, height, dtype=torch.float, requires_grad=False)
+        
+        print('*' * 50)
+        print('use_gpu:', _use_gpu, 'torch.cuda:', torch.cuda.is_available())
+        print('*' * 50)
+
+        if _use_gpu and torch.cuda.is_available():
+            x = x.cuda()
+            _model = model.cuda()
+        else:
+            x = x.cpu()
+            _model = model.cpu()
+
+        for p in model.parameters(): # 防止节点显示不全
+            p.requires_grad = True
+        out = _model(x)
+
     _json_graph = make_dot(out, params = dict(model.named_parameters()))
 
     _input_folder = input_folder
@@ -147,6 +240,7 @@ def update_model(model, hooks, input_folder, image_size, use_gpu=False, temp_fol
 
     _temp_folder = temp_folder
 
+    
 
 def register_model(model, hooks, use_gpu, image_size, temp_folder='./tmp', input_folder='./',
             mean=None, std=None):

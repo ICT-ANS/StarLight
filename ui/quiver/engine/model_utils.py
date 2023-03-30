@@ -99,17 +99,19 @@ def make_dot(var, params=None):
         return '(' + (', ').join(['%d' % v for v in size]) + ')'
 
     output_nodes = (var.grad_fn,) if not isinstance(var, tuple) else tuple(v.grad_fn for v in var)
+    
 
-    def add_nodes(var):
-        if var not in seen:     
-            if torch.is_tensor(var):
+    def add_nodes(grad_fn):
+        if grad_fn not in seen:     
+            if torch.is_tensor(grad_fn):
                 # note: this used to show .saved_tensors in pytorch0.2, but stopped
-                # working as it was moved to ATen and Variable-Tensor merged
-                onenode = {"id":str(id(var)), "size":size_to_str(var.size()), "class_name":"Unknown", "name":str(id(var))}
+                # working as it was moved to ATen and variable-Tensor merged
+                layer_id = "None"
+                onenode = {"id":str(id(grad_fn)), "layer_id":layer_id, "size":size_to_str(grad_fn.size()), "class_name":"Unknown", "name":str(id(grad_fn))}
                 raw_graph["nodes"].append(onenode)
 
-            elif hasattr(var, 'variable'):
-                u = var.variable
+            elif hasattr(grad_fn, 'variable'):
+                u = grad_fn.variable
                 name = param_map[id(u)] if params is not None else ''
 
                 layer_id = "None"
@@ -119,34 +121,39 @@ def make_dot(var, params=None):
                         layer_id =  str(int(params[prefix].item()))
                         # print (layer_id, name)
 
-                onenode = {"id":str(id(var)), "layer_id":layer_id, "size":size_to_str(u.size()), "class_name":"variable", "name":name}
+                onenode = {"id":str(id(grad_fn)), "layer_id":layer_id, "size":size_to_str(u.size()), "class_name":"variable", "name":name}
                 raw_graph["nodes"].append(onenode)
 
-            elif var in output_nodes:
+            elif grad_fn in output_nodes:
                 layer_id = "None"
-                class_name = str(type(var).__name__).replace("Backward","")
-                onenode = {"id":str(id(var)), "layer_id":layer_id, "size":"None", "class_name":class_name, "name":str(id(var))}
+                class_name = str(type(grad_fn).__name__).replace("Backward","")
+                onenode = {"id":str(id(grad_fn)), "layer_id":layer_id, "size":"None", "class_name":class_name, "name":str(id(grad_fn))}
                 raw_graph["nodes"].append(onenode)
 
             else:
                 layer_id = "None"
 
-                class_name = str(type(var).__name__).replace("Backward","")
-                onenode = {"id":str(id(var)), "layer_id":layer_id,  "size":"None", "class_name":class_name, "name":str(id(var))}
+                class_name = str(type(grad_fn).__name__).replace("Backward","")
+                onenode = {"id":str(id(grad_fn)), "layer_id":layer_id,  "size":"None", "class_name":class_name, "name":str(id(grad_fn))}
                 raw_graph["nodes"].append(onenode)
 
-            seen.add(var)
-            if hasattr(var, 'next_functions'):
-                for u in var.next_functions:
+            seen.add(grad_fn)
+            if hasattr(grad_fn, 'next_functions'):
+                # print(grad_fn.next_functions)
+                if len(grad_fn.next_functions)==3:
+                    # print(len(grad_fn.next_functions))
+                    pass
+                for u in grad_fn.next_functions:
                     if u[0] is not None:
-                        # dot.edge(str(id(u[0])), str(id(var)))
-                        oneedge = {"source":str(id(u[0])), "target":str(id(var))}
+                        # dot.edge(str(id(u[0])), str(id(grad_fn)))
+                        oneedge = {"source":str(id(u[0])), "target":str(id(grad_fn))}
                         raw_graph["edges"].append(oneedge)
 
                         add_nodes(u[0])
-            if hasattr(var, 'saved_tensors'):
-                for t in var.saved_tensors:
-                    oneedge = {"source":str(id(t)), "target":str(id(var))}
+                        
+            if hasattr(grad_fn, 'saved_tensors'):
+                for t in grad_fn.saved_tensors:
+                    oneedge = {"source":str(id(t)), "target":str(id(grad_fn))}
                     raw_graph["edges"].append(oneedge)
                     add_nodes(t)
 
@@ -156,7 +163,14 @@ def make_dot(var, params=None):
             add_nodes(v.grad_fn)
     else:
         add_nodes(var.grad_fn)
+
+    # print('before raw graph nodes num: ', len(raw_graph["nodes"]))
+    # print('before raw edges nodes num: ', len(raw_graph["edges"]))
+
     json_graph = prune_graph(raw_graph)
+    # print('after raw graph nodes num: ', len(raw_graph["nodes"]))
+    # print('after raw edges nodes num: ', len(raw_graph["edges"]))
+
     return json_graph
 
 def prune_graph(graph):
@@ -253,7 +267,7 @@ def prune_graph(graph):
             new_graph[name] = {"class_name": "", "inbound_nodes": []}
 
         new_graph[name]["class_name"] = node["class_name"]
-        if node["size"] != "None":
+        if node["size"] != "None" and type(node["size"]) is dict:
             node["size"]["layer_id"] = node["layer_id"]
 
         new_graph[name]["config"] = node["size"]

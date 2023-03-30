@@ -1,4 +1,5 @@
-from PyQt5.QtWidgets import  QScrollArea, QWidget
+from re import S
+from PyQt5.QtWidgets import QGraphicsOpacityEffect, QScrollArea, QWidget
 from PyQt5.QtWebEngineWidgets import QWebEngineView
 from PyQt5.QtCore import  QUrl, QTimer
 import sys, os
@@ -9,6 +10,7 @@ from engine import server
 from engine.model_utils import register_hook
 
 import threading, time
+import torch
 
 class ModelViewer():
     def __init__(self, qtcontainer, img_size=None) -> None:
@@ -40,7 +42,12 @@ class ModelViewer():
             self.img_size = img_size
 
         self.http_server = None
+
+        self.model = None
+        self.hook_list = []
         pass
+    
+ 
     
     def set_img_size(self, img_size:list):
         """set image size
@@ -66,6 +73,7 @@ class ModelViewer():
         """        
         self.htmlLoadFinished = True
         self.timer.stop() #stop executing slotYimeout
+        self.myHtml.show()
         # print("timer stop")
     
     def slotUpdateModel(self, model, datapath:str):
@@ -77,14 +85,23 @@ class ModelViewer():
             pytorch model
         datapath : str
             image path for visulization
-        """        
-        hook_list = register_hook(model)
+        """
+        #reset hook and model
+        for h in self.hook_list:
+            h.close()
+        if self.model is not None:
+           del self.model
+           self.model = None 
+           torch.cuda.empty_cache()
 
+        self.hook_list = register_hook(model)
+        self.model = model
+        
         self.timer.start()
 
         if self.thread is None:
             server._http_server = None
-            self.thread = threading.Thread(target=server.launch, args=(model, hook_list, datapath, False, self.img_size, ))
+            self.thread = threading.Thread(target=server.launch, args=(self.model, self.hook_list, datapath, False, self.img_size, ))
             self.thread.daemon = True
             self.thread.start()
 
@@ -93,4 +110,13 @@ class ModelViewer():
 
             self.http_server = server._http_server
 
-        server.update_model(model, hook_list, datapath, self.img_size)
+        server.update_model(self.model, self.hook_list, datapath, self.img_size)
+
+        self.myHtml.show()
+
+    def destroy(self):
+        """destroy myhtml, you must call build after destroy.
+        """          
+        self.myHtml.hide()
+        self.timer.stop()
+        pass  

@@ -130,7 +130,7 @@
                  <x>13</x>
                  <y>30</y>
                  <width>191</width>
-                 <height>56</height>
+                 <height>58</height>
                 </rect>
                </property>
                <layout class="QGridLayout" name="gridLayout_3">
@@ -279,13 +279,13 @@
          <property name="minimumSize">
           <size>
            <width>0</width>
-           <height>300</height>
+           <height>350</height>
           </size>
          </property>
          <property name="maximumSize">
           <size>
            <width>16777215</width>
-           <height>300</height>
+           <height>400</height>
           </size>
          </property>
          <property name="title">
@@ -295,9 +295,9 @@
           <property name="geometry">
            <rect>
             <x>0</x>
-            <y>160</y>
+            <y>190</y>
             <width>238</width>
-            <height>121</height>
+            <height>151</height>
            </rect>
           </property>
           <property name="title">
@@ -319,7 +319,7 @@
             <x>0</x>
             <y>30</y>
             <width>241</width>
-            <height>121</height>
+            <height>151</height>
            </rect>
           </property>
           <property name="title">
@@ -328,10 +328,10 @@
           <widget class="QLabel" name="label_3">
            <property name="geometry">
             <rect>
-             <x>17</x>
-             <y>30</y>
-             <width>211</width>
-             <height>81</height>
+             <x>12</x>
+             <y>32</y>
+             <width>214</width>
+             <height>111</height>
             </rect>
            </property>
            <property name="text">
@@ -401,7 +401,7 @@ p, li { white-space: pre-wrap; }
                  <x>0</x>
                  <y>0</y>
                  <width>373</width>
-                 <height>423</height>
+                 <height>421</height>
                 </rect>
                </property>
               </widget>
@@ -418,7 +418,7 @@ p, li { white-space: pre-wrap; }
                  <x>0</x>
                  <y>0</y>
                  <width>372</width>
-                 <height>423</height>
+                 <height>421</height>
                 </rect>
                </property>
               </widget>
@@ -439,7 +439,7 @@ p, li { white-space: pre-wrap; }
                  <x>0</x>
                  <y>0</y>
                  <width>372</width>
-                 <height>423</height>
+                 <height>420</height>
                 </rect>
                </property>
               </widget>
@@ -456,7 +456,7 @@ p, li { white-space: pre-wrap; }
                  <x>0</x>
                  <y>0</y>
                  <width>373</width>
-                 <height>423</height>
+                 <height>420</height>
                 </rect>
                </property>
               </widget>
@@ -473,7 +473,7 @@ p, li { white-space: pre-wrap; }
                  <x>0</x>
                  <y>0</y>
                  <width>372</width>
-                 <height>423</height>
+                 <height>420</height>
                 </rect>
                </property>
               </widget>
@@ -500,8 +500,8 @@ p, li { white-space: pre-wrap; }
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>1137</width>
-             <height>821</height>
+             <width>98</width>
+             <height>28</height>
             </rect>
            </property>
           </widget>
@@ -537,7 +537,7 @@ p, li { white-space: pre-wrap; }
      <x>0</x>
      <y>0</y>
      <width>1444</width>
-     <height>22</height>
+     <height>25</height>
     </rect>
    </property>
   </widget>

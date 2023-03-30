@@ -94,14 +94,32 @@ StarLight helps in obtaining lightweight deep neural networks. StarLight consist
 * We summarized detailed steps for installation [here](https://ict-ans.github.io/StarLight.github.io/docs/Installation.html).
 
 ## Getting Started
+After installing the required packages for StarLight, activate the environment to enjoy StarLight.
+```shell
+conda activate starlight
+```
+
+
 ### Network compression
-* Coming soon.
+- Coming soon.
 
-### Neural Architecture
-* Coming soon.
+### Neural Architecture Search
+- Coming soon.
 
-### Visualization in StarLight
-* Coming soon.
+### Compression Visualization in StarLight
+
+### NAS Visualization in StarLight
+- Download logs and pre-trained weights in `StarLight_Cache` from this [link](). 
+- Create the data folder under StarLight and add a soft link for `StarLight_Cache`.
+```shell
+cd StarLight & mkdir "data"
+cd data & ln -s /path/to/StarLight_Cache
+```
+- Go to the folder of `nas_vis` and run visualization:
+```shell
+cd StarLight/nas_vis
+python nas.py
+```
 
 
 ## Guide for compressing your own networks
