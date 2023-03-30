@@ -93,7 +93,7 @@ StarLight helps in obtaining lightweight deep neural networks. StarLight consist
 <img src="https://github.com/ICT-ANS/StarLight.github.io/blob/main/assets/StarLight_DARTS.gif" alt="StarLight-DARTS" width="100%"/>
 
 ## Installation
-* We summarized detailed steps for installation [here](https://ict-ans.github.io/StarLight.github.io/docs/Installation.html).
+* We summarized detailed steps for installation in this [link](https://ict-ans.github.io/StarLight.github.io/docs/Installation.html).
 
 ## Getting Started
 After installing the required packages for StarLight, activate the environment to enjoy StarLight.
