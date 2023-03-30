@@ -47,10 +47,13 @@ StarLight helps in obtaining lightweight deep neural networks. StarLight consist
   - [Basic usage](#basic-usage)
   - [Examples](#examples)
 - [Guide for compressing your own networks](#guide-for-compressing-your-own-networks)
-- [License](#license)
+- [Visualize your own networks in StarLight](#visualize-your-own-networks-in-starlight)
 - [Acknowledgments](#acknowledgments)
 - [Citation](#citation)
 - [Contributing](#contributing)
+  - [Reporting Bugs](#report-bugs)
+  - [Commit New Networks](#commit-new-networks)
+- [License](#license)
 
 ## Highlighted Features
 * We present lightweight results of **6 popular networks**, including image classification, semantic segmentation, and object detection. 
@@ -91,7 +94,13 @@ StarLight helps in obtaining lightweight deep neural networks. StarLight consist
 * We summarized detailed steps for installation [here](https://ict-ans.github.io/StarLight.github.io/docs/Installation.html).
 
 ## Getting Started
-### Basic usage
+### Network compression
+* Coming soon.
+
+### Neural Architecture
+* Coming soon.
+
+### Visualization in StarLight
 * Coming soon.
 
 
@@ -124,11 +133,11 @@ If you find that this project helps your research, you can cite StarLight as fol
 ## Contributing
 Thanks for your interest in [StarLight](https://github.com/ICT-ANS/StarLight) and for willing to contribute! We'd love to hear your feedback. 
 
-### Reporting Bugs
+### Report Bugs
 * Please first try to check if an issue exists in our [Bug Summary](https://github.com/ICT-ANS/StarLight) or [Issues](https://github.com/ICT-ANS/StarLight/issues). 
 * If not, please describe the bug in detail and we will give a timely reply. 
 
-### Commiting New Models
+### Commit New Networks
 * We are happy to integrate your network to our StarLight. Please provide your network with the results and hyper-parameters to us. And a detailed description would be better. Thank you!
 
 ## License
