@@ -102,25 +102,30 @@ You can easily compress your own networks according to our [Compress Guide](http
 ## Visualize your own networks in StarLight
 With **just 1 yaml file**, you can conveniently visualize your own lightweight networks in StarLight. Please refer to the [Visualization in StarLight](https://ict-ans.github.io/StarLight.github.io/docs/Visualization%20in%20StarLight.html) for more details.
 
+
+Acknowledgments
+
+
+Citation
+
+
 ## Acknowledgments
-* This work is funded by xxx xxx xxx.
-* We owe a debt of gratitude to xxx, xxx and xxx for reading the manuscript and providing valuable feedback.
-* We would like to thank xxx xxx for invaluable advice on the presentation of the document.
+This work is supported in part by the National Key R&D Program of China under Grant No. 2018AAA0102701 and in part by the National Natural Science Foundation of China under Grant No. 62176250 and No. 62203424.
+The following people have helped test the StarLight toolkit, read the document and provid valuable feedback: Pengze Wu, Haoyu Li, and Jiancong Zhou.
+We would like to thank ChatGPT for polishing the presentation of the document.
 
 
 ## Citation
 If you find that this project helps your research, you can cite StarLight as following:
 ```
 @misc{StarLight,
-  author    = {xxx and xxx and xxx and xxx and xxx,
+  author    = {Shun Lu and Longxing Yang and Zihao Sun and Jilin Mei and Yu Hu,
   year      = {2023},
-  publisher = {StarLight},
   address   = {Institute of Computing Technology, Chinese Academy of Sciences},
-  title     = {StarLight: xxxxxxxxxxxxxxxxxxxxxxx},
+  title     = {StarLight: An Open-Source AutoML Toolkit for Lightweighting Deep Neural Networks},
   url       = {https://github.com/ICT-ANS/StarLight}
 }
 ```
-
 
 ## Contributing
 Thanks for your interest in [StarLight](https://github.com/ICT-ANS/StarLight) and for willing to contribute! We'd love to hear your feedback. 
