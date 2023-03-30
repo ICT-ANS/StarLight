@@ -101,21 +101,47 @@ conda activate starlight
 
 
 ### Network compression
-- Coming soon.
+- Go to the folder of `algorithms/compression/nets`. 
+```shell
+cd algorithms/compression/nets
+```
+- Select a provided network such as ResNet, DeepLabV3Plus, PSPNet, ResNet50_SSD, or VGG_SSD
+- Follow the `README.md` in each folder of the network to compress them.
+- Note that ResNet50_SSD and VGG_SSD both require `cpu_nms`, which needs to be compiled manually. Go to the folder of `algorithms/compression/nets/ResNet50_SSD/SSD_Pytorch` or 
+`algorithms/compression/nets/VGG_SSD`. Please ensure that `cpython-36m` in `make.sh` is consistent with the version of your installed Python. Finally, simply run:
+```shell
+./make.sh
+```
 
 ### Neural Architecture Search
-- Coming soon.
+- Go to the folder of `algorithms/nas`. 
+```shell
+cd algorithms/nas
+```
+- Select a provided NAS algorithm such as DARTS, GDAS, DDSAS or DU-DARTS. 
+- Follow the `README.md` in each folder of the NAS algorithm to conduct experiments.
+
 
 ### Compression Visualization in StarLight
+- Download logs and pre-trained weights in `compression` from this [link](). 
+- Create the data folder under `StarLight` and add a soft link for `compression`.
+```shell
+cd StarLight && mkdir data
+cd data && ln -s /path/to/compression
+```
+- Go to the folder of `StarLight` and run visualization for compression:
+```shell
+cd StarLight
+python compression_vis/compression.py
+```
 
 ### NAS Visualization in StarLight
 - Download logs and pre-trained weights in `StarLight_Cache` from this [link](). 
-- Create the data folder under StarLight and add a soft link for `StarLight_Cache`.
+- Go to the data folder under StarLight and add a soft link for `StarLight_Cache`.
 ```shell
-cd StarLight & mkdir "data"
-cd data & ln -s /path/to/StarLight_Cache
+cd data && ln -s /path/to/StarLight_Cache
 ```
-- Go to the folder of `nas_vis` and run visualization:
+- Go to the folder of `nas_vis` and run visualization for NAS:
 ```shell
 cd StarLight/nas_vis
 python nas.py

@@ -18,9 +18,9 @@ bash nas/DDSAS/run/run_ddsas_online.sh
 ```
 
 ## Result
-|        | Top1  | Params/M |
-| :----: | :----:| :----: |
-| 论文结果 | 2.59 &plusmn; 0.17 | 3.5 |
+|             | Top1  | Params/M |
+|:-----------:| :----:| :----: |
+| Results | 2.59 &plusmn; 0.17 | 3.5 |
 
 ## Citation
 Please cite our paper if you find anything helpful.

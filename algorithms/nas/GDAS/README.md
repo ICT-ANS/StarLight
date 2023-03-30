@@ -28,10 +28,10 @@ bash nas/GDAS/run/run_gdas_test.sh
 ```
 
 ## Experimental Results
-|          | Top1   | Params | FLOPs |
-|   ----   | ----   | ----   | ----  |
-| 论文结果  | 97.07% |  3.4M  |  --   |  
-| 复现结果  | 97.1% |  4.3M  |  661M |
+|               | Top1   | Params | FLOPs |
+|---------------| ----   | ----   | ----  |
+| Paper Results | 97.07% |  3.4M  |  --   |  
+| Our Results   | 97.1% |  4.3M  |  661M |
 
 ## Reference
 ```

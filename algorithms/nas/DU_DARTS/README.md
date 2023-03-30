@@ -40,9 +40,9 @@ bash nas/DU_DARTS/run/train.sh
 ```
 
 ## Results
-| Result \ Metric |      Params/M      |        Top1        |
-|:---------------:|:------------------:|:------------------:|
-|      Paper      | 3.69 &plusmn; 0.06 | 2.38 &plusmn; 0.06 |
+| Results \ Metric |      Params/M      |        Top1        |
+|:----------------:|:------------------:|:------------------:|
+|      Paper       | 3.69 &plusmn; 0.06 | 2.38 &plusmn; 0.06 |
 
 
 
