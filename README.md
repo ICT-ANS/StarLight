@@ -54,7 +54,7 @@ StarLight helps in obtaining lightweight deep neural networks. StarLight consist
 
 ## Highlighted Features
 * We present lightweight results of **6 popular networks**, including image classification, semantic segmentation, and object detection. 
-* We have collected **xxx bugs and solutions** during experiments in [Bug Summary](https://ict-ans.github.io/StarLight.github.io/docs/Bug%20Summary.html), which can enable an efficient lightweight experience when dealing with your own networks. 
+* We have collected **over 50 bugs and solutions** during experiments in [Bug Summary](https://ict-ans.github.io/StarLight.github.io/docs/Bug%20Summary%20(EN).html), which can enable an efficient lightweight experience when dealing with your own networks. 
 * With **just 1 yaml file**, you can easily visualize your own lightweight networks in StarLight. 
 * In addition to 2D convolution pruning, we also provide **support for 3D convolution pruning**. Please refer to our [Documentation](https://ict-ans.github.io/StarLight.github.io/) for more details.
 * To handle the unrecognized operations in ONNX models, we have collected **6 plugins for network quantization**, which will be available soon. 
@@ -103,12 +103,6 @@ You can easily compress your own networks according to our [Compress Guide](http
 With **just 1 yaml file**, you can conveniently visualize your own lightweight networks in StarLight. Please refer to the [Visualization in StarLight](https://ict-ans.github.io/StarLight.github.io/docs/Visualization%20in%20StarLight.html) for more details.
 
 
-Acknowledgments
-
-
-Citation
-
-
 ## Acknowledgments
 This work is supported in part by the National Key R&D Program of China under Grant No. 2018AAA0102701 and in part by the National Natural Science Foundation of China under Grant No. 62176250 and No. 62203424.
 The following people have helped test the StarLight toolkit, read the document and provid valuable feedback: Pengze Wu, Haoyu Li, and Jiancong Zhou.
@@ -131,7 +125,7 @@ If you find that this project helps your research, you can cite StarLight as fol
 Thanks for your interest in [StarLight](https://github.com/ICT-ANS/StarLight) and for willing to contribute! We'd love to hear your feedback. 
 
 ### Reporting Bugs
-* Please first try to check if an issue exists in our [Bug Summary](https://github.com/ICT-ANS/StarLight) or `Issue`. 
+* Please first try to check if an issue exists in our [Bug Summary](https://github.com/ICT-ANS/StarLight) or [Issues](https://github.com/ICT-ANS/StarLight/issues). 
 * If not, please describe the bug in detail and we will give a timely reply. 
 
 ### Commiting New Models
