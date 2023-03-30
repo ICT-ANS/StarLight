@@ -14,24 +14,24 @@ StarLight helps in obtaining lightweight deep neural networks. StarLight consist
 
 <div align="center">
   <h3>
+    <a href="https://ict-ans.github.io/StarLight.github.io/">
+      Home
+    </a>
+    <span> | </span>
     <a href="https://ict-ans.github.io/StarLight.github.io/docs/Installation.html">
       Installation
     </a>
     <span> | </span>
-    <a href="https://github.com/ICT-ANS/StarLight">
-      Tutorials
+    <a href="https://ict-ans.github.io/StarLight.github.io/docs/Compress%20Guide.html">
+      Compress Guide
     </a>
     <span> | </span>
-    <a href="https://ict-ans.github.io/StarLight.github.io/">
-      Documentation
+    <a href="https://ict-ans.github.io/StarLight.github.io/docs/Bug%20Summary%20(EN).html">
+      Bug Summary
     </a>
     <span> | </span>
     <a href="https://github.com/ICT-ANS/StarLight/tree/main/quiver_pytorch">
       QuiverPyTorch
-    </a>
-    <span> | </span>
-    <a href="https://github.com/ICT-ANS/StarLight/issues">
-      FAQs
     </a>
   </h3>
 </div>
