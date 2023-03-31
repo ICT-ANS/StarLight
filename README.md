@@ -125,7 +125,7 @@ cd algorithms/nas
 
 
 ### Compression Visualization in StarLight
-- Download logs and pre-trained weights in `compression` from this [link](). 
+- Download logs and pre-trained weights in `compression` from [Baidu Netdisk](https://pan.baidu.com/s/1pguXQfGXODO34HliAj1qKg) with the password `star`. 
 - Create the data folder under `StarLight` and add a soft link for `compression`.
 ```shell
 cd StarLight && mkdir data
@@ -138,7 +138,7 @@ python compression_vis/compression.py
 ```
 
 ### NAS Visualization in StarLight
-- Download logs and pre-trained weights in `StarLight_Cache` from this [link](). 
+- Download logs and pre-trained weights in `StarLight_Cache` from [Baidu Netdisk](https://pan.baidu.com/s/1pguXQfGXODO34HliAj1qKg) with the password `star`. 
 - Go to the data folder under StarLight and add a soft link for `StarLight_Cache`.
 ```shell
 cd data && ln -s /path/to/StarLight_Cache
