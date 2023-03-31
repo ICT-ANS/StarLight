@@ -190,3 +190,9 @@ Thanks for your interest in [StarLight](https://github.com/ICT-ANS/StarLight) an
 
 ## License
 This project is under the MIT license - please see the [LICENSE](https://github.com/ICT-ANS/StarLight/blob/main/LICENSE) for details.
+
+## Contact us
+StarLight is an open-source project developed by the ANS@ICT research team. We welcome and value your feedback and suggestions, so please don't hesitate to contact us via email at ict.ans.automl@outlook.com
+<div align=center>
+<img src="assets/ANS@ICT.png" />
+</div>
