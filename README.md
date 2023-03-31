@@ -61,7 +61,7 @@ StarLight helps in obtaining lightweight deep neural networks. StarLight consist
 * We present lightweight results of **6 popular networks**, including image classification, semantic segmentation, and object detection. 
 * We have collected **over 50 bugs and solutions** during experiments in [Bug Summary](https://ict-ans.github.io/StarLight.github.io/docs/Bug%20Summary%20(EN).html), which can enable an efficient lightweight experience when dealing with your own networks. 
 * With **just 1 yaml file**, you can easily visualize your own lightweight networks in StarLight. 
-* In addition to 2D convolution pruning, we also provide **support for 3D convolution pruning**. Please refer to our [Documentation](https://ict-ans.github.io/StarLight.github.io/) for more details.
+* In addition to 2D convolution pruning, we also provide **support for 3D convolution pruning**. Please refer to our [Manually Export (3D-Conv)](https://ict-ans.github.io/StarLight.github.io/docs/Manually%20Export%20(3D-Conv).html) for more details.
 * To handle the unrecognized operations in ONNX models, we have collected **6 plugins for network quantization**, which will be available soon. 
 * We provide a convenient tool to visualize the network intermediate features, namely [QuiverPyTorch](https://github.com/ICT-ANS/StarLight/tree/main/quiver_pytorch).
 
@@ -162,6 +162,7 @@ With **just 1 yaml file**, you can conveniently visualize your own lightweight n
 * This work is supported in part by the National Key R&D Program of China under Grant No. 2018AAA0102701 and in part by the National Natural Science Foundation of China under Grant No. 62176250 and No. 62203424.
 * The following people have helped test the StarLight toolkit, read the document and provid valuable feedback: Pengze Wu, Haoyu Li, and Jiancong Zhou.
 * Our StarLight framework is built on top of [NNI](https://github.com/microsoft/nni), incorporating their pruning and quantization algorithms. We extend our gratitude to NNI for their remarkable contributions.
+* We would like to thank [Just the Docs](https://github.com/just-the-docs/just-the-docs) for providing the template for our document. 
 * We would like to thank ChatGPT for polishing the presentation of the document.
 
 
@@ -188,4 +189,4 @@ Thanks for your interest in [StarLight](https://github.com/ICT-ANS/StarLight) an
 * We are happy to integrate your network to our StarLight. Please provide your network with the results and hyper-parameters to us. And a detailed description would be better. Thank you!
 
 ## License
-This project is under the MIT license - please see the [LICENSE](https://github.com/ICT-ANS/StarLight/blob/main/LICENSE) for details
+This project is under the MIT license - please see the [LICENSE](https://github.com/ICT-ANS/StarLight/blob/main/LICENSE) for details.
