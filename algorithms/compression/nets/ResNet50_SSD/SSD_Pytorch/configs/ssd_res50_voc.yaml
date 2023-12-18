@@ -58,7 +58,7 @@ SOLVER:
 DATASETS:
   TRAIN_TYPE: [['0712', '0712_trainval']]
   VAL_TYPE: [['0712', '2007_test']]
-  DATAROOT: 'data/VOCROOT'
+  DATAROOT: 'data/VOC'
   DATA_TYPE: 'VOC'
   SETS:
     VOC: [['0712', '0712_trainval']]
@@ -67,7 +67,7 @@ DATASETS:
     COCO: [['2014', 'train'], ['2014', 'valminusminival']]
     VOC2007: [['0712', "2007_test"]]
     COCOval: [['2014', 'minival']]
-    VOCROOT: 'data/VOCROOT'
+    VOCROOT: 'data/VOC'
     COCOROOT: 'data/datasets/coco2015'
   
 TEST:
