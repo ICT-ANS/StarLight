@@ -27,6 +27,7 @@ import datetime
 from models.model_builder import SSD
 import yaml
 from thop import profile
+from pathlib import Path
 
 from lib.compression.pytorch import ModelSpeedup
 from lib.algorithms.pytorch.pruning import (TaylorFOWeightFilterPruner, FPGMPruner, AGPPruner)
@@ -599,12 +600,10 @@ def main():
                         'Output_file': os.path.join(args.save_dir, 'model_pruned_finetune_{}.pth'.format(epoch)),
                     }
                     yaml.dump(yaml_data, f)
+                model_vis_save_dir = Path(args.save_dir).parents[2] / "model_vis" / f"VOC-VGGSSD"
+                model_vis_save_dir.mkdir(exist_ok=True)
                 torch.save(model, \
-                    os.path.join(
-                        args.save_dir, \
-                        '../../..', \
-                        'model_vis/VOC-VGGSSD', \
-                        'online-{}.pth'.format(args.pruner)))
+                        os.path.join(model_vis_save_dir, f"online-{args.pruner}.pth"))
     
     # top_k = 300
     # thresh = cfg.TEST.CONFIDENCE_THRESH

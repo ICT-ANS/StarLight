@@ -21,6 +21,7 @@ import sys
 import pickle
 import datetime
 import yaml
+from pathlib import Path
 
 from thop import profile
 from thop import clever_format
@@ -451,12 +452,10 @@ def main():
                 'Output_file': os.path.join(args.save_folder, 'model_speed_up_finetuned.pth'),
             }
             yaml.dump(yaml_data, f)
+        model_vis_save_dir = Path(args.save_folder).parents[2] / "model_vis" / f"VOC-ResNet50SSD"
+        model_vis_save_dir.mkdir(exist_ok=True)
         torch.save(net, \
-            os.path.join(
-                args.save_folder, \
-                '../../..', \
-                'model_vis/VOC-ResNet50SSD', \
-                'online-{}.pth'.format(args.pruner)))
+                os.path.join(model_vis_save_dir, f"online-{args.pruner}.pth"))
 
     ######################## prune end   ########################
 
