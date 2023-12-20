@@ -201,16 +201,17 @@ def main():
         loss, top1, pre_time, infer_time, post_time = validate(export_pruned_model, val_loader, criterion)
         logging.info("Finetune Epoch {}: [Top1: {:.2f}%][FLops: {:.5f}M][Params: {:.5f}M][Infer: {:.2f}ms]\n".format(epoch, top1, flops / 1e6, params / 1e6, infer_time * 1000))
 
+        model_speed_up_save_path = os.path.join(args.save_dir, 'model_speed_up_finetuned.pth')
         if epoch % args.save_every == 0:
             save_checkpoint({
                 'epoch': epoch,
                 'state_dict': export_pruned_model.state_dict(),
                 'prec1': top1,
-            }, filename=os.path.join(args.save_dir, 'model_speed_up_finetuned.pth'))
+            }, filename=model_speed_up_save_path)
 
         if epoch == args.finetune_epochs - 1:
             if args.write_yaml and not args.no_write_yaml_after_prune:
-                storage = os.path.getsize(os.path.join(args.save_dir, 'model_speed_up_finetuned.pth'))
+                storage = os.path.getsize(model_speed_up_save_path)
                 with open(os.path.join(args.save_dir, 'logs.yaml'), 'w') as f:
                     yaml_data = {
                         'Accuracy': {'baseline': yaml_data['Accuracy']['baseline'], 'method': round(top1, 2)},
@@ -218,7 +219,7 @@ def main():
                         'Parameters': {'baseline': yaml_data['Parameters']['baseline'], 'method': round(params/1e6, 2)},
                         'Infer_times': {'baseline': yaml_data['Infer_times']['baseline'], 'method': round(infer_time*1e3, 2)},
                         'Storage': {'baseline': yaml_data['Storage']['baseline'], 'method': round(storage/1e6, 2)},
-                        'Output_file': os.path.join(args.save_dir, 'model_speed_up_finetuned.pth'),
+                        'Output_file': model_speed_up_save_path,
                     }
                     yaml.dump(yaml_data, f)
                 torch.save(export_pruned_model, \
