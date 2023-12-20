@@ -389,7 +389,7 @@ def main():
         storage = os.path.getsize(args.weights)
         with open(os.path.join(args.save_dir, 'logs.yaml'), 'w') as f:
             yaml_data = {
-                'Accuracy': {'baseline': round(mAP, 2), 'method': None},
+                'mAP': {'baseline': round(mAP, 2), 'method': None},
                 'FLOPs': {'baseline': round(flops/1e6, 2), 'method': None},
                 'Parameters': {'baseline': round(params/1e6, 2), 'method': None},
                 'Infer_times': {'baseline': round(average_forward_time*1e3, 2), 'method': None},
@@ -591,7 +591,7 @@ def main():
                 storage = os.path.getsize(os.path.join(args.save_dir, 'model_pruned_finetune_{}.pth'.format(epoch)))
                 with open(os.path.join(args.save_dir, 'logs.yaml'), 'w') as f:
                     yaml_data = {
-                        'Accuracy': {'baseline': yaml_data['Accuracy']['baseline'], 'method': round(mAP, 2)},
+                        'mAP': {'baseline': yaml_data['mAP']['baseline'], 'method': round(mAP, 2)},
                         'FLOPs': {'baseline': yaml_data['FLOPs']['baseline'], 'method': round(flops/1e6, 2)},
                         'Parameters': {'baseline': yaml_data['Parameters']['baseline'], 'method': round(params/1e6, 2)},
                         'Infer_times': {'baseline': yaml_data['Infer_times']['baseline'], 'method': round(average_forward_time*1e3, 2)},
