@@ -59,7 +59,7 @@ DATASETS:
   TRAIN_TYPE: [['0712', '0712_trainval']]
   VAL_TYPE: [['0712', '2007_test']]
   # DATAROOT: 'data/datasets/VOCdevkit0712/'
-  DATAROOT: '/home/xingxing/projects/StarLight/data/compression/dataset/VOC'
+  DATAROOT: 'data/compression/dataset/VOC'
   DATA_TYPE: 'VOC'
   SETS:
     VOC: [['0712', '0712_trainval']]
