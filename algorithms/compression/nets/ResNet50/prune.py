@@ -13,6 +13,8 @@ import sys
 import logging
 import random
 
+from pathlib import Path
+
 import time
 import glob
 from utils import *
@@ -222,12 +224,10 @@ def main():
                         'Output_file': model_speed_up_save_path,
                     }
                     yaml.dump(yaml_data, f)
+                model_vis_save_dir = Path(args.save_dir).parents[2] / "model_vis" / f"TinyImageNet-{args.model}"
+                model_vis_save_dir.mkdir(exist_ok=True)
                 torch.save(export_pruned_model, \
-                    os.path.join(
-                        args.save_dir, \
-                        '../../..', \
-                        'model_vis/TinyImageNet-{}'.format(args.model), \
-                        'online-{}.pth'.format(args.pruner)))
+                        os.path.join(model_vis_save_dir, f"online-{args.pruner}.pth"))
 
 
 def train(epoch, model, train_loader, criterion, optimizer, args):
