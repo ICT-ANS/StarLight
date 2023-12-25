@@ -303,7 +303,7 @@ class ModelSpeedupTensorRT(BaseModelSpeedup):
         # _, self.onnx_config = fonnx.torch_to_onnx(self.model, self.config, input_shape=self.input_shape, model_path=self.onnx_path, input_names=self.input_names, output_names=self.output_names)
 
         self.model.to('cpu')
-        torch.onnx.export(self.model, torch.randn(self.input_shape), self.onnx_path, verbose=False, input_names=self.input_names, output_names=self.output_names, export_params=True)
+        torch.onnx.export(self.model, torch.randn(self.input_shape, device='cpu'), self.onnx_path, verbose=False, input_names=self.input_names, output_names=self.output_names, export_params=True)
         self.onnx_config = None
 
         if self.calib_data_loader is not None:
@@ -330,7 +330,7 @@ class ModelSpeedupTensorRT(BaseModelSpeedup):
         calib_data = None
         if type(self.calib_data_loader) == torch.utils.data.dataloader.DataLoader:
             calib_data_set = []
-            for data, _ in self.calib_data_loader:
+            for data, _, _ in self.calib_data_loader:
                 calib_data_set.append(data)
             calib_data = np.concatenate(calib_data_set)
         elif type(self.calib_data_loader) == torch.Tensor:
