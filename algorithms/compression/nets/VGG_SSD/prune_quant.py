@@ -127,7 +127,7 @@ def eval_net(val_dataset,
     total_detect_time = 0
     total_nms_time = 0
     total_id = 0
-    for idx, (imgs, _, img_info) in enumerate(val_loader):
+    for idx, (imgs, img_info) in enumerate(val_loader):
         with torch.no_grad():
             t1 = time.time()
             x = imgs
@@ -247,7 +247,7 @@ def eval_net_quant(val_dataset,
     total_detect_time = 0
     total_nms_time = 0
     total_id = 0
-    for idx, (imgs, _, img_info) in enumerate(val_loader):
+    for idx, (imgs, img_info) in enumerate(val_loader):
         with torch.no_grad():
             t1 = time.time()
             x = imgs
