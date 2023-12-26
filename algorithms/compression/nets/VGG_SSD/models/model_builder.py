@@ -190,6 +190,9 @@ class SSD(nn.Module):
     def load_engine(self, engine):
         self.engine = engine
     
+    def set_batch_size(self, batch_size):
+        self.batchsize = batch_size
+    
     def inference(self, x):
         """
         Do inference by tensorrt builded engine.
@@ -200,7 +203,6 @@ class SSD(nn.Module):
             Model input tensor
         """
         # convert pytorch tensor to numpy darray
-        self.batchsize = 1
         if x.device != torch.device("cpu"):
             x = x.to("cpu")
         x = np.ascontiguousarray(x.numpy())

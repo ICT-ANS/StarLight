@@ -24,6 +24,7 @@ import yaml
 import random
 from lib.compression.pytorch.quantization_speedup import ModelSpeedupTensorRT
 from thop import profile
+import gc
 
 def arg_parse():
     parser = argparse.ArgumentParser(
@@ -122,7 +123,7 @@ def eval_net(val_dataset,
     total_detect_time = 0
     total_nms_time = 0
     total_id = 0
-    for idx, (imgs, _, img_info) in enumerate(val_loader):
+    for idx, (imgs, img_info) in enumerate(val_loader):
         with torch.no_grad():
             t1 = time.time()
             x = imgs
@@ -242,7 +243,7 @@ def eval_net_quant(val_dataset,
     total_detect_time = 0
     total_nms_time = 0
     total_id = 0
-    for idx, (imgs, _, img_info) in enumerate(val_loader):
+    for idx, (imgs, img_info) in enumerate(val_loader):
         with torch.no_grad():
             t1 = time.time()
             x = imgs
@@ -402,7 +403,7 @@ def main():
 
 
     ## Quant start ##
-    input_shape = (1, 3, 300, 300)
+    input_shape = (args.batch_size, 3, 300, 300)
 
     onnx_path = os.path.join(args.save_dir, '{}_{}.onnx'.format(args.model, args.quan_mode))
     trt_path = os.path.join(args.save_dir, '{}_{}.trt'.format(args.model, args.quan_mode))
@@ -424,6 +425,8 @@ def main():
     calib_sampler = torch.utils.data.sampler.SubsetRandomSampler(indices[:args.calib_num])
     calib_loader = data.DataLoader(val_dataset, batch_size=args.batch_size, sampler=calib_sampler)
 
+    gc.collect()
+    torch.cuda.empty_cache()
     engine = ModelSpeedupTensorRT(
         net,
         input_shape,
@@ -443,6 +446,7 @@ def main():
     ## Eval quant model ##
     net.load_engine(engine)
 
+    net.set_batch_size(args.batch_size)
     mAP, average_forward_time = eval_net_quant(
         val_dataset,
         val_loader,
