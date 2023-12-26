@@ -6,10 +6,12 @@ https://github.com/fmassa/vision/blob/voc_dataset/torchvision/datasets/voc.py
 Updated by: Ellis Brown, Max deGroot
 """
 
+import collections
 import os
 import os.path
 import pickle
 import sys
+from typing import Any, Dict
 import torch
 import torch.utils.data as data
 from PIL import Image, ImageDraw, ImageFont
@@ -125,7 +127,7 @@ class VOCDetection(data.Dataset):
         self.root = root
         self.image_set = image_sets
         self.transform = transform
-        self.target_transform = AnnotationTransform()
+        # self.target_transform = AnnotationTransform()
         self.name = dataset_name
         self._annopath = os.path.join('%s', 'Annotations', '%s.xml')
         self._imgpath = os.path.join('%s', 'JPEGImages', '%s.jpg')
@@ -140,23 +142,41 @@ class VOCDetection(data.Dataset):
 
     def __getitem__(self, index):
         im, gt, img_info = self.pull_item(index)
-        return im, gt, img_info
+        return im, img_info
 
     def __len__(self):
         return len(self.ids)
+
+    @staticmethod
+    def parse_voc_xml(node: ET.Element) -> Dict[str, Any]:
+        voc_dict: Dict[str, Any] = {}
+        children = list(node)
+        if children:
+            def_dic: Dict[str, Any] = collections.defaultdict(list)
+            for dc in map(VOCDetection.parse_voc_xml, children):
+                for ind, v in dc.items():
+                    def_dic[ind].append(v)
+            if node.tag == "annotation":
+                def_dic["object"] = [def_dic["object"]]
+            voc_dict = {node.tag: {ind: v[0] if len(v) == 1 else v for ind, v in def_dic.items()}}
+        if node.text:
+            text = node.text.strip()
+            if not children:
+                voc_dict[node.tag] = text
+        return voc_dict
 
     def pull_item(self, index):
         img_id = self.ids[index]
 
         if self.name != 'test':
-            target = ET.parse(self._annopath % img_id).getroot()
+            target = self.parse_voc_xml(ET.parse(self._annopath % img_id).getroot())
         else:
-            target = np.zeros((1, 5))
+            target = {'annotation' : {}}
         img = cv2.imread(self._imgpath % img_id)
         im_h, im_w, channels = img.shape
         img_info = [im_w, im_h]
-        if self.target_transform is not None:
-            target = self.target_transform(target, im_w, im_h)
+        # if self.target_transform is not None:
+        #     target = self.target_transform(target, im_w, im_h)
 
         if self.name != 'test':
             if self.transform is not None:
@@ -319,6 +339,6 @@ def detection_collate(batch):
     img_info = []
     for sample in batch:
         imgs.append(sample[0])
-        targets.append(torch.FloatTensor(sample[1]))
-        img_info.append(torch.FloatTensor(sample[2]))
-    return torch.stack(imgs, 0), targets, img_info
+        # targets.append(torch.FloatTensor(sample[1]))
+        img_info.append(torch.FloatTensor(sample[1]))
+    return torch.stack(imgs, 0), img_info
