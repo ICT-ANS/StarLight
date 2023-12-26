@@ -28,6 +28,7 @@ from models.model_builder import SSD
 import yaml
 from thop import profile
 from pathlib import Path
+import gc
 
 from lib.compression.pytorch import ModelSpeedup
 from lib.algorithms.pytorch.pruning import (TaylorFOWeightFilterPruner, FPGMPruner, AGPPruner)
@@ -514,6 +515,9 @@ def main():
         collate_fn=detection_collate)
     
     # Val pruned model without finetuning ##
+    del net
+    gc.collect()
+    torch.cuda.empty_cache()
     top_k = 300
     thresh = cfg.TEST.CONFIDENCE_THRESH
     eval_net(
@@ -529,6 +533,8 @@ def main():
 
     
     ## Finetune Pruned Model ##
+    gc.collect()
+    torch.cuda.empty_cache()
     trainSet = cfg.DATASETS.TRAIN_TYPE
     p = 0.6
     TrainTransform = preproc(size_cfg.IMG_WH, bgr_means, p)
