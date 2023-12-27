@@ -333,7 +333,7 @@ def main():
     torch.set_default_tensor_type('torch.cuda.FloatTensor')
     cfg.TRAIN.TRAIN_ON = False
     net = SSD(cfg)
-    print(net)
+    # print(net)
 
     # 统计原始模型参数量Params和计算量FLOPs
     torch.set_default_tensor_type('torch.FloatTensor')
