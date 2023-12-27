@@ -566,14 +566,14 @@ def main():
     # for epoch in range(start_epoch + 1, end_epoch + 1):
     for epoch in range(1, 1+args.finetune_epochs):
         train_dataset = trainvalDataset(dataroot, trainSet, TrainTransform,
-                                        dataset_name)
+                                        dataset_name, is_return_gt=True)
         epoch_size = len(train_dataset)
         train_loader = data.DataLoader(
             train_dataset,
             train_batch_size,
             shuffle=True,
             num_workers=args.num_workers,
-            collate_fn=detection_collate)
+            collate_fn=lambda batch: detection_collate(batch, is_return_gt=True))
         train(train_loader, model, criterion, optimizer, epoch, epoch_step,
               gamma, end_epoch, cfg)
         

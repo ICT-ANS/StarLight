@@ -123,14 +123,17 @@ class VOCDetection(data.Dataset):
                  root,
                  image_sets,
                  transform=None,
-                 dataset_name='VOC0712'):
+                 dataset_name='VOC0712',
+                 is_return_gt=False,):
         self.root = root
         self.image_set = image_sets
         self.transform = transform
-        # self.target_transform = AnnotationTransform()
+        self.target_transform = AnnotationTransform()
         self.name = dataset_name
         self._annopath = os.path.join('%s', 'Annotations', '%s.xml')
         self._imgpath = os.path.join('%s', 'JPEGImages', '%s.jpg')
+        self.is_return_gt = is_return_gt
+        print(f"{type(self).__name__}.{is_return_gt = }")
         self.ids = list()
         for (year, name) in image_sets:
             self._year = year
@@ -142,6 +145,8 @@ class VOCDetection(data.Dataset):
 
     def __getitem__(self, index):
         im, gt, img_info = self.pull_item(index)
+        if self.is_return_gt:
+            return im, gt, img_info
         return im, img_info
 
     def __len__(self):
@@ -177,6 +182,8 @@ class VOCDetection(data.Dataset):
         img_info = [im_w, im_h]
         # if self.target_transform is not None:
         #     target = self.target_transform(target, im_w, im_h)
+        if self.is_return_gt:
+            _, target = self.pull_anno(index)
 
         if self.name != 'test':
             if self.transform is not None:
@@ -322,7 +329,7 @@ class VOCDetection(data.Dataset):
         return np.mean(aps)
 
 
-def detection_collate(batch):
+def detection_collate(batch, is_return_gt=False,):
     """Custom collate fn for dealing with batches of images that have a different
     number of associated object annotations (bounding boxes).
 
@@ -339,6 +346,11 @@ def detection_collate(batch):
     img_info = []
     for sample in batch:
         imgs.append(sample[0])
-        # targets.append(torch.FloatTensor(sample[1]))
-        img_info.append(torch.FloatTensor(sample[1]))
+        if is_return_gt:
+            targets.append(torch.FloatTensor(sample[1]))
+            img_info.append(torch.FloatTensor(sample[2]))
+        else:
+            img_info.append(torch.FloatTensor(sample[1]))
+    if is_return_gt:
+        return torch.stack(imgs, 0), targets, img_info
     return torch.stack(imgs, 0), img_info
