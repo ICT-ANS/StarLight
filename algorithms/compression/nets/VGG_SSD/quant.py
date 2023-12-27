@@ -391,6 +391,7 @@ def main():
         top_k,
         thresh=thresh,
         batch_size=args.batch_size)
+
     if args.write_yaml:
         storage = os.path.getsize(args.weights)
         with open(os.path.join(args.save_dir, 'logs.yaml'), 'w') as f:
@@ -402,6 +403,7 @@ def main():
                 'Storage': {'baseline': round(storage/1e6, 2), 'method': None},
             }
             yaml.dump(yaml_data, f)
+
 
 
     ## Quant start ##
@@ -462,6 +464,7 @@ def main():
         thresh=thresh,
         batch_size=args.batch_size)
     
+
     if args.write_yaml:
         storage = os.path.getsize(trt_path)
         with open(os.path.join(args.save_dir, 'logs.yaml'), 'w') as f:

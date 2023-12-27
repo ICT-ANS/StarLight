@@ -358,6 +358,7 @@ def main():
         new_state_dict[name] = v
     net.load_state_dict(new_state_dict)
 
+
     detector = Detect(cfg)
     ValTransform = BaseTransform(size_cfg.IMG_WH, bgr_means, (2, 0, 1))
     val_dataset = trainvalDataset(dataroot, valSet, ValTransform, "val")
@@ -438,7 +439,8 @@ def main():
     torch.set_default_tensor_type('torch.cuda.FloatTensor')
 
     ## eval pruned model ##
-    mAP, average_forward_time = eval_net(val_dataset,
+    mAP, average_forward_time = eval_net(
+        val_dataset,
         val_loader,
         model,
         detector,
@@ -530,6 +532,8 @@ def main():
                 'Output_file': os.path.join(args.save_dir, '{}_{}.trt'.format(args.model, args.quan_mode)),
             }
             yaml.dump(yaml_data, f)
+
+
 
 if __name__ == '__main__':
     st = time.time()
