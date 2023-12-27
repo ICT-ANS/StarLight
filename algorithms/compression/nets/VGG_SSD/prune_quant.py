@@ -465,7 +465,7 @@ def main():
 
 
     ## Quant start ##
-    input_shape = (1, 3, 300, 300)
+    input_shape = (args.batch_size, 3, 300, 300)
 
     onnx_path = os.path.join(args.save_dir, '{}_{}.onnx'.format(args.model, args.quan_mode))
     trt_path = os.path.join(args.save_dir, '{}_{}.trt'.format(args.model, args.quan_mode))
@@ -508,6 +508,7 @@ def main():
     ## Eval quant model ##
     model.load_engine(engine)
 
+    model.set_batch_size(args.batch_size)
     mAP, average_forward_time = eval_net_quant(
         val_dataset,
         val_loader,
