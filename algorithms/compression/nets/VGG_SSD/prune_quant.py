@@ -493,11 +493,13 @@ def main():
         calibration_cache=cache_path,
         extra_layer_bit=extra_layer_bit,
     )
-    if not os.path.exists(trt_path):
-        engine.compress()
-        engine.export_quantized_model(trt_path)
-    else:
-        engine.load_quantized_model(trt_path)
+    # if not os.path.exists(trt_path):
+    print(f"NOT exist {trt_path}")
+    engine.compress()
+    engine.export_quantized_model(trt_path)
+    # else:
+    #     print(f"exist {trt_path}")
+    #     engine.load_quantized_model(trt_path)
 
     ## Eval quant model ##
     model.load_engine(engine)
