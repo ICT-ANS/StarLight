@@ -224,6 +224,8 @@ def adjust_learning_rate(optimizer, epoch, step_epoch, gamma, epoch_size,
     return lr
 
 
+TRAIN_PRINT_INTERVAL = 40
+
 def train(train_loader, net, criterion, optimizer, epoch, epoch_step, gamma,
           end_epoch, cfg):
     """
@@ -285,7 +287,7 @@ def train(train_loader, net, criterion, optimizer, epoch, epoch_step, gamma,
         all_time = ((end_epoch - epoch) * epoch_size +
                     (epoch_size - iteration)) * iteration_time
         eta = str(datetime.timedelta(seconds=int(all_time)))
-        if iteration % 10 == 0:
+        if iteration % TRAIN_PRINT_INTERVAL == 0:
             if not cfg.MODEL.REFINE:
                 print('Epoch:' + repr(epoch) + ' || epochiter: ' +
                       repr(iteration % epoch_size) + '/' + repr(epoch_size) +
