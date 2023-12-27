@@ -66,7 +66,7 @@ def arg_parse():
     return args
 
 
-EVAL_PRINT_INTERVAL = 40
+EVAL_PRINT_INTERVAL = 120
 
 def eval_net(val_dataset,
              val_loader,
