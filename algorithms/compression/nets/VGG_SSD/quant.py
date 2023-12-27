@@ -66,6 +66,8 @@ def arg_parse():
     return args
 
 
+EVAL_PRINT_INTERVAL = 40
+
 def eval_net(val_dataset,
              val_loader,
              net,
@@ -164,7 +166,7 @@ def eval_net(val_dataset,
             detect_time = t2 - t1
             nms_time = t3 - t2
             forward_time = t4 - t1
-            if idx % 10 == 0:
+            if idx % EVAL_PRINT_INTERVAL == 0:
                 print('im_detect: {:d}/{:d} {:.3f}s {:.3f}s {:.3f}s'.format(
                     i + 1, num_images, forward_time, detect_time, nms_time))
             
@@ -283,7 +285,7 @@ def eval_net_quant(val_dataset,
             detect_time = t2 - t1
             nms_time = t3 - t2
             forward_time = t4 - t1
-            if idx % 10 == 0:
+            if idx % EVAL_PRINT_INTERVAL == 0:
                 print('im_detect: {:d}/{:d} {:.3f}s {:.3f}s {:.3f}s'.format(
                     i + 1, num_images, forward_time, detect_time, nms_time))
             
