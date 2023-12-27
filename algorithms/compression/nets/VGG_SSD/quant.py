@@ -53,7 +53,7 @@ def arg_parse():
     parser.add_argument(
         '--retest', default=False, type=bool, help='test cache results')
     
-    parser.add_argument('--batch_size', default=32, type=int, metavar='N', help='mini-batch size')
+    parser.add_argument('--batch_size', default=1, type=int, metavar='N', help='mini-batch size')
     parser.add_argument('--model', default='ssd_vgg', type=str, help='model name')
     parser.add_argument('--quan_mode', default='best', help='fp16 int8 best', type=str)
     parser.add_argument('--calib_num', type=int, default=1280, help='random seed')
