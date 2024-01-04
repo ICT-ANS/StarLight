@@ -40,7 +40,7 @@ import subprocess
 
 sys.path.append(os.path.join(C.work_dir, "algorithms/compression/nets/VGG_SSD"))
 from algorithms.compression.nets.VGG_SSD.models.model_builder import SSD
-from ui.quiver.utils import ModelViewer
+from ui.quiver.quiver_utils import ModelViewer
 
 sys.path.append(os.path.join(C.work_dir, 'algorithms/compression/nets/PSPNet/models'))
 sys.path.append(os.path.join(C.work_dir, 'algorithms/compression/nets/DeepLabV3Plus'))

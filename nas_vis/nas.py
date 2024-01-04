@@ -12,7 +12,7 @@ from torch.utils.data import DataLoader
 from config import C
 
 from ui.qtui.nas.nas_ui import *
-from ui.quiver.utils import ModelViewer
+from ui.quiver.quiver_utils import ModelViewer
 
 from nas_vis.nas_models import genotypes
 from nas_vis.hyperparams_vis import HyperparametersSettingWindow
