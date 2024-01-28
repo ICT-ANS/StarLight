@@ -98,7 +98,18 @@ def make_dot(var, params=None):
     def size_to_str(size):
         return '(' + (', ').join(['%d' % v for v in size]) + ')'
 
-    output_nodes = (var.grad_fn,) if not isinstance(var, tuple) else tuple(v.grad_fn for v in var)
+    if isinstance(var, tuple) or isinstance(var, list):
+        output_nodes = []
+        for v in var:
+            if isinstance(v, tuple) or isinstance(v, list):
+                for vv in v:
+                    output_nodes.append(vv.grad_fn)
+            else:
+                output_nodes.append(v.grad_fn)
+        output_nodes = tuple(output_nodes)
+    else:
+        output_nodes = (var.grad_fn,)
+    # output_nodes = (var.grad_fn,) if not (isinstance(var, tuple) or isinstance(var, list)) else tuple(v.grad_fn for v in var)
     
 
     def add_nodes(grad_fn):
@@ -158,9 +169,13 @@ def make_dot(var, params=None):
                     add_nodes(t)
 
     # handle multiple outputs
-    if isinstance(var, tuple):
+    if isinstance(var, tuple) or isinstance(var, list):
         for v in var:
-            add_nodes(v.grad_fn)
+            if isinstance(v, tuple) or isinstance(v, list):
+                for vv in v:
+                    add_nodes(vv.grad_fn)
+            else:
+                add_nodes(v.grad_fn)
     else:
         add_nodes(var.grad_fn)
 
