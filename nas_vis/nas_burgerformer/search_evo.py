@@ -245,6 +245,7 @@ def main(args):
     popu_evolve = PopulationEvolver(device)
 
     _best_result_history = []
+    print(f"{args.search_iter = }")
     for search_iter in range(args.search_iter):
         # generate sub-networks to evaluate
         if search_iter == 0:

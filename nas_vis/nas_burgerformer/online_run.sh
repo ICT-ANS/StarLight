@@ -53,6 +53,7 @@ python -m torch.distributed.launch --nproc_per_node=$NUM_PROC --master_port `exp
     --target flops_params \
     --target_flops ${flops} \
     --target_params ${params} \
+    --search-iter ${iteration} \
     --seed 0 \
     --output $log_path \
     > $log_path/../Online_BurgerFormer_ImageNet-100.log
