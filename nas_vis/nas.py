@@ -532,9 +532,33 @@ class MainWindow(QMainWindow):
             self.finish_timer.stop()
             QMessageBox.information(self, "Complete", f"{self.cur_method} online mode end !")
             if self.cur_method == 'DARTS':
-                self.ui.label_results.setText('Params: 2.5M\tTop-1: 97.01')
+                for line in lines[::-1]:
+                    if "valid_acc" in line:
+                        line_break = line.split()
+                        valid_acc = line_break[line_break.index("valid_acc")+1]
+                        valid_acc = float(valid_acc)
+                        break
+                for line in lines[::-1]:
+                    if "param size = " in line:
+                        line_break = line.split()
+                        param_size = line_break[line_break.index("=")+1]
+                        param_size = float(param_size)
+                        break
+                self.ui.label_results.setText(f'Params: {param_size:.1f}M  Top-1: {valid_acc:.1f}')
             elif self.cur_method == 'GDAS':
-                self.ui.label_results.setText('Params: 3.9M\tTop-1: 97.30')
+                for line in lines[::-1]:
+                    if "valid_acc" in line:
+                        line_break = line.split()
+                        valid_acc = line_break[line_break.index("valid_acc")+1]
+                        valid_acc = float(valid_acc)
+                        break
+                for line in lines[::-1]:
+                    if "Params = " in line:
+                        line_break = line.split()
+                        param_size = line_break[line_break.index("Params")+2]
+                        param_size = float(param_size)
+                        break
+                self.ui.label_results.setText(f'Params: {param_size:.1f}M  Top-1: {valid_acc:.1f}')
             elif self.cur_method == 'BurgerFormer':
                 self.ui.label_results.setText('FLOPs: 1.1G\nParams: 10.1M\nTop-1: 87.16')
             else:
