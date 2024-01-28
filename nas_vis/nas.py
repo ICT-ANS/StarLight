@@ -500,9 +500,11 @@ class MainWindow(QMainWindow):
             #           ' {}'.format(self.args['dataset']) + \
             #           ' {}'.format(self.args['method'])
             debug = False
+            hyper_parameters = self.diag.get_dict_data()
+            epochs = int(hyper_parameters['epochs'])
 
-            command = 'bash %s %s %s %s' % \
-                    (os.path.join(C.current_dir, 'online/online_run.sh'), self.cur_method, C.work_dir, debug)
+            command = 'bash %s %s %s %s %s' % \
+                    (os.path.join(C.current_dir, 'online/online_run.sh'), self.cur_method, C.work_dir, debug, epochs)
             sub_process = subprocess.Popen(command, shell=True)
 
         # print('[PID: %s] %s' % (sub_process.pid, command))

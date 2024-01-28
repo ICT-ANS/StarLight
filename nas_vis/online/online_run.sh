@@ -1,6 +1,7 @@
 Method=$1
 WorkDir=$2
 Debug=$3
+epochs=$4
 
 if [ ${Method} == 'DARTS' ] ;then
     echo "Method=${Method}, WorkDir=${WorkDir}, Debug=${Debug}"
@@ -9,6 +10,7 @@ if [ ${Method} == 'DARTS' ] ;then
     LogPath="${WorkDir}/data/StarLight_Cache/nas.classification/DARTS/logdir/Online_DARTS_CIFAR-10.log"
 
     nohup python -u ${ScriptName} --data ${DataDir} --debug ${Debug} \
+    --epochs ${epochs} \
     > ${LogPath} 2>&1 &
     
 elif [ ${Method} == 'GDAS' ] ;then
