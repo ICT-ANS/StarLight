@@ -41,4 +41,16 @@ default_setting:
     prune_sparisity: 0.3
     gpus: "0"
   
+  stanford-dogs,mbnet:
+    ft_lr: 1e-4
+    ft_bs: 32
+    ft_epochs: 2
+    prune_sparisity: 0.2
+    gpus: "0"
 
+  VOC,yolov5:
+    ft_lr: 0.01
+    ft_bs: 32
+    ft_epochs: 1
+    prune_sparisity: 0.3
+    gpus: "0"
