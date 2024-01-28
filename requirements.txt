@@ -13,5 +13,6 @@ PyQt5==5.12
 PyQtWebEngine==5.12
 onnx
 torch-summary
+pdf2image
 # tensorrt
 # pycuda
