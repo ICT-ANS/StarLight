@@ -34,7 +34,7 @@ import json
 import yaml
 cgitb.enable(format='text')
 
-from torchvision import models
+# from torchvision import models
 import psutil
 import subprocess
 
