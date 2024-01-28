@@ -69,7 +69,7 @@ def main():
     criterion = criterion.to(device)
     model = Network(args.init_channels, CIFAR_CLASSES, args.layers, criterion)
     model = model.to(device)
-    logging.info("param size = %fMB", utils.count_parameters_in_MB(model))
+    logging.info("param size = %f MB", utils.count_parameters_in_MB(model))
 
     optimizer = torch.optim.SGD(
         model.parameters(),
