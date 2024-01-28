@@ -213,6 +213,8 @@ def main(xargs):
     logger.log('GDAS : run {:} epochs, cost {:.1f} s, last-geno is {:}.'.format(total_epoch, search_time.sum,
                                                                                 genotypes[total_epoch - 1]))
 
+    logger.log('END OF ALL !!!')
+
     logger.close()
 
 

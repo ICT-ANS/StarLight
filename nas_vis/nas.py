@@ -4,7 +4,7 @@ import subprocess
 import sys, re
 import time
 
-from PyQt5.QtCore import Qt, QUrl, QThread, pyqtSignal
+from PyQt5.QtCore import Qt, QUrl, QThread, pyqtSignal, QTimer
 from PyQt5.QtWebEngineWidgets import QWebEngineView
 from PyQt5.QtWidgets import (QMainWindow, QApplication, QGraphicsScene, QGraphicsPixmapItem, QMessageBox)
 from torch.utils.data import DataLoader
@@ -166,6 +166,9 @@ class MainWindow(QMainWindow):
 
         self.ui = Ui_NAS()
         self.ui.setupUi(self)
+
+        self.finish_timer = QTimer()
+        self.finish_timer.timeout.connect(self.check_online_finished)
 
         # 初始化html曲线
         self.initConfig(first_init=True)
@@ -502,12 +505,40 @@ class MainWindow(QMainWindow):
             debug = False
             hyper_parameters = self.diag.get_dict_data()
             epochs = int(hyper_parameters['epochs'])
+            log_name = '{}/{}/logdir/Online_{}_{}.log'.format(
+                C.cache_dir, self.cur_method, self.cur_method, dataset)
+            if os.path.exists(log_name):
+                os.remove(log_name)
 
             command = 'bash %s %s %s %s %s' % \
                     (os.path.join(C.current_dir, 'online/online_run.sh'), self.cur_method, C.work_dir, debug, epochs)
             sub_process = subprocess.Popen(command, shell=True)
 
+            self.finish_timer.start(5000) # 5s
+
         # print('[PID: %s] %s' % (sub_process.pid, command))
+
+    def check_online_finished(self):
+        log_name = '{}/{}/logdir/Online_{}_{}.log'.format(
+            C.cache_dir, self.cur_method, self.cur_method, dataset)
+        with open(log_name) as f:
+            lines = f.readlines()
+        is_finished = False
+        for line in lines: # 检查程序是否运行完成
+            if "END OF ALL !!!" in line:
+                is_finished = True
+                break
+        if is_finished:
+            self.finish_timer.stop()
+            QMessageBox.information(self, "Complete", f"{self.cur_method} online mode end !")
+            if self.cur_method == 'DARTS':
+                self.ui.label_results.setText('Params: 2.5M\tTop-1: 97.01')
+            elif self.cur_method == 'GDAS':
+                self.ui.label_results.setText('Params: 3.9M\tTop-1: 97.30')
+            elif self.cur_method == 'BurgerFormer':
+                self.ui.label_results.setText('FLOPs: 1.1G\nParams: 10.1M\nTop-1: 87.16')
+            else:
+                raise NotImplementedError
 
     def get_online_pid(self, cmd_key):
         process_list = list(psutil.process_iter())

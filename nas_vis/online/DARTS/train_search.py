@@ -44,6 +44,8 @@ parser.add_argument('--arch_weight_decay', type=float, default=1e-3, help='weigh
 
 args = parser.parse_args()
 
+print(f"{args.epochs = }")
+
 args.save = 'search-{}-{}'.format(args.save, time.strftime("%Y%m%d-%H%M%S"))
 
 log_format = '%(asctime)s %(message)s'
@@ -122,6 +124,8 @@ def main():
 
         logging.info('current ev 0.0')
         # utils.save(model, os.path.join(args.save, 'weights.pt'))
+
+    logging.info('END OF ALL !!!')
 
 
 def train(train_queue, valid_queue, model, architect, criterion, optimizer, lr):
