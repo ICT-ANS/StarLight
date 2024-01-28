@@ -39,7 +39,7 @@ log_path="${workdir}/data/StarLight_Cache/nas.classification/BurgerFormer/logdir
 mkdir -p $log_path
 
 CUDA_VISIBLE_DEVICES=$gpu \
-python -m torch.distributed.launch --nproc_per_node=$NUM_PROC --master_port `expr 123456` \
+python -m torch.distributed.launch --nproc_per_node=$NUM_PROC --master_port `expr 12345` \
     $workdir/nas_vis/nas_burgerformer/search_evo.py \
     --data-dir $data_dir \
     --model unifiedarch_s20 \
