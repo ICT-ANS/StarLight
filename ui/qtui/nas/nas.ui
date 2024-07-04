@@ -74,11 +74,11 @@
                    <string>CIFAR-10</string>
                   </property>
                  </item>
-                 <item>
+                 <!-- <item>
                   <property name="text">
                    <string>ImageNet-100</string>
                   </property>
-                 </item>
+                 </item> -->
                 </widget>
                </item>
               </layout>
@@ -149,11 +149,11 @@
                    <string>GDAS</string>
                   </property>
                  </item>
-                 <item>
+                 <!-- <item>
                   <property name="text">
                    <string>BurgerFormer</string>
                   </property>
-                 </item>
+                 </item> -->
                 </widget>
                </item>
               </layout>
