@@ -9,10 +9,10 @@ dataset,model:
   - 'null,null'
   - TinyImageNet,ResNet50
   - TinyImageNet,ResNet101
-  - VOC,ResNet50SSD
-  - VOC,VGGSSD
-  - Cityscapes,DeepLabV3
-  - Cityscapes,PSPNet
+  # - VOC,ResNet50SSD
+  # - VOC,VGGSSD
+  # - Cityscapes,DeepLabV3
+  # - Cityscapes,PSPNet
   - stanford-dogs,mbnet
   - VOC,yolov5
 
