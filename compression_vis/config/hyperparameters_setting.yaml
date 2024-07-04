@@ -52,5 +52,5 @@ default_setting:
     ft_lr: 0.01
     ft_bs: 32
     ft_epochs: 1
-    prune_sparisity: 0.3
+    prune_sparisity: 0.25
     gpus: "0"
